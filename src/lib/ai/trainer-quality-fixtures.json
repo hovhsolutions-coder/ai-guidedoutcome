@@ -1,0 +1,288 @@
+{
+  "trainerQualityScenarios": [
+    {
+      "id": "launch-alignment-strategy",
+      "group_id": "launch-alignment",
+      "trainer": "strategy",
+      "title": "Launch alignment / strategy read",
+      "input": {
+        "trainer": "strategy",
+        "situation": "A product marketing lead is trying to align launch work across pricing, messaging, enablement, and onboarding, but the team is spreading effort across too many parallel branches.",
+        "main_goal": "Reduce the launch plan to one workable mission thread for the next two weeks.",
+        "phase": "Structuring",
+        "tasks": [
+          "Rewrite messaging",
+          "Update pricing page",
+          "Prepare sales deck",
+          "Refresh onboarding emails",
+          "Define launch sequence",
+          "Assign owners"
+        ],
+        "current_objective": "Define the launch sequence that should anchor the rollout.",
+        "guidance_next_step": "Define the launch sequence that should anchor the rollout."
+      },
+      "expected": {
+        "angle": [
+          "narrow direction",
+          "frame tradeoffs",
+          "identify leverage or sequencing anchor"
+        ],
+        "next_move": [
+          "should force a directional choice rather than operational busywork"
+        ]
+      },
+      "rejectIf": [
+        "sounds like execution-only task management",
+        "fails to reduce competing branches"
+      ]
+    },
+    {
+      "id": "launch-alignment-execution",
+      "group_id": "launch-alignment",
+      "trainer": "execution",
+      "title": "Launch alignment / execution read",
+      "input": {
+        "trainer": "execution",
+        "situation": "A product marketing lead is trying to align launch work across pricing, messaging, enablement, and onboarding, but the team is spreading effort across too many parallel branches.",
+        "main_goal": "Reduce the launch plan to one workable mission thread for the next two weeks.",
+        "phase": "Structuring",
+        "tasks": [
+          "Rewrite messaging",
+          "Update pricing page",
+          "Prepare sales deck",
+          "Refresh onboarding emails",
+          "Define launch sequence",
+          "Assign owners"
+        ],
+        "current_objective": "Define the launch sequence that should anchor the rollout.",
+        "guidance_next_step": "Define the launch sequence that should anchor the rollout."
+      },
+      "expected": {
+        "angle": [
+          "produce an operational move",
+          "reduce friction",
+          "make the sequence executable"
+        ],
+        "next_move": [
+          "should be immediately actionable and operational"
+        ]
+      },
+      "rejectIf": [
+        "sounds motivational instead of operational",
+        "stays abstract about execution"
+      ]
+    },
+    {
+      "id": "launch-alignment-risk",
+      "group_id": "launch-alignment",
+      "trainer": "risk",
+      "title": "Launch alignment / risk read",
+      "input": {
+        "trainer": "risk",
+        "situation": "A product marketing lead is trying to align launch work across pricing, messaging, enablement, and onboarding, but the team is spreading effort across too many parallel branches.",
+        "main_goal": "Reduce the launch plan to one workable mission thread for the next two weeks.",
+        "phase": "Structuring",
+        "tasks": [
+          "Rewrite messaging",
+          "Update pricing page",
+          "Prepare sales deck",
+          "Refresh onboarding emails",
+          "Define launch sequence",
+          "Assign owners"
+        ],
+        "current_objective": "Define the launch sequence that should anchor the rollout.",
+        "guidance_next_step": "Define the launch sequence that should anchor the rollout."
+      },
+      "expected": {
+        "angle": [
+          "identify exposure or watchpoint",
+          "pair the risk with a protective adjustment or verification"
+        ],
+        "next_move": [
+          "should check or contain a meaningful downside"
+        ]
+      },
+      "rejectIf": [
+        "becomes alarmist",
+        "sounds like generic strategy advice"
+      ]
+    },
+    {
+      "id": "launch-alignment-communication",
+      "group_id": "launch-alignment",
+      "trainer": "communication",
+      "title": "Launch alignment / communication read",
+      "input": {
+        "trainer": "communication",
+        "situation": "A product marketing lead is trying to align launch work across pricing, messaging, enablement, and onboarding, but the team is spreading effort across too many parallel branches.",
+        "main_goal": "Reduce the launch plan to one workable mission thread for the next two weeks.",
+        "phase": "Structuring",
+        "tasks": [
+          "Rewrite messaging",
+          "Update pricing page",
+          "Prepare sales deck",
+          "Refresh onboarding emails",
+          "Define launch sequence",
+          "Assign owners"
+        ],
+        "current_objective": "Define the launch sequence that should anchor the rollout.",
+        "guidance_next_step": "Define the launch sequence that should anchor the rollout."
+      },
+      "expected": {
+        "angle": [
+          "shape a dossier-aware alignment message",
+          "improve clarity, tone fit, or positioning"
+        ],
+        "next_move": [
+          "should produce a communication move, not generic writing help"
+        ]
+      },
+      "rejectIf": [
+        "reads like generic copywriting help",
+        "ignores the actual mission context"
+      ]
+    },
+    {
+      "id": "sensitive-response-strategy",
+      "group_id": "sensitive-response",
+      "trainer": "strategy",
+      "title": "Sensitive response / strategy read",
+      "input": {
+        "trainer": "strategy",
+        "situation": "A founder needs to respond to an enterprise customer after delaying a promised capability, and must preserve trust without overcommitting the roadmap.",
+        "main_goal": "Protect the account while keeping the roadmap position controlled.",
+        "phase": "Action",
+        "tasks": [
+          "Confirm actual delivery confidence",
+          "Prepare customer response",
+          "Align internal account team"
+        ],
+        "current_objective": "Prepare the decision explanation for the customer without creating new commitments.",
+        "guidance_next_step": "Prepare the decision explanation for the customer without creating new commitments."
+      },
+      "expected": {
+        "angle": [
+          "frame the strategic position",
+          "protect leverage and tradeoffs"
+        ],
+        "next_move": [
+          "should narrow the positioning choice"
+        ]
+      },
+      "rejectIf": [
+        "collapses into pure wording help",
+        "forgets the strategic commitment risk"
+      ]
+    },
+    {
+      "id": "sensitive-response-execution",
+      "group_id": "sensitive-response",
+      "trainer": "execution",
+      "title": "Sensitive response / execution read",
+      "input": {
+        "trainer": "execution",
+        "situation": "A founder needs to respond to an enterprise customer after delaying a promised capability, and must preserve trust without overcommitting the roadmap.",
+        "main_goal": "Protect the account while keeping the roadmap position controlled.",
+        "phase": "Action",
+        "tasks": [
+          "Confirm actual delivery confidence",
+          "Prepare customer response",
+          "Align internal account team"
+        ],
+        "current_objective": "Prepare the decision explanation for the customer without creating new commitments.",
+        "guidance_next_step": "Prepare the decision explanation for the customer without creating new commitments."
+      },
+      "expected": {
+        "angle": [
+          "turn the response into an operational sequence",
+          "remove friction from the next move"
+        ],
+        "next_move": [
+          "should describe a practical action to execute now"
+        ]
+      },
+      "rejectIf": [
+        "sounds like strategy framing only",
+        "is too vague to execute immediately"
+      ]
+    },
+    {
+      "id": "sensitive-response-risk",
+      "group_id": "sensitive-response",
+      "trainer": "risk",
+      "title": "Sensitive response / risk read",
+      "input": {
+        "trainer": "risk",
+        "situation": "A founder needs to respond to an enterprise customer after delaying a promised capability, and must preserve trust without overcommitting the roadmap.",
+        "main_goal": "Protect the account while keeping the roadmap position controlled.",
+        "phase": "Action",
+        "tasks": [
+          "Confirm actual delivery confidence",
+          "Prepare customer response",
+          "Align internal account team"
+        ],
+        "current_objective": "Prepare the decision explanation for the customer without creating new commitments.",
+        "guidance_next_step": "Prepare the decision explanation for the customer without creating new commitments."
+      },
+      "expected": {
+        "angle": [
+          "identify exposure",
+          "pair it with verification or protective adjustment"
+        ],
+        "next_move": [
+          "should help contain downside before speaking too broadly"
+        ]
+      },
+      "rejectIf": [
+        "becomes alarmist",
+        "fails to include a measured protective move"
+      ]
+    },
+    {
+      "id": "sensitive-response-communication",
+      "group_id": "sensitive-response",
+      "trainer": "communication",
+      "title": "Sensitive response / communication read",
+      "input": {
+        "trainer": "communication",
+        "situation": "A founder needs to respond to an enterprise customer after delaying a promised capability, and must preserve trust without overcommitting the roadmap.",
+        "main_goal": "Protect the account while keeping the roadmap position controlled.",
+        "phase": "Action",
+        "tasks": [
+          "Confirm actual delivery confidence",
+          "Prepare customer response",
+          "Align internal account team"
+        ],
+        "current_objective": "Prepare the decision explanation for the customer without creating new commitments.",
+        "guidance_next_step": "Prepare the decision explanation for the customer without creating new commitments."
+      },
+      "expected": {
+        "angle": [
+          "shape a sensitive response with the right tone and position",
+          "stay dossier-aware rather than generic writing support"
+        ],
+        "next_move": [
+          "should produce a usable communication move"
+        ]
+      },
+      "rejectIf": [
+        "sounds like a generic email assistant",
+        "fails to protect position while communicating clearly"
+      ]
+    }
+  ],
+  "strongOutputPatterns": [
+    "Strategy narrows direction, leverage, sequencing, or tradeoffs.",
+    "Execution turns the mission into an operational move with clear friction reduction.",
+    "Risk identifies a watchpoint and pairs it with verification or protective adjustment.",
+    "Communication shapes a dossier-aware message, positioning move, or stakeholder-facing phrasing."
+  ],
+  "commonFailurePatterns": [
+    "Different trainers sound too similar in angle or structure.",
+    "next_move is vague, abstract, or detached from the trainer role.",
+    "Communication drifts into generic writing help.",
+    "Risk becomes alarmist instead of measured.",
+    "Execution becomes motivational instead of operational.",
+    "Strategy stays abstract without narrowing the mission."
+  ]
+}

@@ -1,0 +1,646 @@
+{
+  "guidanceQualityScenarios": [
+    {
+      "id": "understanding-01",
+      "title": "Understanding / blank slate / first foothold",
+      "phase": "Understanding",
+      "userState": "starting_from_zero",
+      "dossierState": {
+        "situation": "A founder has strong anecdotal demand for a new B2B analytics feature but no validated evidence about which customer segment would actually buy first.",
+        "main_goal": "Decide whether to invest in building the analytics feature this quarter.",
+        "phase": "Understanding",
+        "tasks": [],
+        "completedTaskCount": 0,
+        "progressSignal": "none",
+        "hesitationMoment": "The user does not know what first move would reduce uncertainty fastest."
+      },
+      "input": {
+        "action": "guidance",
+        "situation": "A founder has strong anecdotal demand for a new B2B analytics feature but no validated evidence about which customer segment would actually buy first.",
+        "main_goal": "Decide whether to invest in building the analytics feature this quarter.",
+        "phase": "Understanding",
+        "tasks": [],
+        "user_input": "What should I do first?",
+        "triggerType": "manual"
+      },
+      "expected": {
+        "situationRead": [
+          "Names the core uncertainty explicitly",
+          "Frames the goal as a decision, not a general exploration"
+        ],
+        "nextStep": [
+          "Chooses one fact-finding move only",
+          "Uses a decisive verb such as choose, define, capture, or validate"
+        ],
+        "suggestedTasks": [
+          "Support the same uncertainty-reduction move",
+          "Stay concrete and short-horizon"
+        ],
+        "decisionPrompt": [
+          "Should point toward one binary decision about which unknown to resolve first"
+        ]
+      },
+      "rejectIf": [
+        "Suggests broad market research with no concrete angle",
+        "Uses phrasing like \"consider\", \"explore\", or \"start by reviewing\"",
+        "Provides more than one equally weighted next step"
+      ]
+    },
+    {
+      "id": "understanding-02",
+      "title": "Understanding / stuck with scattered tasks",
+      "phase": "Understanding",
+      "userState": "stuck_mid_process",
+      "dossierState": {
+        "situation": "A team is investigating rising churn but has collected scattered notes from support, product, and sales without a clear pattern yet.",
+        "main_goal": "Identify the most likely cause of churn within one week.",
+        "phase": "Understanding",
+        "tasks": ["Pull the last 20 churned accounts", "Review support complaints", "Check onboarding funnel drop-off"],
+        "completedTaskCount": 0,
+        "progressSignal": "planning_only",
+        "hesitationMoment": "The user has tasks, but still does not know which one should become the focal point."
+      },
+      "input": {
+        "action": "guidance",
+        "situation": "A team is investigating rising churn but has collected scattered notes from support, product, and sales without a clear pattern yet.",
+        "main_goal": "Identify the most likely cause of churn within one week.",
+        "phase": "Understanding",
+        "tasks": ["Pull the last 20 churned accounts", "Review support complaints", "Check onboarding funnel drop-off"],
+        "user_input": "I have a few tasks already but I still feel stuck.",
+        "triggerType": "manual"
+      },
+      "expected": {
+        "situationRead": [
+          "Acknowledges that the work is scattered and needs one focal proof point"
+        ],
+        "nextStep": [
+          "Locks onto one existing task explicitly",
+          "Explains why that task best reduces uncertainty"
+        ],
+        "suggestedTasks": [
+          "Support the chosen task instead of inventing a parallel investigation"
+        ],
+        "decisionPrompt": [
+          "Should narrow to a yes/no style choice about which evidence source matters most"
+        ]
+      },
+      "rejectIf": [
+        "Introduces a new unrelated research task",
+        "Keeps all three tasks equally active",
+        "Uses generic strategy language with no reference to the existing queue"
+      ]
+    },
+    {
+      "id": "understanding-03",
+      "title": "Understanding / too many tasks / needs ruthless focus",
+      "phase": "Understanding",
+      "userState": "too_many_tasks",
+      "dossierState": {
+        "situation": "An operations lead is diagnosing delayed enterprise onboarding and has already listed many possible causes across sales handoff, provisioning, training, and compliance review.",
+        "main_goal": "Find the primary cause of onboarding delays before the next leadership review.",
+        "phase": "Understanding",
+        "tasks": [
+          "Interview account managers",
+          "Review provisioning checklist",
+          "Check training completion logs",
+          "Analyze compliance review cycle time",
+          "Map onboarding journey",
+          "Summarize top complaints"
+        ],
+        "completedTaskCount": 0,
+        "progressSignal": "planning_only",
+        "hesitationMoment": "The user has too many reasonable tasks and no obvious forcing function."
+      },
+      "input": {
+        "action": "guidance",
+        "situation": "An operations lead is diagnosing delayed enterprise onboarding and has already listed many possible causes across sales handoff, provisioning, training, and compliance review.",
+        "main_goal": "Find the primary cause of onboarding delays before the next leadership review.",
+        "phase": "Understanding",
+        "tasks": [
+          "Interview account managers",
+          "Review provisioning checklist",
+          "Check training completion logs",
+          "Analyze compliance review cycle time",
+          "Map onboarding journey",
+          "Summarize top complaints"
+        ],
+        "user_input": "There are too many possible next moves. Which one matters most?",
+        "triggerType": "quick_action"
+      },
+      "expected": {
+        "situationRead": [
+          "Recognizes that task overload is the actual friction point"
+        ],
+        "nextStep": [
+          "Selects the one task most likely to isolate the primary delay source"
+        ],
+        "suggestedTasks": [
+          "Trim the work around the chosen task",
+          "Reduce analysis spread rather than expand it"
+        ],
+        "decisionPrompt": [
+          "Should frame a binary tradeoff, not an open brainstorm"
+        ]
+      },
+      "rejectIf": [
+        "Returns another long list of possibilities",
+        "Suggests doing several tasks in parallel",
+        "Fails to reduce scope"
+      ]
+    },
+    {
+      "id": "structuring-01",
+      "title": "Structuring / no tasks / turn thinking into plan",
+      "phase": "Structuring",
+      "userState": "starting_from_zero",
+      "dossierState": {
+        "situation": "A product team has agreed on a pricing experiment direction but has not translated it into an execution plan.",
+        "main_goal": "Launch a controlled pricing test next month.",
+        "phase": "Structuring",
+        "tasks": [],
+        "completedTaskCount": 0,
+        "progressSignal": "none",
+        "hesitationMoment": "The user knows the direction but has no operating structure yet."
+      },
+      "input": {
+        "action": "guidance",
+        "situation": "A product team has agreed on a pricing experiment direction but has not translated it into an execution plan.",
+        "main_goal": "Launch a controlled pricing test next month.",
+        "phase": "Structuring",
+        "tasks": [],
+        "user_input": "How do I turn this into a real plan?",
+        "triggerType": "manual"
+      },
+      "expected": {
+        "situationRead": [
+          "States that structure, sequence, and ownership are now the central need"
+        ],
+        "nextStep": [
+          "Forces one planning move such as defining sequence, owner, or success criteria"
+        ],
+        "suggestedTasks": [
+          "Translate the plan into discrete execution-ready tasks"
+        ],
+        "decisionPrompt": [
+          "Should ask for one concrete structural choice, not broad planning"
+        ]
+      },
+      "rejectIf": [
+        "Falls back into discovery work",
+        "Suggests generic planning without ownership or order",
+        "Uses weak verbs like review or assess"
+      ]
+    },
+    {
+      "id": "structuring-02",
+      "title": "Structuring / tasks exist / unclear priority",
+      "phase": "Structuring",
+      "userState": "stuck_mid_process",
+      "dossierState": {
+        "situation": "A revops manager is building a lead-routing redesign and already has candidate tasks, but nobody agrees which dependency matters first.",
+        "main_goal": "Finalize a workable lead-routing rollout plan this week.",
+        "phase": "Structuring",
+        "tasks": ["Define routing rules", "Confirm Salesforce constraints", "Assign rollout owner"],
+        "completedTaskCount": 0,
+        "progressSignal": "planning_only",
+        "hesitationMoment": "The user has a plan skeleton but no forced sequence."
+      },
+      "input": {
+        "action": "guidance",
+        "situation": "A revops manager is building a lead-routing redesign and already has candidate tasks, but nobody agrees which dependency matters first.",
+        "main_goal": "Finalize a workable lead-routing rollout plan this week.",
+        "phase": "Structuring",
+        "tasks": ["Define routing rules", "Confirm Salesforce constraints", "Assign rollout owner"],
+        "user_input": "Which task should drive the plan first?",
+        "triggerType": "quick_action"
+      },
+      "expected": {
+        "situationRead": [
+          "Identifies the missing forced order as the main blocker"
+        ],
+        "nextStep": [
+          "Chooses one existing task and makes it the sequencing anchor"
+        ],
+        "suggestedTasks": [
+          "Support the chosen task by clearing dependencies or defining success"
+        ],
+        "decisionPrompt": [
+          "Should resolve a concrete dependency question"
+        ]
+      },
+      "rejectIf": [
+        "Treats all tasks as equally important",
+        "Invents new work before sequencing the existing plan"
+      ]
+    },
+    {
+      "id": "structuring-03",
+      "title": "Structuring / momentum exists / keep plan tightening",
+      "phase": "Structuring",
+      "userState": "continuing_momentum",
+      "dossierState": {
+        "situation": "A founder has already defined customer segments and pricing boundaries for a services offer and now needs to lock the operating model.",
+        "main_goal": "Finalize a launch-ready offer structure by Friday.",
+        "phase": "Structuring",
+        "tasks": ["Define delivery scope", "Write offer tiers", "Choose launch owner"],
+        "completedTaskCount": 1,
+        "progressSignal": "momentum_visible",
+        "hesitationMoment": "The user has traction, but may drift back into polishing instead of locking decisions."
+      },
+      "input": {
+        "action": "guidance",
+        "situation": "A founder has already defined customer segments and pricing boundaries for a services offer and now needs to lock the operating model.",
+        "main_goal": "Finalize a launch-ready offer structure by Friday.",
+        "phase": "Structuring",
+        "tasks": ["Define delivery scope", "Write offer tiers", "Choose launch owner"],
+        "user_input": "We already made some progress. What should happen next?",
+        "triggerType": "manual"
+      },
+      "expected": {
+        "situationRead": [
+          "Recognizes that momentum exists and should be preserved"
+        ],
+        "nextStep": [
+          "Pushes a continuation step tied to the current task queue",
+          "Avoids reopening earlier strategic questions"
+        ],
+        "suggestedTasks": [
+          "Tighten the plan around the next unresolved dependency"
+        ],
+        "decisionPrompt": [
+          "Should sound like a forced choice that protects pace"
+        ]
+      },
+      "rejectIf": [
+        "Suggests returning to market exploration",
+        "Encourages more planning instead of closure",
+        "Ignores visible progress"
+      ]
+    },
+    {
+      "id": "action-01",
+      "title": "Action / tasks exist / no completed work yet",
+      "phase": "Action",
+      "userState": "stuck_mid_process",
+      "dossierState": {
+        "situation": "A team is launching a webinar funnel and has the work defined, but no execution has actually started.",
+        "main_goal": "Launch the webinar funnel before the campaign window closes.",
+        "phase": "Action",
+        "tasks": ["Write registration page copy", "Send speaker brief", "Build reminder emails"],
+        "completedTaskCount": 0,
+        "progressSignal": "planning_only",
+        "hesitationMoment": "The team has a queue but still has not made the first visible move."
+      },
+      "input": {
+        "action": "guidance",
+        "situation": "A team is launching a webinar funnel and has the work defined, but no execution has actually started.",
+        "main_goal": "Launch the webinar funnel before the campaign window closes.",
+        "phase": "Action",
+        "tasks": ["Write registration page copy", "Send speaker brief", "Build reminder emails"],
+        "user_input": "We have tasks but still have not started. What now?",
+        "triggerType": "manual"
+      },
+      "expected": {
+        "situationRead": [
+          "Names the real issue as lack of visible execution"
+        ],
+        "nextStep": [
+          "Locks onto one existing task and pushes immediate completion or progress"
+        ],
+        "suggestedTasks": [
+          "Help the chosen task move faster instead of widening scope"
+        ],
+        "decisionPrompt": [
+          "Should force a first-win choice"
+        ]
+      },
+      "rejectIf": [
+        "Talks about planning instead of doing",
+        "Returns a generic \"start executing\" message with no object"
+      ]
+    },
+    {
+      "id": "action-02",
+      "title": "Action / momentum exists / keep moving",
+      "phase": "Action",
+      "userState": "continuing_momentum",
+      "dossierState": {
+        "situation": "A hiring lead has already finished role definitions and candidate outreach, and interviews are now underway.",
+        "main_goal": "Close two senior hires this month.",
+        "phase": "Action",
+        "tasks": ["Run final interview debriefs", "Complete reference checks", "Draft offer package"],
+        "completedTaskCount": 2,
+        "progressSignal": "momentum_visible",
+        "hesitationMoment": "The user might reopen planning instead of pushing the next closing step."
+      },
+      "input": {
+        "action": "guidance",
+        "situation": "A hiring lead has already finished role definitions and candidate outreach, and interviews are now underway.",
+        "main_goal": "Close two senior hires this month.",
+        "phase": "Action",
+        "tasks": ["Run final interview debriefs", "Complete reference checks", "Draft offer package"],
+        "user_input": "Momentum is good right now. What is the next move?",
+        "triggerType": "manual"
+      },
+      "expected": {
+        "situationRead": [
+          "Acknowledges active momentum and risk of losing pace"
+        ],
+        "nextStep": [
+          "Pushes continuation or completion, not more design work"
+        ],
+        "suggestedTasks": [
+          "Directly unblock or complete the chosen action task"
+        ],
+        "decisionPrompt": [
+          "Should force a next-closing choice"
+        ]
+      },
+      "rejectIf": [
+        "Suggests more strategic reflection",
+        "Introduces new planning work unrelated to the closing sequence"
+      ]
+    },
+    {
+      "id": "action-03",
+      "title": "Action / too many tasks / execution clutter",
+      "phase": "Action",
+      "userState": "too_many_tasks",
+      "dossierState": {
+        "situation": "A go-to-market lead is running a launch week with many open items across content, enablement, tracking, and partner communication.",
+        "main_goal": "Hit launch week without a critical gap.",
+        "phase": "Action",
+        "tasks": [
+          "Finalize launch email",
+          "Update sales enablement deck",
+          "QA analytics events",
+          "Send partner briefing",
+          "Review support macro",
+          "Check launch-day runbook"
+        ],
+        "completedTaskCount": 1,
+        "progressSignal": "momentum_visible",
+        "hesitationMoment": "The user is in motion but surrounded by too many plausible next actions."
+      },
+      "input": {
+        "action": "guidance",
+        "situation": "A go-to-market lead is running a launch week with many open items across content, enablement, tracking, and partner communication.",
+        "main_goal": "Hit launch week without a critical gap.",
+        "phase": "Action",
+        "tasks": [
+          "Finalize launch email",
+          "Update sales enablement deck",
+          "QA analytics events",
+          "Send partner briefing",
+          "Review support macro",
+          "Check launch-day runbook"
+        ],
+        "user_input": "There are too many live tasks. Which one should we push right now?",
+        "triggerType": "quick_action"
+      },
+      "expected": {
+        "situationRead": [
+          "Recognizes that execution clutter, not uncertainty, is the main friction"
+        ],
+        "nextStep": [
+          "Selects one task that protects launch quality most directly"
+        ],
+        "suggestedTasks": [
+          "Support that exact task or remove blockers around it"
+        ],
+        "decisionPrompt": [
+          "Should ask a binary quality/risk tradeoff question"
+        ]
+      },
+      "rejectIf": [
+        "Returns a broad prioritization lecture",
+        "Suggests doing several tasks simultaneously",
+        "Fails to collapse the queue into one current action"
+      ]
+    },
+    {
+      "id": "understanding-04",
+      "title": "Understanding / unclear input / weak signal",
+      "phase": "Understanding",
+      "userState": "starting_from_zero",
+      "dossierState": {
+        "situation": "A team believes something is wrong in enterprise expansion, but the user only knows that recent deals feel slower and less predictable.",
+        "main_goal": "Identify the first useful angle to investigate in enterprise slowdown.",
+        "phase": "Understanding",
+        "tasks": [],
+        "completedTaskCount": 0,
+        "progressSignal": "none",
+        "hesitationMoment": "The input is vague, so the AI must still force one useful first move."
+      },
+      "input": {
+        "action": "guidance",
+        "situation": "Something feels off in enterprise expansion, but the signal is still fuzzy.",
+        "main_goal": "Identify the first useful angle to investigate in enterprise slowdown.",
+        "phase": "Understanding",
+        "tasks": [],
+        "user_input": "I am not sure where to look yet.",
+        "triggerType": "manual"
+      },
+      "expected": {
+        "situationRead": [
+          "Acknowledges ambiguity without mirroring it back passively"
+        ],
+        "nextStep": [
+          "Forces one concrete first investigation angle"
+        ],
+        "suggestedTasks": [
+          "Support the chosen angle with specific evidence-gathering steps"
+        ],
+        "decisionPrompt": [
+          "Should collapse ambiguity into one binary starting choice"
+        ]
+      },
+      "rejectIf": [
+        "Repeats that more context is needed without proposing a concrete first move",
+        "Returns a vague exploration instruction"
+      ]
+    },
+    {
+      "id": "structuring-04",
+      "title": "Structuring / conflicting signals / multiple directions",
+      "phase": "Structuring",
+      "userState": "stuck_mid_process",
+      "dossierState": {
+        "situation": "A founder is choosing between a self-serve launch and a high-touch services offer. Both seem viable, but the team cannot structure the next quarter around both.",
+        "main_goal": "Choose one operating direction for the next quarter.",
+        "phase": "Structuring",
+        "tasks": ["Model self-serve funnel", "Model services delivery capacity", "Estimate team bandwidth"],
+        "completedTaskCount": 0,
+        "progressSignal": "planning_only",
+        "hesitationMoment": "Conflicting viable directions are blocking a usable operating plan."
+      },
+      "input": {
+        "action": "guidance",
+        "situation": "A founder is choosing between a self-serve launch and a high-touch services offer. Both seem viable, but the team cannot structure the next quarter around both.",
+        "main_goal": "Choose one operating direction for the next quarter.",
+        "phase": "Structuring",
+        "tasks": ["Model self-serve funnel", "Model services delivery capacity", "Estimate team bandwidth"],
+        "user_input": "We have two real directions. How do we force the decision?",
+        "triggerType": "manual"
+      },
+      "expected": {
+        "situationRead": [
+          "Names conflicting directions as the real blocker"
+        ],
+        "nextStep": [
+          "Forces one comparison or constraint-based decision move"
+        ],
+        "suggestedTasks": [
+          "Support the forcing decision rather than elaborating both paths"
+        ],
+        "decisionPrompt": [
+          "Should frame a binary operating choice"
+        ]
+      },
+      "rejectIf": [
+        "Encourages advancing both directions in parallel",
+        "Expands planning instead of forcing the decision"
+      ]
+    },
+    {
+      "id": "action-04",
+      "title": "Action / blocked user / urgency",
+      "phase": "Action",
+      "userState": "stuck_mid_process",
+      "dossierState": {
+        "situation": "A launch manager is blocked because legal approval has not arrived, and the customer announcement must go out today.",
+        "main_goal": "Unblock the customer announcement before end of day.",
+        "phase": "Action",
+        "tasks": ["Confirm legal approval status", "Prepare final customer email", "Update launch timeline"],
+        "completedTaskCount": 1,
+        "progressSignal": "momentum_visible",
+        "hesitationMoment": "Urgency is high, but the next move must remove the actual blocker instead of spreading effort."
+      },
+      "input": {
+        "action": "guidance",
+        "situation": "A launch manager is blocked because legal approval has not arrived, and the customer announcement must go out today.",
+        "main_goal": "Unblock the customer announcement before end of day.",
+        "phase": "Action",
+        "tasks": ["Confirm legal approval status", "Prepare final customer email", "Update launch timeline"],
+        "user_input": "We are blocked and the deadline is today. What do we do now?",
+        "triggerType": "quick_action"
+      },
+      "expected": {
+        "situationRead": [
+          "Names the blocker and urgency explicitly"
+        ],
+        "nextStep": [
+          "Targets the blocker first, not secondary work"
+        ],
+        "suggestedTasks": [
+          "Support unblock-first execution"
+        ],
+        "decisionPrompt": [
+          "Should force the fastest unblock choice"
+        ]
+      },
+      "rejectIf": [
+        "Suggests polishing secondary assets before removing the blocker",
+        "Ignores the same-day urgency"
+      ]
+    },
+    {
+      "id": "action-05",
+      "title": "Action / risk-sensitive / caution outranks speed",
+      "phase": "Action",
+      "userState": "continuing_momentum",
+      "dossierState": {
+        "situation": "A compliance lead is preparing a customer data migration with time pressure, but one missing privacy check could create legal exposure.",
+        "main_goal": "Complete the migration safely without creating compliance risk.",
+        "phase": "Action",
+        "tasks": ["Confirm privacy sign-off", "Finalize migration checklist", "Schedule migration window"],
+        "completedTaskCount": 1,
+        "progressSignal": "momentum_visible",
+        "hesitationMoment": "The team is moving, but safety and compliance should outrank pure speed."
+      },
+      "input": {
+        "action": "guidance",
+        "situation": "A compliance lead is preparing a customer data migration with time pressure, but one missing privacy check could create legal exposure.",
+        "main_goal": "Complete the migration safely without creating compliance risk.",
+        "phase": "Action",
+        "tasks": ["Confirm privacy sign-off", "Finalize migration checklist", "Schedule migration window"],
+        "user_input": "We need to move quickly, but we cannot create risk.",
+        "triggerType": "manual"
+      },
+      "expected": {
+        "situationRead": [
+          "Acknowledges that caution should outrank raw speed"
+        ],
+        "nextStep": [
+          "Names the highest-risk control step first"
+        ],
+        "suggestedTasks": [
+          "Support safe execution rather than faster execution alone"
+        ],
+        "decisionPrompt": [
+          "Should sound like a safety-first forced choice"
+        ]
+      },
+      "rejectIf": [
+        "Optimizes for speed while skipping the risk-control step",
+        "Fails to mention compliance or verification"
+      ]
+    },
+    {
+      "id": "structuring-05",
+      "title": "Structuring / overloaded plan / too many viable branches",
+      "phase": "Structuring",
+      "userState": "too_many_tasks",
+      "dossierState": {
+        "situation": "A PMM lead is building a launch plan with too many parallel workstreams across pricing, messaging, sales enablement, and onboarding updates.",
+        "main_goal": "Reduce the launch plan to one workable execution sequence.",
+        "phase": "Structuring",
+        "tasks": ["Rewrite messaging", "Update pricing page", "Prepare sales deck", "Refresh onboarding emails", "Define launch sequence", "Assign owners"],
+        "completedTaskCount": 0,
+        "progressSignal": "planning_only",
+        "hesitationMoment": "There are too many viable plan branches, so ownership and sequence are still blurry."
+      },
+      "input": {
+        "action": "guidance",
+        "situation": "A PMM lead is building a launch plan with too many parallel workstreams across pricing, messaging, sales enablement, and onboarding updates.",
+        "main_goal": "Reduce the launch plan to one workable execution sequence.",
+        "phase": "Structuring",
+        "tasks": ["Rewrite messaging", "Update pricing page", "Prepare sales deck", "Refresh onboarding emails", "Define launch sequence", "Assign owners"],
+        "user_input": "The plan keeps spreading. What should become the anchor now?",
+        "triggerType": "quick_action"
+      },
+      "expected": {
+        "situationRead": [
+          "Recognizes plan sprawl as the current problem"
+        ],
+        "nextStep": [
+          "Chooses one anchoring task for sequence and ownership"
+        ],
+        "suggestedTasks": [
+          "Support narrowing and ordering the plan"
+        ],
+        "decisionPrompt": [
+          "Should force one sequence-defining choice"
+        ]
+      },
+      "rejectIf": [
+        "Expands the list of active workstreams",
+        "Fails to reduce the plan to one anchor"
+      ]
+    }
+  ],
+  "strongOutputPatterns": [
+    "Uses one directive sentence for next_step, with one action only.",
+    "References an existing task explicitly when the queue already contains the right move.",
+    "Uses strong verbs such as define, choose, complete, write, capture, remove, send, or confirm.",
+    "Keeps suggested_tasks as supporting moves, not alternate strategies.",
+    "Preserves momentum by pushing continuation when progress already exists."
+  ],
+  "commonFailurePatterns": [
+    "Multiple competing next steps in the same response.",
+    "Weak verbs such as review, assess, consider, or explore without concrete object and outcome.",
+    "Suggested tasks that duplicate next_step or drift into a new workstream.",
+    "Open-ended guidance that leaves the prioritization burden on the user.",
+    "Planning-oriented guidance in Action phase after momentum is already visible."
+  ]
+}

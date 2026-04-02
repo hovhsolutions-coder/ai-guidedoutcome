@@ -1,0 +1,40 @@
+import Link from 'next/link';
+import React from 'react';
+import { type DossierPriorityModel } from '@/src/lib/dossiers/prioritization';
+
+interface BlockersPanelProps {
+  dossiers: DossierPriorityModel[];
+}
+
+export function BlockersPanel({ dossiers }: BlockersPanelProps) {
+  return (
+    <div className="ui-surface-primary p-6">
+      <div className="space-y-2">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--warning-strong)]">
+          Unblock queue
+        </p>
+        <h3 className="text-xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">Blocked or stuck</h3>
+        <p className="text-sm leading-6 text-[var(--text-secondary)]">
+          Jump in where progress is halted and clear the next blocker.
+        </p>
+      </div>
+
+      <div className="mt-5 space-y-3">
+        {dossiers.length === 0 ? (
+          <p className="text-sm leading-6 text-[var(--text-secondary)]">No blocked dossiers right now.</p>
+        ) : (
+          dossiers.map((dossier) => (
+            <Link
+              key={dossier.id}
+              href={`/dossiers/${dossier.id}`}
+              className="ui-interactive-card block rounded-[16px] border border-[rgba(242,202,115,0.18)] bg-[rgba(242,202,115,0.08)] px-4 py-4"
+            >
+              <p className="text-sm font-medium text-[var(--text-primary)]">{dossier.title}</p>
+              <p className="mt-1 text-sm leading-6 text-[var(--warning-strong)]">{dossier.blocker.label}</p>
+            </Link>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
