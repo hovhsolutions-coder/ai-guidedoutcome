@@ -1,0 +1,44 @@
+{
+  "name": "ai-guided-outcome",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "auto": "node scripts/auto-run.cjs",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "test": "node tests/evals/run-integrated-evals.cjs",
+    "db:migrate": "prisma migrate dev",
+    "db:generate": "prisma generate",
+    "db:migrate:prod": "prisma migrate deploy",
+    "db:seed:e2e": "node scripts/seed-e2e.cjs",
+    "db:seed:verify": "node scripts/verify-seed.cjs",
+    "test:api": "node scripts/run-api-integration-tests.cjs",
+    "test:persistence-contract": "node scripts/test-persistence-contract.cjs",
+    "test:quality": "npm run build && npm run test:recommendations && npm run e2e",
+    "test:recommendations": "node tests/evals/run-recommendation-tests.cjs",
+    "guidance:check": "node scripts/run-guidance-quality.cjs",
+    "trainer:check": "node scripts/run-trainer-quality.cjs",
+    "e2e": "playwright test",
+    "e2e:ui": "playwright test --ui",
+    "e2e:headed": "playwright test --headed"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "dotenv": "^17.3.1",
+    "next": "16.2.0",
+    "openai": "^6.32.0",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "prisma": "^5.22.0",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
