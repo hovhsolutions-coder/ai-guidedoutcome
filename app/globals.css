@@ -1,0 +1,451 @@
+@import "tailwindcss";
+
+:root {
+  --background: #07111f;
+  --foreground: #f3f7fb;
+  --shell-background: #07111f;
+  --shell-background-elevated: #0c1727;
+  --surface-primary: rgba(14, 23, 37, 0.82);
+  --surface-secondary: rgba(9, 16, 28, 0.72);
+  --surface-accent: rgba(22, 39, 67, 0.68);
+  --surface-elevated: rgba(18, 29, 46, 0.9);
+  --text-primary: #f3f7fb;
+  --text-secondary: #97a6ba;
+  --text-muted: #73849a;
+  --border-subtle: rgba(158, 175, 198, 0.14);
+  --border-strong: rgba(158, 175, 198, 0.24);
+  --accent-primary: #6d9cff;
+  --accent-primary-soft: rgba(109, 156, 255, 0.16);
+  --accent-primary-strong: #8fb3ff;
+  --success-soft: rgba(62, 168, 118, 0.14);
+  --success-strong: #72d59a;
+  --warning-soft: rgba(185, 143, 63, 0.14);
+  --warning-strong: #f2ca73;
+  --shadow-ambient: 0 18px 50px rgba(0, 0, 0, 0.28);
+  --shadow-panel: 0 10px 30px rgba(3, 8, 16, 0.32);
+  --shadow-control: 0 8px 18px rgba(4, 10, 20, 0.22);
+  --radius-panel: 24px;
+  --radius-card: 18px;
+  --radius-control: 14px;
+}
+
+@keyframes uiShimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes uiSoftPulse {
+  0%,
+  100% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.035),
+      var(--shadow-panel);
+  }
+  50% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.05),
+      0 16px 36px rgba(10, 22, 42, 0.32);
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "liga", "kern", "cv02", "cv03", "cv04";
+}
+
+body,
+#__next {
+  min-height: 100%;
+}
+
+body {
+  background: var(--background);
+  background-image:
+    radial-gradient(circle at top left, rgba(109, 156, 255, 0.08), transparent 28%),
+    radial-gradient(circle at top right, rgba(111, 145, 205, 0.05), transparent 22%),
+    linear-gradient(180deg, #0a1321 0%, #07111f 44%, #050b14 100%);
+  color: var(--text-primary);
+  font-family: var(--font-geist-sans), "Inter", "Segoe UI", sans-serif;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--text-primary);
+  letter-spacing: -0.03em;
+}
+
+p {
+  color: var(--text-secondary);
+}
+
+a,
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+input,
+textarea,
+select {
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease,
+    opacity 180ms ease,
+    transform 180ms ease;
+}
+
+textarea {
+  field-sizing: content;
+}
+
+::selection {
+  background: rgba(109, 156, 255, 0.28);
+  color: #f9fbff;
+}
+
+@layer components {
+  .ui-surface-primary {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.015)),
+      var(--surface-primary);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-card);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.035),
+      var(--shadow-panel);
+    backdrop-filter: blur(18px);
+    transition:
+      border-color 180ms ease,
+      box-shadow 180ms ease,
+      background-color 180ms ease;
+  }
+
+  .ui-surface-secondary {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 55%),
+      var(--surface-secondary);
+    border: 1px solid color-mix(in srgb, var(--border-subtle) 92%, transparent);
+    border-radius: calc(var(--radius-card) - 2px);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
+    backdrop-filter: blur(14px);
+    transition:
+      border-color 180ms ease,
+      box-shadow 180ms ease,
+      background-color 180ms ease;
+  }
+
+  .ui-surface-accent {
+    background:
+      linear-gradient(180deg, rgba(141, 176, 255, 0.08), transparent 60%),
+      var(--surface-accent);
+    border: 1px solid rgba(109, 156, 255, 0.22);
+    border-radius: calc(var(--radius-card) - 2px);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.04),
+      0 10px 24px rgba(5, 12, 22, 0.24);
+  }
+
+  .ui-metadata-block {
+    background: rgba(10, 18, 30, 0.78);
+    border: 1px solid rgba(158, 175, 198, 0.12);
+    border-radius: 14px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
+  }
+
+  .ui-button-primary,
+  .ui-button-secondary,
+  .ui-button-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    border-radius: var(--radius-control);
+    padding: 0.7rem 1rem;
+    font-size: 0.92rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    cursor: pointer;
+    transition:
+      border-color 180ms ease,
+      background-color 180ms ease,
+      color 180ms ease,
+      box-shadow 180ms ease,
+      opacity 180ms ease,
+      transform 180ms ease;
+  }
+
+  .ui-button-primary {
+    background: linear-gradient(180deg, #78a5ff 0%, #5e8ef2 100%);
+    color: #f9fbff;
+    border: 1px solid rgba(143, 179, 255, 0.26);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.14),
+      0 10px 24px rgba(24, 66, 146, 0.28);
+  }
+
+  .ui-button-primary:hover:not(:disabled) {
+    background: linear-gradient(180deg, #83aeff 0%, #6797f4 100%);
+    transform: translateY(-1px);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.18),
+      0 14px 28px rgba(24, 66, 146, 0.32);
+  }
+
+  .ui-button-secondary {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 70%),
+      rgba(12, 22, 36, 0.88);
+    color: var(--text-primary);
+    border: 1px solid var(--border-subtle);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.03),
+      var(--shadow-control);
+  }
+
+  .ui-button-secondary:hover:not(:disabled) {
+    border-color: var(--border-strong);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent 70%),
+      rgba(15, 26, 42, 0.94);
+    transform: translateY(-1px);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.035),
+      0 12px 24px rgba(6, 12, 22, 0.24);
+  }
+
+  .ui-button-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid transparent;
+    box-shadow: none;
+  }
+
+  .ui-button-ghost:hover:not(:disabled) {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(158, 175, 198, 0.1);
+  }
+
+  .ui-button-primary:active:not(:disabled),
+  .ui-button-secondary:active:not(:disabled),
+  .ui-button-ghost:active:not(:disabled) {
+    transform: translateY(0) scale(0.985);
+  }
+
+  .ui-button-primary:disabled,
+  .ui-button-secondary:disabled,
+  .ui-button-ghost:disabled {
+    opacity: 0.52;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  .ui-input,
+  .ui-textarea {
+    width: 100%;
+    border-radius: var(--radius-control);
+    border: 1px solid rgba(158, 175, 198, 0.14);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent 70%),
+      rgba(9, 17, 29, 0.9);
+    color: var(--text-primary);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
+  }
+
+  .ui-input {
+    min-height: 3rem;
+    padding: 0.8rem 0.95rem;
+  }
+
+  .ui-textarea {
+    min-height: 7rem;
+    padding: 0.9rem 0.95rem;
+    resize: vertical;
+  }
+
+  .ui-input::placeholder,
+  .ui-textarea::placeholder {
+    color: var(--text-muted);
+  }
+
+  .ui-input:focus,
+  .ui-textarea:focus {
+    outline: none;
+    border-color: rgba(109, 156, 255, 0.36);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.03),
+      0 0 0 4px rgba(109, 156, 255, 0.12);
+  }
+
+  .ui-button-primary:focus-visible,
+  .ui-button-secondary:focus-visible,
+  .ui-button-ghost:focus-visible,
+  .ui-input:focus-visible,
+  .ui-textarea:focus-visible,
+  a:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.04),
+      0 0 0 4px rgba(109, 156, 255, 0.16),
+      0 10px 24px rgba(10, 20, 38, 0.2);
+  }
+
+  .ui-input:disabled,
+  .ui-textarea:disabled {
+    opacity: 0.58;
+    cursor: not-allowed;
+  }
+
+  .ui-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border-radius: 999px;
+    border: 1px solid rgba(158, 175, 198, 0.14);
+    padding: 0.38rem 0.8rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: rgba(12, 21, 35, 0.82);
+    color: var(--text-secondary);
+  }
+
+  .ui-chip-accent {
+    background: rgba(109, 156, 255, 0.12);
+    border-color: rgba(109, 156, 255, 0.2);
+    color: var(--accent-primary-strong);
+  }
+
+  .ui-chip-understanding {
+    background: rgba(109, 156, 255, 0.12);
+    border-color: rgba(109, 156, 255, 0.2);
+    color: var(--accent-primary-strong);
+  }
+
+  .ui-chip-structuring {
+    background: var(--warning-soft);
+    border-color: rgba(242, 202, 115, 0.2);
+    color: var(--warning-strong);
+  }
+
+  .ui-chip-action {
+    background: var(--success-soft);
+    border-color: rgba(114, 213, 154, 0.2);
+    color: var(--success-strong);
+  }
+
+  .ui-interactive-card {
+    transition:
+      border-color 180ms ease,
+      background-color 180ms ease,
+      box-shadow 180ms ease,
+      transform 180ms ease;
+  }
+
+  .ui-interactive-card:hover {
+    border-color: var(--border-strong);
+    transform: translateY(-1px);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.04),
+      0 18px 42px rgba(6, 12, 22, 0.28);
+  }
+
+  .ui-interactive-card:focus-visible {
+    outline: none;
+    border-color: rgba(109, 156, 255, 0.3);
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.04),
+      0 0 0 4px rgba(109, 156, 255, 0.14),
+      0 14px 32px rgba(10, 20, 38, 0.24);
+  }
+
+  .ui-objective-highlight {
+    animation: uiSoftPulse 420ms ease;
+  }
+
+  .ui-skeleton {
+    border-radius: 14px;
+    background:
+      linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.04) 0%,
+        rgba(255, 255, 255, 0.08) 50%,
+        rgba(255, 255, 255, 0.04) 100%
+      );
+    background-size: 200% 100%;
+    animation: uiShimmer 1.8s ease-in-out infinite;
+  }
+
+  .ui-success-flash {
+    background:
+      linear-gradient(180deg, rgba(114, 213, 154, 0.14), rgba(114, 213, 154, 0.08)),
+      var(--success-soft);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.04),
+      0 10px 24px rgba(18, 50, 32, 0.16);
+  }
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(158, 175, 198, 0.22) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background: rgba(158, 175, 198, 0.18);
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(158, 175, 198, 0.26);
+  background-clip: padding-box;
+}
