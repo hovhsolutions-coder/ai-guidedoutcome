@@ -32,7 +32,22 @@ console.log(`├ SKIP_DB_PUSH: ${skipDbPush ? '1' : '0'}`);
 console.log(`└ CWD: ${cwd}`);
 
 if (!skipDbPush) {
-  run('prisma db push', `npx prisma db push --schema ${schema}`);
+  const useDirect = Boolean(process.env.DIRECT_URL);
+  const envForPush = {
+    ...process.env,
+    DATABASE_URL: useDirect ? process.env.DIRECT_URL : process.env.DATABASE_URL,
+  };
+  console.log(`├ db push URL source: ${useDirect ? 'DIRECT_URL (override)' : 'DATABASE_URL (default)'}`);
+  try {
+    execSync(`npx prisma db push --schema ${schema}`, {
+      stdio: 'inherit',
+      env: envForPush,
+      cwd,
+    });
+  } catch (err) {
+    console.error(`❌ prisma db push failed`, { schema, skipDbPush, cwd, useDirect, message: err?.message });
+    throw err;
+  }
 } else {
   console.log('↷ Skipping prisma db push (SKIP_DB_PUSH=1)');
 }
