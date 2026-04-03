@@ -7,27 +7,35 @@
  */
 
 const { execSync } = require('child_process');
-const path = require('path');
+const cwd = process.cwd();
 
 const schema = process.env.PRISMA_SCHEMA || 'prisma/schema.prisma';
 const skipDbPush = process.env.SKIP_DB_PUSH === '1';
 
-function run(cmd) {
-  execSync(cmd, {
-    stdio: 'inherit',
-    env: process.env,
-    cwd: process.cwd(),
-  });
+function run(step, cmd) {
+  console.log(`\n▶️ ${step}: ${cmd}`);
+  try {
+    execSync(cmd, {
+      stdio: 'inherit',
+      env: process.env,
+      cwd,
+    });
+  } catch (err) {
+    console.error(`❌ ${step} failed`, { step, cmd, schema, skipDbPush, cwd, message: err?.message });
+    throw err;
+  }
 }
 
-console.log(`ℹ️ Using Prisma schema: ${schema}`);
-if (skipDbPush) {
-  console.log('ℹ️ SKIP_DB_PUSH=1 -> skipping prisma db push');
-}
+console.log('┌ Schema-aware build');
+console.log(`├ PRISMA_SCHEMA: ${schema}`);
+console.log(`├ SKIP_DB_PUSH: ${skipDbPush ? '1' : '0'}`);
+console.log(`└ CWD: ${cwd}`);
 
-// Keep local/dev SQLite working; allow prod to swap in Postgres schema via PRISMA_SCHEMA.
 if (!skipDbPush) {
-  run(`npx prisma db push --schema ${schema}`);
+  run('prisma db push', `npx prisma db push --schema ${schema}`);
+} else {
+  console.log('↷ Skipping prisma db push (SKIP_DB_PUSH=1)');
 }
-run(`npx prisma generate --schema ${schema}`);
-run('next build');
+
+run('prisma generate', `npx prisma generate --schema ${schema}`);
+run('next build', 'next build');
