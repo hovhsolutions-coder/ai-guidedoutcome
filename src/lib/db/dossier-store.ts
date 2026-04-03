@@ -10,6 +10,11 @@ import { type GeneratedDossier } from '@/src/types/ai';
 const MAX_STRING_LENGTH = 5000;
 const MAX_TASKS = 100;
 const MAX_TASK_LENGTH = 500;
+const TEST_TITLE_PATTERNS = [/^e2e test/i, /^demo[:\s]/i, /\bseed\b/i, /\btest dossier\b/i];
+const SHOULD_HIDE_TEST_DATA =
+  process.env.VERCEL === '1' ||
+  process.env.VERCEL_ENV === 'production' ||
+  process.env.NEXT_PUBLIC_HIDE_TEST_DOSSIERS === 'true';
 
 // ============================================
 // SANITIZATION (preserved from original store)
@@ -48,6 +53,24 @@ function formatCreatedAt(date: Date): string {
     hour: 'numeric',
     minute: '2-digit',
   });
+}
+
+// ============================================
+// VISIBILITY FILTERS (hide seed/demo/test data)
+// ============================================
+
+function isTestOrDemoDossier(dossier: { title?: string; main_goal?: string; mainGoal?: string }): boolean {
+  const goal = dossier.main_goal ?? (dossier as any).mainGoal ?? '';
+  const haystack = `${dossier.title ?? ''} ${goal}`.trim().toLowerCase();
+  if (!haystack) return false;
+  return TEST_TITLE_PATTERNS.some((pattern) => pattern.test(haystack));
+}
+
+export function filterVisibleDossiers<T extends { title?: string; main_goal?: string }>(dossiers: T[]): T[] {
+  if (!SHOULD_HIDE_TEST_DATA) {
+    return dossiers;
+  }
+  return dossiers.filter((dossier) => !isTestOrDemoDossier(dossier));
 }
 
 // ============================================
@@ -170,7 +193,7 @@ export async function getAllDossiers(): Promise<MockDossier[]> {
     },
   });
 
-  return prismaDossiers.map(convertPrismaDossierToMockDossier);
+  return filterVisibleDossiers(prismaDossiers.map(convertPrismaDossierToMockDossier));
 }
 
 export async function getCompletedDossiers(
@@ -216,9 +239,11 @@ export async function getCompletedDossiers(
     take: 20, // Fetch more to allow for relevance filtering
   });
 
+  const sanitized = filterVisibleDossiers(prismaDossiers);
+
   // If no active dossier for comparison, return latest N with outcome summaries
   if (!activeDossier) {
-    return prismaDossiers.slice(0, limit).map((d) => ({
+    return sanitized.slice(0, limit).map((d) => ({
       id: d.id,
       title: d.title,
       main_goal: d.mainGoal,
@@ -228,7 +253,7 @@ export async function getCompletedDossiers(
   }
 
   // Score dossiers by relevance to active dossier
-  const scoredDossiers = prismaDossiers.map((d) => {
+  const scoredDossiers = sanitized.map((d) => {
     const score = calculateRelevanceScore(
       { title: activeDossier.title, mainGoal: activeDossier.main_goal },
       { title: d.title, mainGoal: d.mainGoal }

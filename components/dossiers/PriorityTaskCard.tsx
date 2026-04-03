@@ -247,6 +247,12 @@ export function PriorityTaskCard({
               )}
             </div>
 
+            {isFirst && statusLine && (
+              <p className="text-xs text-[var(--text-secondary)] mb-1">
+                Why this first: {statusLine}
+              </p>
+            )}
+
             {isEditing ? (
               <div className="flex items-center gap-2">
                 <input

@@ -11,8 +11,8 @@ test.describe('Dossier Overview', () => {
     
     // Verify page loaded with current homepage content
     await expect(page.locator('h1')).toContainText(/AI-Powered|Business Intelligence/);
-    await expect(page.getByRole('link', { name: /Get Started/i })).toBeVisible();
-    await expect(page.getByRole('link', { name: /View API Docs/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /Create your first dossier/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /View dashboard/i })).toBeVisible();
   });
 
   test('/dossiers loads and displays dossier list', async ({ page }) => {

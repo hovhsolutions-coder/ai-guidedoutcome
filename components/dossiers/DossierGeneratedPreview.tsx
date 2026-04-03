@@ -31,6 +31,13 @@ export function DossierGeneratedPreview({
           <p className="mx-auto max-w-2xl text-sm leading-6 text-[var(--text-secondary)]">
             The system has organized your situation into a clear starting structure so you can review it before opening the dossier workspace.
           </p>
+          <div className="mt-4 inline-flex flex-wrap items-center justify-center gap-3 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-secondary)] px-4 py-2 text-xs text-[var(--text-secondary)]">
+            <span className="font-semibold text-[var(--text-primary)]">Grounded in your intake</span>
+            <span className="text-[var(--text-muted)]">Situation:</span>
+            <span className="text-[var(--text-primary)]">{dossier.situation}</span>
+            <span className="text-[var(--text-muted)]">Goal:</span>
+            <span className="text-[var(--text-primary)]">{dossier.main_goal}</span>
+          </div>
         </div>
 
         {statusNote && (
@@ -81,10 +88,10 @@ export function DossierGeneratedPreview({
         <div className="ui-surface-secondary space-y-4 p-6">
           <div className="space-y-2">
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--text-secondary)]">Suggested Tasks</p>
-            <p className="text-sm leading-6 text-[var(--text-secondary)]">
-              These are the first concrete actions the system recommends for getting momentum.
-            </p>
-          </div>
+          <p className="text-sm leading-6 text-[var(--text-secondary)]">
+            These are the first concrete actions the system recommends for getting momentum, tailored to the goal you just shared.
+          </p>
+        </div>
 
           {dossier.suggested_tasks.length > 0 ? (
             <ul className="space-y-2">
@@ -107,10 +114,10 @@ export function DossierGeneratedPreview({
 
         <div className="space-y-3">
           <button onClick={() => void onOpenDossier()} disabled={isOpening} className="ui-button-primary w-full">
-            {isOpening ? 'Opening dossier...' : 'Open Dossier'}
+            {isOpening ? 'Opening workspace...' : 'Open dossier workspace'}
           </button>
           <p className="text-center text-xs text-[var(--text-muted)]">
-            You can review, refine, and add tasks after opening the dossier.
+            You can refine tasks and context immediately after opening; nothing is final until you confirm inside the workspace.
           </p>
         </div>
       </div>

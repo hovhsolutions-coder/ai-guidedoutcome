@@ -29,16 +29,16 @@ export default function Home() {
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link 
-              href="/dossiers" 
+              href="/dossiers/new" 
               className="ui-button-primary text-lg px-8 py-4 min-h-[3.5rem] w-full sm:w-auto"
             >
-              Get Started
+              Create your first dossier
             </Link>
             <Link 
-              href="/api/test" 
+              href="/dossiers" 
               className="ui-button-secondary text-lg px-8 py-4 min-h-[3.5rem] w-full sm:w-auto"
             >
-              View API Docs
+              View dashboard
             </Link>
           </div>
           

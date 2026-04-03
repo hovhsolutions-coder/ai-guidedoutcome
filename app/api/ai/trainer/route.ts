@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { runTrainerPerspective } from '@/src/lib/ai/trainer';
 import { AIExecutionMode, AITrainerId, AITrainerRequestInput } from '@/src/lib/ai/types';
-import { checkRateLimit } from '@/src/lib/rate-limit';
+import { checkRateLimit } from '../../../../src/lib/rate-limit';
 
 // Maximum payload size for trainer requests (50KB)
 const MAX_PAYLOAD_SIZE = 50 * 1024;

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/src/lib/db/prisma';
+import { filterVisibleDossiers } from '@/src/lib/db/dossier-store';
 import { type GeneratedDossier } from '@/src/types/ai';
-import { checkRateLimit } from '@/src/lib/rate-limit';
+import { checkRateLimit } from '../../../src/lib/rate-limit';
 
 // Maximum payload size for dossier creation (100KB)
 const MAX_PAYLOAD_SIZE = 100 * 1024;
@@ -77,9 +78,11 @@ export async function GET() {
       }
     });
 
+    const visible = filterVisibleDossiers(dossiers);
+
     return NextResponse.json({
       success: true,
-      data: dossiers.map(d => ({
+      data: visible.map(d => ({
         id: d.id,
         title: d.title,
         situation: d.situation,

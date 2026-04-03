@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { type MockDossier, type Task, type ActivityEntry, type ActivityType } from '@/lib/mockData';
-import { checkRateLimit } from '@/src/lib/rate-limit';
+import { checkRateLimit } from '../../../../src/lib/rate-limit';
 import { updateStoredDossier } from '@/src/lib/db/dossier-store';
 
 // Maximum payload size for dossier updates (100KB)

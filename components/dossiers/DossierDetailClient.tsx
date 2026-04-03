@@ -1413,6 +1413,26 @@ export function DossierDetailClient({ dossier, completedDossiers = [] }: Dossier
         <div className="space-y-8">
           <DossierMissionHeader title={dossier.title} phase={phase} mission={missionSentence} onPhaseChange={handlePhaseChange} />
 
+          <div className="ui-surface-secondary border border-[var(--border-subtle)] p-5 rounded-[18px] flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-1">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-secondary)]">
+                Grounded in your intake
+              </p>
+              <div className="text-sm text-[var(--text-primary)]">
+                <span className="font-semibold">Situation:</span> {dossier.situation || 'Not yet captured'}
+              </div>
+              <div className="text-sm text-[var(--text-primary)]">
+                <span className="font-semibold">Goal:</span> {dossier.main_goal || 'Add a clear goal to guide execution'}
+              </div>
+            </div>
+            <div className="sm:text-right">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--accent-primary-strong)]">
+                First move
+              </p>
+              <p className="text-sm text-[var(--text-primary)]">{currentObjective.title}</p>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1.35fr_0.75fr_0.75fr]">
             <NextStepPanel
               nextStep={currentObjective.title}

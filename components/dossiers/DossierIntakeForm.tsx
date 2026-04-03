@@ -53,84 +53,96 @@ export function DossierIntakeForm({ onSubmit, isSubmitting = false }: DossierInt
         </div>
 
         <div>
-        <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
-          Choose a category or type your situation
-        </label>
-        <select
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-          className="ui-input"
-          disabled={isSubmitting}
-        >
-          <option value="">Select category</option>
-          {categories.map((cat) => (
-            <option key={cat} value={cat}>
-              {cat}
-            </option>
-          ))}
-        </select>
-        {selectedCategory === 'Other' && (
-          <input
-            type="text"
-            placeholder="Describe your situation"
-            value={customSituation}
-            onChange={(e) => setCustomSituation(e.target.value)}
-            className="ui-input mt-2"
+          <label className="mb-1 block text-sm font-medium text-[var(--text-primary)]">
+            Choose a category or type your situation
+          </label>
+          <p className="mb-2 text-xs text-[var(--text-secondary)]">
+            One line is enough. Examples: “Close Series A round” or “Stabilize churn in EU region.”
+          </p>
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="ui-input"
+            disabled={isSubmitting}
+          >
+            <option value="">Select category</option>
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
+          {selectedCategory === 'Other' && (
+            <input
+              type="text"
+              placeholder="e.g., Rebuild launch plan after vendor delay"
+              value={customSituation}
+              onChange={(e) => setCustomSituation(e.target.value)}
+              className="ui-input mt-2"
+              disabled={isSubmitting}
+              required
+            />
+          )}
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-medium text-[var(--text-primary)]">What is your goal?</label>
+          <p className="mb-2 text-xs text-[var(--text-secondary)]">
+            Be specific about the outcome or decision you need in the next 2-4 weeks.
+          </p>
+          <textarea
+            value={goal}
+            onChange={(e) => setGoal(e.target.value)}
+            placeholder="e.g., Launch the pilot with 5 design partners and lock success metrics"
+            className="ui-textarea min-h-24"
             disabled={isSubmitting}
             required
           />
-        )}
         </div>
 
         <div>
-        <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">What is your goal?</label>
-        <textarea
-          value={goal}
-          onChange={(e) => setGoal(e.target.value)}
-          placeholder="What do you want to achieve?"
-          className="ui-textarea min-h-24"
-          disabled={isSubmitting}
-          required
-        />
+          <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">How urgent is this?</label>
+          <select
+            value={urgency}
+            onChange={(e) => setUrgency(e.target.value)}
+            className="ui-input"
+            disabled={isSubmitting}
+          >
+            <option value="">Select urgency</option>
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+            <option value="Critical">Critical</option>
+          </select>
         </div>
 
         <div>
-        <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">How urgent is this?</label>
-        <select
-          value={urgency}
-          onChange={(e) => setUrgency(e.target.value)}
-          className="ui-input"
-          disabled={isSubmitting}
-        >
-          <option value="">Select urgency</option>
-          <option value="Low">Low</option>
-          <option value="Medium">Medium</option>
-          <option value="High">High</option>
-          <option value="Critical">Critical</option>
-        </select>
+          <label className="mb-1 block text-sm font-medium text-[var(--text-primary)]">Who is involved?</label>
+          <p className="mb-2 text-xs text-[var(--text-secondary)]">
+            Optional - list key teams, customers, or decision makers.
+          </p>
+          <input
+            type="text"
+            value={involved}
+            onChange={(e) => setInvolved(e.target.value)}
+            placeholder="e.g., Sales EU, Design partners, Legal review"
+            className="ui-input"
+            disabled={isSubmitting}
+          />
         </div>
 
         <div>
-        <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">Who is involved?</label>
-        <input
-          type="text"
-          value={involved}
-          onChange={(e) => setInvolved(e.target.value)}
-          placeholder="People or parties involved"
-          className="ui-input"
-          disabled={isSubmitting}
-        />
-        </div>
-
-        <div>
-        <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">What is blocking you?</label>
-        <textarea
-          value={blocking}
-          onChange={(e) => setBlocking(e.target.value)}
-          placeholder="Any obstacles or challenges"
-          className="ui-textarea min-h-24"
-          disabled={isSubmitting}
-        />
+          <label className="mb-1 block text-sm font-medium text-[var(--text-primary)]">What is blocking you?</label>
+          <p className="mb-2 text-xs text-[var(--text-secondary)]">
+            Optional - call out the risk, dependency, or unknown slowing you down.
+          </p>
+          <textarea
+            value={blocking}
+            onChange={(e) => setBlocking(e.target.value)}
+            placeholder="e.g., Awaiting security review; unclear budget owner"
+            className="ui-textarea min-h-24"
+            disabled={isSubmitting}
+          />
         </div>
 
         <div className="ui-surface-secondary space-y-2 px-4 py-3">
@@ -143,7 +155,7 @@ export function DossierIntakeForm({ onSubmit, isSubmitting = false }: DossierInt
         </div>
 
         <button type="submit" disabled={isSubmitting} className="ui-button-primary w-full">
-          {isSubmitting ? 'Generating dossier...' : 'Generate Dossier'}
+          {isSubmitting ? 'Creating dossier...' : 'Create dossier'}
         </button>
       </div>
     </form>
