@@ -69,6 +69,11 @@ function sanitizeGeneratedDossier(input: unknown): GeneratedDossier | null {
 // GET /api/dossiers - List all dossiers
 export async function GET() {
   try {
+    console.info('[api:dossiers:get:start]', {
+      dbProvider: process.env.DATABASE_URL?.split(':')[0],
+      prismaSchema: process.env.PRISMA_SCHEMA,
+    });
+
     const dossiers = await prisma.dossier.findMany({
       orderBy: { updatedAt: 'desc' },
       include: {
@@ -95,7 +100,11 @@ export async function GET() {
       }))
     });
   } catch (error) {
-    console.error('List dossiers API error:', error);
+    console.error('[api:dossiers:get:error]', {
+      message: (error as Error)?.message,
+      dbProvider: process.env.DATABASE_URL?.split(':')[0],
+      prismaSchema: process.env.PRISMA_SCHEMA,
+    });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
@@ -106,6 +115,12 @@ export async function GET() {
 // POST /api/dossiers - Create new dossier
 export async function POST(request: NextRequest) {
   try {
+    console.info('[api:dossiers:create:start]', {
+      dbProvider: process.env.DATABASE_URL?.split(':')[0],
+      prismaSchema: process.env.PRISMA_SCHEMA,
+      contentLength: request.headers.get('content-length'),
+    });
+
     // Payload size check
     const sizeCheck = checkPayloadSize(request);
     if (!sizeCheck.valid) {
@@ -185,7 +200,12 @@ export async function POST(request: NextRequest) {
       data: storedDossier,
     });
   } catch (error) {
-    console.error('Persist dossier API error:', error);
+    console.error('[api:dossiers:create:error]', {
+      message: (error as Error)?.message,
+      dbProvider: process.env.DATABASE_URL?.split(':')[0],
+      prismaSchema: process.env.PRISMA_SCHEMA,
+      stack: (error as Error)?.stack,
+    });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }

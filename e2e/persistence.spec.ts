@@ -37,6 +37,34 @@ test.describe('Persistence Roundtrip', () => {
     }
   });
 
+  test('preview to workspace opens a persisted dossier', async ({ page }) => {
+    // Force fast fallback preview by returning 500 for AI generation (avoids external dependency/latency)
+    await page.route('**/api/ai/create-dossier', (route) =>
+      route.fulfill({ status: 500, body: 'intentional test failure' })
+    );
+
+    await page.goto('/dossiers/new');
+
+    const categorySelect = page.locator('select').first();
+    await categorySelect.selectOption({ label: 'Business' });
+    await page.getByPlaceholder('What do you want to achieve?').fill('E2E Preview Flow Goal');
+
+    const generateBtn = page.getByRole('button', { name: /Generate Dossier/i });
+    await expect(generateBtn).toBeVisible({ timeout: 10000 });
+    await generateBtn.click();
+
+    await expect(page.getByText(/Step 2/i)).toBeVisible({ timeout: 25000 });
+    await expect(page.getByText(/Your dossier is ready to review/i)).toBeVisible({ timeout: 25000 });
+
+    const openBtn = page.getByRole('button', { name: /Open Dossier|Opening dossier/i });
+    await expect(openBtn).toBeVisible({ timeout: 25000 });
+    await openBtn.click();
+
+    await expect(page).toHaveURL(/\/dossiers\/[a-zA-Z0-9-]+/, { timeout: 15000 });
+    const detail = page.locator('[data-testid="dossier-detail"]');
+    await expect(detail).toBeVisible({ timeout: 15000 });
+  });
+
   test('edit task name and verify persistence', async ({ page }) => {
     // Navigate to a dossier using text-based selector
     await page.goto('/dossiers');

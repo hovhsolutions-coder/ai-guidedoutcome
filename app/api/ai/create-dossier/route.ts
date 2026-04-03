@@ -6,6 +6,11 @@ import { IntakeData } from '@/src/types/ai';
 
 export async function POST(request: NextRequest) {
   try {
+    console.info('[api:ai:create-dossier:start]', {
+      dbProvider: process.env.DATABASE_URL?.split(':')[0],
+      prismaSchema: process.env.PRISMA_SCHEMA,
+    });
+
     const intake: IntakeData = await request.json();
 
     // Validate intake data
@@ -64,7 +69,12 @@ export async function POST(request: NextRequest) {
       suggested_tasks: storedDossier.tasks,
     });
   } catch (error) {
-    console.error('Create dossier API error:', error);
+    console.error('[api:ai:create-dossier:error]', {
+      message: (error as Error)?.message,
+      dbProvider: process.env.DATABASE_URL?.split(':')[0],
+      prismaSchema: process.env.PRISMA_SCHEMA,
+      stack: (error as Error)?.stack,
+    });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
