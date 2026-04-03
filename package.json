@@ -5,7 +5,7 @@
   "scripts": {
     "auto": "node scripts/auto-run.cjs",
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "node scripts/build-with-schema.cjs",
     "start": "next start",
     "test": "node tests/evals/run-integrated-evals.cjs",
     "db:migrate": "prisma migrate dev",

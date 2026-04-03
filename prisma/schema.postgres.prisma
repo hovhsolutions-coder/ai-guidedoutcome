@@ -1,0 +1,157 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// DOSSIER - Main workspace entity
+// ============================================
+model Dossier {
+  id          String   @id @default(uuid())
+  title       String
+  situation   String   @default("No situation provided")
+  mainGoal    String   @map("main_goal") @default("No goal specified")
+  phase       String   @default("Understanding") // Understanding, Structuring, Executing, Completed
+  progress    Int      @default(0) // 0-100
+  lastActivity String  @map("last_activity") @default("Dossier created")
+  createdAt   DateTime @map("created_at") @default(now())
+  updatedAt   DateTime @map("updated_at") @updatedAt
+
+  // Relationships
+  tasks           Task[]
+  activityEntries ActivityEntry[]
+  chatMessages    ChatMessage[]
+  
+  // Structured guidance contracts (stored as JSON strings for SQLite compatibility)
+  characterProfile String? @map("character_profile") // JSON
+  progressionState String? @map("progression_state") // JSON
+  narrative        String? // JSON
+  systemPlan       String? @map("system_plan") // JSON
+  executionPlan    String? @map("execution_plan") // JSON
+
+  @@index([phase])
+  @@index([createdAt])
+  @@index([progress])
+  @@map("dossiers")
+}
+
+// ============================================
+// TASK - Execution items
+// ============================================
+model Task {
+  id          String   @id @default(uuid())
+  name        String
+  notes       String?
+  priority    String?  // high, medium, low
+  category    String?
+  dueDate     String?  @map("due_date") // ISO date string YYYY-MM-DD
+  estimate    String?  // "2h", "30m", "1d"
+  actualTime  Int      @map("actual_time") @default(0) // minutes
+  isTracking  Boolean  @map("is_tracking") @default(false)
+  trackingStartedAt String? @map("tracking_started_at") // ISO timestamp
+  milestone   String?
+  completed   Boolean  @default(false)
+  completedAt DateTime? @map("completed_at")
+  createdAt   DateTime @map("created_at") @default(now())
+  updatedAt   DateTime @map("updated_at") @updatedAt
+
+  // Foreign Keys
+  dossierId String @map("dossier_id")
+  dossier   Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  // Relationships
+  subtasks     Subtask[]
+  dependencies TaskDependency[] @relation("TaskDependencies")
+  dependents   TaskDependency[] @relation("TaskDependents")
+  activityEntries ActivityEntry[]
+
+  @@index([dossierId])
+  @@index([completed])
+  @@index([priority])
+  @@index([dueDate])
+  @@map("tasks")
+}
+
+// ============================================
+// SUBTASK - Task checklist items
+// ============================================
+model Subtask {
+  id        String   @id @default(uuid())
+  name      String
+  completed Boolean  @default(false)
+  createdAt DateTime @map("created_at") @default(now())
+  updatedAt DateTime @map("updated_at") @updatedAt
+
+  taskId String @map("task_id")
+  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+  @@map("subtasks")
+}
+
+// ============================================
+// TASK DEPENDENCY - Task relationships
+// ============================================
+model TaskDependency {
+  id String @id @default(uuid())
+
+  taskId String @map("task_id")
+  task   Task   @relation("TaskDependencies", fields: [taskId], references: [id], onDelete: Cascade)
+
+  dependsOnTaskId String @map("depends_on_task_id")
+  dependsOnTask   Task   @relation("TaskDependents", fields: [dependsOnTaskId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @map("created_at") @default(now())
+
+  @@unique([taskId, dependsOnTaskId])
+  @@index([taskId])
+  @@index([dependsOnTaskId])
+  @@map("task_dependencies")
+}
+
+// ============================================
+// ACTIVITY ENTRY - Audit log
+// ============================================
+model ActivityEntry {
+  id          String   @id @default(uuid())
+  type        String   // ActivityType enum values as string
+  description String   @default("")
+  taskName    String?  @map("task_name")
+  oldValue    String?  @map("old_value")
+  newValue    String?  @map("new_value")
+  batchCount  Int?     @map("batch_count")
+  timestamp   DateTime @default(now())
+
+  dossierId String @map("dossier_id")
+  dossier   Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  taskId String? @map("task_id")
+  task   Task?   @relation(fields: [taskId], references: [id], onDelete: SetNull)
+
+  @@index([dossierId])
+  @@index([timestamp])
+  @@index([type])
+  @@map("activity_entries")
+}
+
+// ============================================
+// CHAT MESSAGE - AI guidance history
+// ============================================
+model ChatMessage {
+  id          String   @id @default(uuid())
+  role        String   // 'user' | 'ai'
+  content     String   // JSON string for structured content
+  messageType String?  @map("message_type") // 'initial', 'followup', 'nudge', 'refined', 'response', 'milestone'
+  timestamp   DateTime @default(now())
+
+  dossierId String @map("dossier_id")
+  dossier   Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  @@index([dossierId])
+  @@index([timestamp])
+  @@map("chat_messages")
+}
