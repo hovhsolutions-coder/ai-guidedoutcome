@@ -1,11 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { IntakeData } from '@/src/types/ai';
+import { IntakeData, IntakeFormValues } from '@/src/types/ai';
 
 interface DossierIntakeFormProps {
-  onSubmit: (data: IntakeData) => void;
+  onSubmit: (data: IntakeData, values: IntakeFormValues) => void;
   isSubmitting?: boolean;
+  initialValues?: IntakeFormValues | null;
 }
 
 const categories = [
@@ -21,20 +22,34 @@ const categories = [
   'Other',
 ];
 
-export function DossierIntakeForm({ onSubmit, isSubmitting = false }: DossierIntakeFormProps) {
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
-  const [customSituation, setCustomSituation] = useState<string>('');
-  const [goal, setGoal] = useState<string>('');
-  const [urgency, setUrgency] = useState<string>('');
-  const [involved, setInvolved] = useState<string>('');
-  const [blocking, setBlocking] = useState<string>('');
+export function DossierIntakeForm({
+  onSubmit,
+  isSubmitting = false,
+  initialValues = null,
+}: DossierIntakeFormProps) {
+  const [selectedCategory, setSelectedCategory] = useState<string>(initialValues?.category ?? '');
+  const [customSituation, setCustomSituation] = useState<string>(initialValues?.situationDetails ?? '');
+  const [goal, setGoal] = useState<string>(initialValues?.goal ?? '');
+  const [urgency, setUrgency] = useState<string>(initialValues?.urgency ?? '');
+  const [involved, setInvolved] = useState<string>(initialValues?.involved ?? '');
+  const [blocking, setBlocking] = useState<string>(initialValues?.blocking ?? '');
 
   const situation = customSituation.trim() || selectedCategory;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!situation || !goal || isSubmitting) return;
-    onSubmit({ situation, goal, urgency, involved, blocking });
+    onSubmit(
+      { situation, goal, urgency, involved, blocking },
+      {
+        category: selectedCategory,
+        situationDetails: customSituation,
+        goal,
+        urgency,
+        involved,
+        blocking,
+      }
+    );
   };
 
   return (

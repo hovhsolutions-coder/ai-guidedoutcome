@@ -4,14 +4,19 @@ import { useState } from 'react';
 import { DossierIntakeForm } from '@/components/dossiers/DossierIntakeForm';
 import { DossierGeneratedPreview } from '@/components/dossiers/DossierGeneratedPreview';
 import { useRouter } from 'next/navigation';
-import { IntakeData, GeneratedDossier } from '@/src/types/ai';
+import { buildGeneratedDossier } from '@/src/lib/dossiers/build-generated-dossier';
+import { CreateDossierResponse, IntakeData, GeneratedDossier, IntakeFormValues } from '@/src/types/ai';
+
+type PreviewState = 'saved' | 'unsaved' | 'save_failed';
 
 export default function NewDossierPage() {
   const [step, setStep] = useState<'intake' | 'preview'>('intake');
   const [intakeData, setIntakeData] = useState<IntakeData | null>(null);
+  const [intakeFormValues, setIntakeFormValues] = useState<IntakeFormValues | null>(null);
   const [generatedDossier, setGeneratedDossier] = useState<GeneratedDossier | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isOpeningDossier, setIsOpeningDossier] = useState(false);
+  const [previewState, setPreviewState] = useState<PreviewState>('unsaved');
   const [statusNote, setStatusNote] = useState<{
     tone: 'success' | 'warning';
     title: string;
@@ -19,8 +24,11 @@ export default function NewDossierPage() {
   } | null>(null);
   const router = useRouter();
 
-  const handleIntakeSubmit = async (data: IntakeData) => {
+  const hasPersistedDossier = Boolean(generatedDossier?.id);
+
+  const handleIntakeSubmit = async (data: IntakeData, values: IntakeFormValues) => {
     setIntakeData(data);
+    setIntakeFormValues(values);
     setIsGenerating(true);
     setStatusNote(null);
 
@@ -31,41 +39,56 @@ export default function NewDossierPage() {
         body: JSON.stringify(data),
       });
 
-      if (!response.ok) {
-        throw new Error('Unable to generate dossier right now.');
+      const result = (await response.json().catch(() => null)) as CreateDossierResponse | null;
+
+      if (!response.ok || !result?.success || !result.data?.dossier) {
+        throw new Error(result?.error || 'Unable to generate dossier right now.');
       }
 
-      const result = await response.json();
-      if (!result.success) {
-        throw new Error(result.error || 'Unable to generate dossier right now.');
-      }
-
-      setGeneratedDossier(result);
-      setStatusNote({
-        tone: 'success',
-        title: 'Draft ready',
-        description: 'The first draft is ready to review and open.',
+      const persistedId = result.data.persistence.id ?? result.data.dossier.id;
+      setGeneratedDossier({
+        ...result.data.dossier,
+        ...(persistedId ? { id: persistedId } : {}),
       });
+
+      if (result.data.persistence.status === 'saved' && persistedId) {
+        setPreviewState('saved');
+        setStatusNote({
+          tone: 'success',
+          title: 'Draft ready',
+          description: result.data.usedFallback
+            ? 'A safe fallback shaped this draft, and the dossier is saved and ready to open.'
+            : 'The first draft is ready to review and open.',
+        });
+      } else {
+        setPreviewState('save_failed');
+        setStatusNote({
+          tone: 'warning',
+          title: 'Not saved yet',
+          description: 'The draft is ready. Save it to continue into the live dossier.',
+        });
+      }
+
       setStep('preview');
     } catch (error) {
       console.error('Failed to generate dossier:', error);
-      const mockDossier: GeneratedDossier = {
-        title: `${data.situation} - ${data.goal}`,
+      const mockDossier: GeneratedDossier = buildGeneratedDossier({
+        titleSource: data.situation || data.goal,
         situation: data.situation,
-        main_goal: data.goal,
-        phase: 'Understanding',
-        suggested_tasks: [
+        mainGoal: data.goal,
+        suggestedTasks: [
           'Research options',
           'Gather information',
           'Consult experts',
           'Create action plan',
         ],
-      };
+      });
       setGeneratedDossier(mockDossier);
+      setPreviewState('unsaved');
       setStatusNote({
         tone: 'warning',
-        title: 'Fallback draft',
-        description: 'The live generation step was unavailable, so a safe draft was created so you can still continue.',
+        title: 'Draft only',
+        description: 'The draft is ready. Save it when you are ready to continue.',
       });
       setStep('preview');
     } finally {
@@ -73,7 +96,7 @@ export default function NewDossierPage() {
     }
   };
 
-  const handleOpenDossier = async () => {
+  const handlePrimaryAction = async () => {
     if (!generatedDossier) {
       return;
     }
@@ -91,28 +114,50 @@ export default function NewDossierPage() {
         body: JSON.stringify(generatedDossier),
       });
 
-      if (!response.ok) {
-        throw new Error('Unable to open dossier right now.');
-      }
+      const result = await response.json().catch(() => null);
 
-      const result = await response.json();
-      if (!result.success || !result.data?.id) {
-        throw new Error(result.error || 'Unable to open dossier right now.');
+      if (!response.ok || !result?.success || !result.data?.id) {
+        throw new Error(result?.error || 'Unable to save dossier right now.');
       }
 
       setGeneratedDossier((prev) => (prev ? { ...prev, id: result.data.id } : prev));
+      setPreviewState('saved');
       router.push(`/dossiers/${result.data.id}`);
     } catch (error) {
       console.error('Failed to persist preview dossier:', error);
+      setPreviewState('save_failed');
       setStatusNote({
         tone: 'warning',
-        title: 'Unable to open dossier',
-        description: 'The draft is ready, but saving the dossier failed. Please try again in a moment.',
+        title: 'Save paused',
+        description: 'The draft is still here. Try save again or return to edit.',
       });
     } finally {
       setIsOpeningDossier(false);
     }
   };
+
+  const handleBackToEdit = () => {
+    setStep('intake');
+    setStatusNote(null);
+  };
+
+  const primaryActionLabel = previewState === 'saved' && hasPersistedDossier
+    ? isOpeningDossier
+      ? 'Opening dossier...'
+      : 'Open dossier'
+    : isOpeningDossier
+      ? 'Saving dossier...'
+      : previewState === 'save_failed'
+        ? 'Retry save'
+        : 'Save and open dossier';
+
+  const actionHint = previewState === 'saved' && hasPersistedDossier
+    ? 'You can refine everything inside the dossier.'
+    : previewState === 'save_failed'
+      ? 'Your draft stays here while you recover the save.'
+      : 'We will save the draft before opening the live dossier.';
+
+  const secondaryActionLabel = previewState === 'saved' ? null : 'Back to edit';
 
   return (
     <div className="mx-auto max-w-4xl space-y-8">
@@ -132,7 +177,11 @@ export default function NewDossierPage() {
 
       {step === 'intake' && !isGenerating && (
         <div className="mx-auto max-w-2xl">
-          <DossierIntakeForm onSubmit={handleIntakeSubmit} isSubmitting={isGenerating} />
+          <DossierIntakeForm
+            onSubmit={handleIntakeSubmit}
+            isSubmitting={isGenerating}
+            initialValues={intakeFormValues}
+          />
         </div>
       )}
 
@@ -163,7 +212,11 @@ export default function NewDossierPage() {
       {step === 'preview' && generatedDossier && (
         <DossierGeneratedPreview
           dossier={generatedDossier}
-          onOpenDossier={handleOpenDossier}
+          onPrimaryAction={handlePrimaryAction}
+          primaryActionLabel={primaryActionLabel}
+          actionHint={actionHint}
+          onSecondaryAction={secondaryActionLabel ? handleBackToEdit : null}
+          secondaryActionLabel={secondaryActionLabel}
           statusNote={statusNote}
           isOpening={isOpeningDossier}
         />

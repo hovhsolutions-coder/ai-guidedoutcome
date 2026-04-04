@@ -20,10 +20,38 @@ test.describe('Persistence Roundtrip', () => {
     await expect(page.getByRole('button', { name: /Generate dossier/i })).toBeVisible();
   });
 
-  test('preview to workspace opens a persisted dossier', async ({ page }) => {
-    // Force fast fallback preview by returning 500 for AI generation (avoids external dependency/latency)
+  test('preview with a saved dossier opens directly into the workspace', async ({ page }) => {
+    let dossierCreatePosts = 0;
+
+    page.on('request', (request) => {
+      if (request.url().includes('/api/dossiers') && request.method() === 'POST') {
+        dossierCreatePosts += 1;
+      }
+    });
+
     await page.route('**/api/ai/create-dossier', (route) =>
-      route.fulfill({ status: 500, body: 'intentional test failure' })
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          success: true,
+          data: {
+            dossier: {
+              id: 'e2e-test-dossier-1',
+              title: 'Renewal motion stalled',
+              situation: 'Renewal motion stalled',
+              main_goal: 'E2E Preview Flow Goal',
+              phase: 'Understanding',
+              suggested_tasks: ['Research options', 'Confirm the renewal blocker'],
+            },
+            persistence: {
+              status: 'saved',
+              id: 'e2e-test-dossier-1',
+            },
+            usedFallback: false,
+          },
+        }),
+      })
     );
 
     await page.goto('/dossiers/new');
@@ -39,15 +67,66 @@ test.describe('Persistence Roundtrip', () => {
 
     await expect(page.getByText(/Step 2 of 2/i)).toBeVisible({ timeout: 25000 });
     await expect(page.getByRole('heading', { name: 'Review the draft', exact: true })).toBeVisible({ timeout: 25000 });
-    await expect(page.getByText('Renewal motion stalled', { exact: true })).toBeVisible({ timeout: 25000 });
+    await expect(page.getByText('Renewal motion stalled', { exact: true }).first()).toBeVisible({ timeout: 25000 });
 
     const openBtn = page.getByRole('button', { name: /Open dossier|Opening dossier/i });
     await expect(openBtn).toBeVisible({ timeout: 25000 });
+    await expect(page.getByRole('button', { name: /Save and open dossier|Saving dossier|Retry save/i })).toHaveCount(0);
+
+    await openBtn.click();
+
+    await expect(page).toHaveURL(/\/dossiers\/e2e-test-dossier-1$/, { timeout: 15000 });
+    await expect(page.locator('[data-testid="dossier-detail"]')).toBeVisible({ timeout: 15000 });
+    expect(dossierCreatePosts).toBe(0);
+  });
+
+  test('failed-save preview can retry save and open the persisted dossier', async ({ page }) => {
+    await page.route('**/api/ai/create-dossier', (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          success: true,
+          data: {
+            dossier: {
+              title: 'Renewal motion stalled',
+              situation: 'Renewal motion stalled',
+              main_goal: 'E2E Preview Flow Goal',
+              phase: 'Understanding',
+              suggested_tasks: ['Research options', 'Gather information'],
+            },
+            persistence: {
+              status: 'save_failed',
+              error: 'The draft is ready, but saving the dossier failed.',
+            },
+            usedFallback: false,
+          },
+        }),
+      })
+    );
+
+    await page.goto('/dossiers/new');
+
+    const categorySelect = page.locator('select').first();
+    await categorySelect.selectOption({ label: 'Business' });
+    await page.getByPlaceholder('Add one line of context').fill('Renewal motion stalled');
+    await page.getByPlaceholder('What needs to happen next?').fill('E2E Preview Flow Goal');
+
+    const generateBtn = page.getByRole('button', { name: /Generate Dossier/i });
+    await expect(generateBtn).toBeVisible({ timeout: 10000 });
+    await generateBtn.click();
+
+    await expect(page.getByText('Not saved yet', { exact: true })).toBeVisible({ timeout: 25000 });
+    await expect(page.getByRole('button', { name: /Open dossier|Opening dossier/i })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Back to edit', exact: true })).toBeVisible({ timeout: 25000 });
+
+    const saveAndOpenBtn = page.getByRole('button', { name: /Retry save|Saving dossier/i });
+    await expect(saveAndOpenBtn).toBeVisible({ timeout: 25000 });
 
     const postWait = page.waitForResponse(
       (response) => response.url().includes('/api/dossiers') && response.request().method() === 'POST'
     );
-    await openBtn.click();
+    await saveAndOpenBtn.click();
     const postResponse = await postWait;
     expect(postResponse.ok()).toBeTruthy();
     const body = await postResponse.json();
@@ -56,6 +135,79 @@ test.describe('Persistence Roundtrip', () => {
     await expect(page).toHaveURL(/\/dossiers\/[a-zA-Z0-9-]+/, { timeout: 15000 });
     const detail = page.locator('[data-testid="dossier-detail"]');
     await expect(detail).toBeVisible({ timeout: 15000 });
+    await expect(detail).toContainText('Grounded in your intake');
+    await expect(detail).toContainText('Renewal motion stalled');
+    await expect(detail).toContainText('E2E Preview Flow Goal');
+  });
+
+  test('save-failed preview shows recovery actions and preserves edits when going back', async ({ page }) => {
+    await page.route('**/api/ai/create-dossier', (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          success: true,
+          data: {
+            dossier: {
+              title: 'Board approval paused',
+              situation: 'Board approval paused',
+              main_goal: 'Recover the approval path',
+              phase: 'Understanding',
+              suggested_tasks: ['Clarify the approval blocker'],
+            },
+            persistence: {
+              status: 'save_failed',
+              error: 'The draft is ready, but saving the dossier failed.',
+            },
+            usedFallback: false,
+          },
+        }),
+      })
+    );
+
+    await page.route('**/api/dossiers', (route) => {
+      if (route.request().method() === 'POST') {
+        return route.fulfill({
+          status: 500,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            success: false,
+            error: 'Intentional save failure',
+          }),
+        });
+      }
+
+      return route.continue();
+    });
+
+    await page.goto('/dossiers/new');
+
+    const categorySelect = page.locator('select').first();
+    await categorySelect.selectOption({ label: 'Business' });
+    await page.getByPlaceholder('Add one line of context').fill('Board approval paused');
+    await page.getByPlaceholder('What needs to happen next?').fill('Recover the approval path');
+
+    await page.getByRole('button', { name: /Generate Dossier/i }).click();
+
+    await expect(page.getByText('Not saved yet', { exact: true })).toBeVisible({ timeout: 25000 });
+    await expect(page.getByRole('button', { name: /Open dossier|Opening dossier/i })).toHaveCount(0);
+
+    const retrySaveButton = page.getByRole('button', { name: 'Retry save', exact: true });
+    const backToEditButton = page.getByRole('button', { name: 'Back to edit', exact: true });
+    await expect(retrySaveButton).toBeVisible({ timeout: 25000 });
+    await expect(backToEditButton).toBeVisible({ timeout: 25000 });
+    await retrySaveButton.click();
+
+    await expect(page.getByText('Save paused', { exact: true })).toBeVisible({ timeout: 25000 });
+    await expect(page.getByRole('button', { name: /Open dossier|Opening dossier/i })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Retry save', exact: true })).toBeVisible({ timeout: 10000 });
+
+    await backToEditButton.click();
+
+    await expect(page.locator('main').getByRole('heading', { name: 'Capture the essentials', exact: true })).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('select').first()).toHaveValue('Business');
+    await expect(page.getByPlaceholder('Add one line of context')).toHaveValue('Board approval paused');
+    await expect(page.getByPlaceholder('What needs to happen next?')).toHaveValue('Recover the approval path');
   });
 
   test('edit task name and verify persistence', async ({ page }) => {

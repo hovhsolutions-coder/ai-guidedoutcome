@@ -5,7 +5,11 @@ import { cn } from '../../lib/utils';
 
 interface DossierGeneratedPreviewProps {
   dossier: GeneratedDossier;
-  onOpenDossier: () => void | Promise<void>;
+  onPrimaryAction: () => void | Promise<void>;
+  primaryActionLabel: string;
+  actionHint: string;
+  onSecondaryAction?: (() => void | Promise<void>) | null;
+  secondaryActionLabel?: string | null;
   statusNote?: {
     tone: 'success' | 'warning';
     title: string;
@@ -16,7 +20,11 @@ interface DossierGeneratedPreviewProps {
 
 export function DossierGeneratedPreview({
   dossier,
-  onOpenDossier,
+  onPrimaryAction,
+  primaryActionLabel,
+  actionHint,
+  onSecondaryAction = null,
+  secondaryActionLabel = null,
   statusNote = null,
   isOpening = false,
 }: DossierGeneratedPreviewProps) {
@@ -97,17 +105,28 @@ export function DossierGeneratedPreview({
           ) : (
             <div className="ui-surface-primary px-4 py-5">
               <p className="text-sm text-[var(--text-secondary)]">No suggested tasks yet.</p>
-              <p className="mt-1 text-xs text-[var(--text-muted)]">Open the dossier to add the first move.</p>
+              <p className="mt-1 text-xs text-[var(--text-muted)]">Continue into the dossier to add the first move.</p>
             </div>
           )}
         </div>
 
         <div className="space-y-3">
-          <button onClick={() => void onOpenDossier()} disabled={isOpening} className="ui-button-primary w-full">
-            {isOpening ? 'Opening dossier...' : 'Open dossier'}
-          </button>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <button onClick={() => void onPrimaryAction()} disabled={isOpening} className="ui-button-primary w-full sm:flex-1">
+              {primaryActionLabel}
+            </button>
+            {onSecondaryAction && secondaryActionLabel && (
+              <button
+                onClick={() => void onSecondaryAction()}
+                disabled={isOpening}
+                className="ui-button-secondary w-full sm:flex-1"
+              >
+                {secondaryActionLabel}
+              </button>
+            )}
+          </div>
           <p className="text-center text-xs text-[var(--text-muted)]">
-            You can refine everything inside the dossier.
+            {actionHint}
           </p>
         </div>
       </div>

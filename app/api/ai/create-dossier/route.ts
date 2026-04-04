@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { runAIOrchestrator } from '@/src/lib/ai/orchestrator';
 import { createStoredDossier } from '@/src/lib/dossiers/store';
+import { buildGeneratedDossier } from '@/src/lib/dossiers/build-generated-dossier';
 import { AIRequestInput } from '@/src/lib/ai/types';
-import { IntakeData } from '@/src/types/ai';
+import { CreateDossierResponse, IntakeData } from '@/src/types/ai';
 
 export async function POST(request: NextRequest) {
   try {
@@ -81,30 +82,57 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const storedDossier = await createStoredDossier({
-      title: buildDossierTitle(intake),
+    const draft = buildGeneratedDossier({
+      titleSource: intake.situation || intake.goal,
       situation: result.data.summary,
-      main_goal: intake.goal,
+      mainGoal: intake.goal,
+      suggestedTasks: result.data.suggested_tasks,
       phase: 'Understanding',
-      suggested_tasks: result.data.suggested_tasks,
     });
 
-    console.info('[api:ai:create-dossier:success]', {
-      correlationId,
-      usedFallback,
-      id: storedDossier.id,
-    });
-
-    return NextResponse.json({
+    let responseBody: CreateDossierResponse = {
       success: true,
-      id: storedDossier.id,
-      title: storedDossier.title,
-      situation: storedDossier.situation,
-      main_goal: storedDossier.main_goal,
-      phase: storedDossier.phase,
-      suggested_tasks: storedDossier.tasks,
-      usedFallback,
-    });
+      data: {
+        dossier: draft,
+        persistence: {
+          status: 'save_failed',
+          error: 'The draft is ready, but saving the dossier failed.',
+        },
+        usedFallback,
+      },
+    };
+
+    try {
+      const storedDossier = await createStoredDossier(draft);
+
+      console.info('[api:ai:create-dossier:success]', {
+        correlationId,
+        usedFallback,
+        id: storedDossier.id,
+      });
+
+      responseBody = {
+        success: true,
+        data: {
+          dossier: { ...draft, id: storedDossier.id },
+          persistence: {
+            status: 'saved',
+            id: storedDossier.id,
+          },
+          usedFallback,
+        },
+      };
+    } catch (persistError) {
+      console.error('[api:ai:create-dossier:persist:error]', {
+        correlationId,
+        message: (persistError as Error)?.message,
+        dbProvider: process.env.DATABASE_URL?.split(':')[0],
+        prismaSchema: process.env.PRISMA_SCHEMA,
+        stack: (persistError as Error)?.stack,
+      });
+    }
+
+    return NextResponse.json(responseBody);
   } catch (error) {
     console.error('[api:ai:create-dossier:error]', {
       correlationId: (error as any)?.correlationId,
@@ -140,9 +168,4 @@ function validateIntakeData(intake: IntakeData): { valid: boolean; errors: strin
     valid: errors.length === 0,
     errors
   };
-}
-
-function buildDossierTitle(intake: IntakeData): string {
-  const titleSource = intake.situation || intake.goal || 'New Dossier';
-  return titleSource.length > 40 ? `${titleSource.slice(0, 37)}...` : titleSource;
 }

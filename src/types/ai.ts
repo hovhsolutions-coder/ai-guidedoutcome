@@ -22,6 +22,15 @@ export interface IntakeData {
   blocking: string;
 }
 
+export interface IntakeFormValues {
+  category: string;
+  situationDetails: string;
+  goal: string;
+  urgency: string;
+  involved: string;
+  blocking: string;
+}
+
 export interface GeneratedDossier {
   id?: string;
   title: string;
@@ -34,4 +43,22 @@ export interface GeneratedDossier {
   narrative?: GuidanceNarrativeContract;
   systemPlan?: GuidanceSystemPlanContract;
   executionPlan?: GuidanceExecutionPlanContract;
+}
+
+export interface DossierPersistenceResult {
+  status: 'saved' | 'save_failed';
+  id?: string;
+  error?: string;
+}
+
+export interface CreateDossierResponseData {
+  dossier: GeneratedDossier;
+  persistence: DossierPersistenceResult;
+  usedFallback: boolean;
+}
+
+export interface CreateDossierResponse {
+  success: boolean;
+  data?: CreateDossierResponseData;
+  error?: string;
 }
