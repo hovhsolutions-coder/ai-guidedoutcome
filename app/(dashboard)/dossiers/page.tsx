@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { DossierList } from '@/components/dossiers/DossierList';
 import { getAllDossiers } from '@/src/lib/dossiers/store';
 
