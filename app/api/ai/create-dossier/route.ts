@@ -6,7 +6,10 @@ import { IntakeData } from '@/src/types/ai';
 
 export async function POST(request: NextRequest) {
   try {
+    const correlationId = crypto.randomUUID();
+
     console.info('[api:ai:create-dossier:start]', {
+      correlationId,
       dbProvider: process.env.DATABASE_URL?.split(':')[0],
       prismaSchema: process.env.PRISMA_SCHEMA,
     });
@@ -35,7 +38,15 @@ export async function POST(request: NextRequest) {
       ].join('\n'),
     };
 
-    const result = await runAIOrchestrator(input);
+    let result = await runAIOrchestrator(input);
+
+    console.info('[api:ai:create-dossier:ai:complete]', {
+      correlationId,
+      success: result.success,
+      rateLimited: result.rateLimited,
+      hasData: Boolean(result.data),
+      error: result.error,
+    });
 
     if (result.rateLimited) {
       return NextResponse.json(
@@ -44,11 +55,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    let usedFallback = false;
+
     if (!result.success || !result.data) {
-      return NextResponse.json(
-        { success: false, error: result.error || 'Failed to generate dossier' },
-        { status: 500 }
-      );
+      console.warn('[api:ai:create-dossier:ai:fallback]', {
+        correlationId,
+        error: result.error,
+      });
+
+      result = await runAIOrchestrator(input, { mode: 'local' });
+      usedFallback = true;
+
+      console.info('[api:ai:create-dossier:ai:fallback-complete]', {
+        correlationId,
+        success: result.success,
+        hasData: Boolean(result.data),
+        error: result.error,
+      });
+
+      if (!result.success || !result.data) {
+        return NextResponse.json(
+          { success: false, error: result.error || 'Failed to generate dossier' },
+          { status: 500 }
+        );
+      }
     }
 
     const storedDossier = await createStoredDossier({
@@ -59,6 +89,12 @@ export async function POST(request: NextRequest) {
       suggested_tasks: result.data.suggested_tasks,
     });
 
+    console.info('[api:ai:create-dossier:success]', {
+      correlationId,
+      usedFallback,
+      id: storedDossier.id,
+    });
+
     return NextResponse.json({
       success: true,
       id: storedDossier.id,
@@ -67,9 +103,11 @@ export async function POST(request: NextRequest) {
       main_goal: storedDossier.main_goal,
       phase: storedDossier.phase,
       suggested_tasks: storedDossier.tasks,
+      usedFallback,
     });
   } catch (error) {
     console.error('[api:ai:create-dossier:error]', {
+      correlationId: (error as any)?.correlationId,
       message: (error as Error)?.message,
       dbProvider: process.env.DATABASE_URL?.split(':')[0],
       prismaSchema: process.env.PRISMA_SCHEMA,

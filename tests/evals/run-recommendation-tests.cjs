@@ -107,6 +107,7 @@ const { runRateLimitingTests } = require('./rate-limiting.test.cjs');
 const { runRequestSizeLimitingTests } = require('./request-size-limiting.test.cjs');
 const { runTimeoutHardeningTests } = require('./timeout-hardening.test.cjs');
 const { runDataIntegrityTests } = require('./data-integrity.test.cjs');
+const { runCreateDossierFallbackRouteTests } = require('./create-dossier-fallback-route.test.cjs');
 const { runCorrelationIdTests } = require('./correlation-id.test.cjs');
 const { runTaskDeletionTests } = require('./task-deletion.test.cjs');
 const { runTaskEditTests } = require('./task-edit.test.cjs');
@@ -444,6 +445,9 @@ async function main() {
 
   await runDataIntegrityTests();
   console.log('Data integrity tests passed.');
+
+  await runCreateDossierFallbackRouteTests();
+  console.log('Create dossier fallback route tests passed.');
 
   await runCorrelationIdTests();
   console.log('Correlation ID tests passed.');
