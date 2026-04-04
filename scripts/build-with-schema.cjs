@@ -9,8 +9,8 @@
 const { execSync } = require('child_process');
 const cwd = process.cwd();
 
-const schema = process.env.PRISMA_SCHEMA || 'prisma/schema.prisma';
-const skipDbPush = process.env.SKIP_DB_PUSH === '1';
+const schema = (process.env.PRISMA_SCHEMA || 'prisma/schema.prisma').trim();
+const skipDbPush = ((process.env.SKIP_DB_PUSH || '').trim()) === '1';
 
 function run(step, cmd) {
   console.log(`\n▶️ ${step}: ${cmd}`);

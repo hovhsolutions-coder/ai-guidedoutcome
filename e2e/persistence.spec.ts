@@ -58,7 +58,15 @@ test.describe('Persistence Roundtrip', () => {
 
     const openBtn = page.getByRole('button', { name: /Open Dossier|Opening dossier/i });
     await expect(openBtn).toBeVisible({ timeout: 25000 });
+
+    const postWait = page.waitForResponse(
+      (response) => response.url().includes('/api/dossiers') && response.request().method() === 'POST'
+    );
     await openBtn.click();
+    const postResponse = await postWait;
+    expect(postResponse.ok()).toBeTruthy();
+    const body = await postResponse.json();
+    expect(body.success).toBeTruthy();
 
     await expect(page).toHaveURL(/\/dossiers\/[a-zA-Z0-9-]+/, { timeout: 15000 });
     const detail = page.locator('[data-testid="dossier-detail"]');

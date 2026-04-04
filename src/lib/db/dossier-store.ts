@@ -442,42 +442,60 @@ export async function createStoredDossier(dossier: GeneratedDossier): Promise<Mo
   const now = new Date();
   const id = dossier.id ?? crypto.randomUUID();
 
-  const prismaDossier = await prisma.dossier.create({
-    data: {
+  try {
+    console.info('[dossier:create:start]', {
       id,
-      title: sanitizeString(dossier.title, 'New Dossier'),
-      situation: sanitizeString(dossier.situation, 'No situation provided'),
-      mainGoal: sanitizeString(dossier.main_goal, 'No goal specified'),
-      phase: validatePhase(dossier.phase),
-      progress: 0,
-      lastActivity: 'Dossier created',
-      tasks: {
-        create: sanitizeTasks(dossier.suggested_tasks).map((taskName, index) => ({
-          name: taskName,
-          priority: index === 0 ? 'high' : 'medium',
-        })),
+      dbProvider: process.env.DATABASE_URL?.split(':')[0],
+      prismaSchema: process.env.PRISMA_SCHEMA,
+    });
+
+    const prismaDossier = await prisma.dossier.create({
+      data: {
+        id,
+        title: sanitizeString(dossier.title, 'New Dossier'),
+        situation: sanitizeString(dossier.situation, 'No situation provided'),
+        mainGoal: sanitizeString(dossier.main_goal, 'No goal specified'),
+        phase: validatePhase(dossier.phase),
+        progress: 0,
+        lastActivity: 'Dossier created',
+        tasks: {
+          create: sanitizeTasks(dossier.suggested_tasks).map((taskName, index) => ({
+            name: taskName,
+            priority: index === 0 ? 'high' : 'medium',
+          })),
+        },
+        narrative: dossier.narrative ? JSON.stringify(dossier.narrative) : null,
+        systemPlan: dossier.systemPlan ? JSON.stringify(dossier.systemPlan) : null,
+        executionPlan: dossier.executionPlan ? JSON.stringify(dossier.executionPlan) : null,
       },
-      narrative: dossier.narrative ? JSON.stringify(dossier.narrative) : null,
-      systemPlan: dossier.systemPlan ? JSON.stringify(dossier.systemPlan) : null,
-      executionPlan: dossier.executionPlan ? JSON.stringify(dossier.executionPlan) : null,
-    },
-    include: {
-      tasks: {
-        include: {
-          subtasks: true,
-          dependencies: {
-            include: {
-              dependsOnTask: true,
+      include: {
+        tasks: {
+          include: {
+            subtasks: true,
+            dependencies: {
+              include: {
+                dependsOnTask: true,
+              },
             },
           },
         },
+        activityEntries: true,
+        chatMessages: true,
       },
-      activityEntries: true,
-      chatMessages: true,
-    },
-  });
+    });
 
-  return convertPrismaDossierToMockDossier(prismaDossier);
+    console.info('[dossier:create:success]', { id });
+    return convertPrismaDossierToMockDossier(prismaDossier);
+  } catch (error) {
+    console.error('[dossier:create:error]', {
+      id,
+      message: (error as Error)?.message,
+      dbProvider: process.env.DATABASE_URL?.split(':')[0],
+      prismaSchema: process.env.PRISMA_SCHEMA,
+      stack: (error as Error)?.stack,
+    });
+    throw error;
+  }
 }
 
 export async function updateStoredDossier(
