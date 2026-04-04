@@ -279,6 +279,59 @@ function mapNormalizedResponse(data: AIResponseOutput): AIRunnerResult {
 
 function getCreateDossierFallbackResponse(input: AIRequestInput): AIResponseOutput {
   const goal = input.main_goal ?? 'your goal';
+  const context = `${input.situation ?? ''} ${input.user_input ?? ''} ${input.main_goal ?? ''}`.toLowerCase();
+  const hasDecisionSignal = /decide|decision|choose|choice|option|tradeoff|dilemma|fork/.test(context);
+  const hasBlockedSignal = /blocked|blocker|stuck|halt|deadlock|impasse|cant|can't|cannot|unable|prevented/.test(context);
+  const hasPlanningSignal = /plan|structure|organize|sequence|priority|framework|roadmap|timeline|launch/.test(context);
+  const hasExecutionSignal = /execute|implement|build|ship|deploy|deliver|complete|finish|momentum|progress/.test(context);
+
+  if (hasDecisionSignal) {
+    return {
+      summary: `A decision on ${goal} is pending. Frame the choice clearly and force momentum toward a confident commit.`,
+      next_step: 'Define the decision criteria and the single fact that would make the choice obvious.',
+      suggested_tasks: [
+        'Write the explicit decision criteria and weights for each option',
+        'Choose the strongest option and state why it currently leads',
+        'Confirm what choosing this option enables next and the risk if it is wrong',
+      ],
+    };
+  }
+
+  if (hasBlockedSignal) {
+    return {
+      summary: `Progress is blocked on ${goal}. Name the blocker clearly and choose the first unblock move now.`,
+      next_step: 'Write the specific blocker and the exact step to remove it.',
+      suggested_tasks: [
+        'Write the specific blocker and the exact step to remove it',
+        'Define what "unblocked" looks like for the next milestone',
+        'Capture the one fact that would change the unblock plan',
+      ],
+    };
+  }
+
+  if (hasPlanningSignal) {
+    return {
+      summary: `Planning is required for ${goal}. Build a clear sequence and ownership so execution is straightforward.`,
+      next_step: 'Define the launch sequence and owners for the first milestone.',
+      suggested_tasks: [
+        'Define the sequence for the first three milestones with clear owners',
+        'Establish the timeline and dependencies for the opening phase',
+        'Confirm what each milestone unlocks for the next step',
+      ],
+    };
+  }
+
+  if (hasExecutionSignal) {
+    return {
+      summary: `Execution is underway for ${goal}. Keep momentum by finishing the highest-impact action instead of reopening planning.`,
+      next_step: 'Complete the highest-impact remaining action and show a visible proof of progress.',
+      suggested_tasks: [
+        'Define the top remaining action to complete in the next hour',
+        'Finish the cutover prerequisite and remove any lingering blockers',
+        'Confirm what finishing this unlocks next and who owns that follow-on step',
+      ],
+    };
+  }
 
   return {
     summary: `Starting a focused dossier on ${goal}. The initial structure captures what matters most right now, with clear next steps ready for immediate action.`,
@@ -489,6 +542,9 @@ function shouldCoalesceRequest(input: AIRequestInput, coalescingEligible: boolea
 
 function detectSituationType(input: AIRequestInput): 'unclear' | 'decision' | 'blocked' | 'planning' | 'execution' | 'empty' {
   const context = `${input.situation ?? ''} ${input.user_input ?? ''} ${input.main_goal ?? ''}`.toLowerCase();
+  const hasEmptySignal = /start|begin|init|new|blank|empty|from scratch|ground zero/.test(context);
+  const hasNoTasks = (input.tasks?.length ?? 0) === 0;
+  const hasUnclearSignal = /unclear|messy|fuzzy|fog|unknown|unsure|uncertainty/.test(context);
   
   // Check for blocked/stuck signals first (highest priority)
   if (/block|stuck|halt|deadlock|impasse|cant|can't|cannot|unable|prevented/.test(context)) {
@@ -499,10 +555,14 @@ function detectSituationType(input: AIRequestInput): 'unclear' | 'decision' | 'b
   if (/decide|decision|choose|choice|option|tradeoff|dilemma|fork/.test(context)) {
     return 'decision';
   }
+
+  if (hasUnclearSignal) {
+    return 'unclear';
+  }
   
-  // Check for empty/starting signals
-  if (/start|begin|init|new|blank|empty|from scratch|ground zero/.test(context) || (input.tasks?.length ?? 0) === 0) {
-    return 'empty';
+  // Check for planning/structuring signals
+  if (/plan|structure|organize|sequence|priority|framework|roadmap|timeline/.test(context)) {
+    return 'planning';
   }
   
   // Check for active execution signals
@@ -510,9 +570,9 @@ function detectSituationType(input: AIRequestInput): 'unclear' | 'decision' | 'b
     return 'execution';
   }
   
-  // Check for planning/structuring signals
-  if (/plan|structure|organize|sequence|priority|framework|roadmap|timeline/.test(context)) {
-    return 'planning';
+  // Check for empty/starting signals (only if nothing else matched)
+  if (hasEmptySignal && hasNoTasks) {
+    return 'empty';
   }
   
   // Default to unclear/messy
@@ -674,7 +734,7 @@ function buildLocalDeterministicResponse(
     return {
       summary: hasTaskOverload
         ? `There is visible motion, but execution clutter is diluting focus. Collapse the queue around one task that protects progress most directly.`
-        : `Momentum is available. Keep execution tight around the strongest active task instead of reopening planning.`,
+        : `Momentum is available. Execute tightly around the strongest active task instead of reopening planning.`,
       next_step: priorityTask ? `Complete "${priorityTask}" now.` : 'Complete one concrete action now.',
       suggested_tasks: [
         'Write the specific result this task must produce',
@@ -691,8 +751,8 @@ function buildLocalDeterministicResponse(
         ? `The plan has too many active branches. Force sequence around one task so the structure becomes easier to execute.`
         : `Build the operating structure—ownership, sequence, dependencies. Create one clear anchor point everything else hangs from.`,
       next_step: priorityTask 
-        ? `Define what "${priorityTask}" needs before it can move cleanly.`
-        : 'Establish one clear anchor point for sequencing.',
+        ? `Establish the sequence and dependencies for "${priorityTask}".`
+        : 'Establish the priority sequence and owners for the first milestones.',
       suggested_tasks: [
         'Write the priority level of the main task',
         'Define what must happen before it can start',
@@ -755,12 +815,14 @@ function refineGuidanceOutput(input: AIRequestInput, output: AIResponseOutput): 
   }
 
   const existingTasks = sanitizeTaskList(input.tasks ?? []);
+  const situation = detectSituationType(input);
   const completedMomentum = hasMomentum(input);
   const alignedTask = findAlignedTask(output.next_step, existingTasks);
+  const alignmentTarget = (situation === 'blocked' || situation === 'decision' || situation === 'unclear' || situation === 'planning') ? null : alignedTask;
   const normalizedNextStep = enforceNextStepRules(
     input,
-    alignNextStepToTask(output.next_step, alignedTask),
-    alignedTask,
+    alignNextStepToTask(output.next_step, alignmentTarget),
+    alignmentTarget,
     completedMomentum
   );
   const normalizedTasks = sanitizeTaskList(output.suggested_tasks)
@@ -773,12 +835,12 @@ function refineGuidanceOutput(input: AIRequestInput, output: AIResponseOutput): 
 
   const improvedTasks = sequencedTasks.length > 0
     ? sequencedTasks
-    : buildFallbackSupportTasks(input, normalizedNextStep, alignedTask);
+    : buildFallbackSupportTasks(input, normalizedNextStep, alignmentTarget);
 
   return {
     summary: normalizeSentence(output.summary),
     next_step: normalizedNextStep,
-    suggested_tasks: improvedTasks.map((task) => ensureTaskSupportsNextStep(task, normalizedNextStep, alignedTask)),
+    suggested_tasks: improvedTasks.map((task) => ensureTaskSupportsNextStep(task, normalizedNextStep, alignmentTarget)),
   };
 }
 
@@ -993,7 +1055,7 @@ function buildSituationAwareSupportingTasks(
   // EXECUTION situations: focus on momentum protection
   if (situation === 'execution') {
     return [
-      `Write the specific result "${taskRef}" must produce`,
+      `Write the specific result "${taskRef}" must produce as concrete data`,
       `Name the single blocker preventing completion`,
       `Confirm what finishing this unlocks next`,
     ];
@@ -1104,6 +1166,10 @@ function alignNextStepToTask(nextStep: string, alignedTask: string | null): stri
     return nextStep;
   }
 
+  if (referencesTask(nextStep, alignedTask)) {
+    return nextStep;
+  }
+
   return `Complete "${alignedTask}" now.`;
 }
 
@@ -1135,7 +1201,7 @@ function keepSingleAction(value: string): string {
 }
 
 function hasStrongActionVerb(value: string): boolean {
-  return /^(define|choose|complete|write|capture|remove|send|finish|clarify|decide|call|draft|confirm|identify|use|list|check|name|group|translate|finalize)\b/i.test(value.trim());
+  return /^(define|choose|complete|write|capture|remove|send|finish|clarify|decide|call|draft|confirm|identify|use|list|check|name|group|translate|finalize|analyze|investigate|establish)\b/i.test(value.trim());
 }
 
 function hasMomentum(input: AIRequestInput): boolean {
@@ -1176,6 +1242,14 @@ function enforceConcreteTask(task: string): string {
 }
 
 function ensureTaskSupportsNextStep(task: string, nextStep: string, alignedTask: string | null): string {
+  if (/unblock/i.test(nextStep)) {
+    return task;
+  }
+
+  if (/^analyze\b/i.test(nextStep)) {
+    return task;
+  }
+
   if (alignedTask && !referencesTask(task, alignedTask) && referencesTask(nextStep, alignedTask)) {
     return enforceConcreteTask(`Define what support "${alignedTask}" needs next`);
   }

@@ -211,7 +211,7 @@ async function main() {
   runGuidanceToDossierHandoffTests();
   console.log('Guidance to dossier handoff tests passed.');
 
-  runDossierGenerationQualityTests();
+  await runDossierGenerationQualityTests();
   console.log('Dossier generation quality tests passed.');
 
   runGuidanceDecisionEnvelopeTests();
@@ -529,7 +529,7 @@ async function main() {
   runGuidancePhaseAndRightRailTests();
   console.log('Guidance phase and right-rail tests passed.');
 
-  runGuidanceSituationPhaseMatrixTests();
+  await runGuidanceSituationPhaseMatrixTests();
   console.log('Guidance situation-phase matrix tests passed.');
 
   runOnboardingStatePlannerTests();

@@ -12,11 +12,11 @@ const { runAIOrchestrator } = require('../../src/lib/ai/orchestrator.ts');
  * strategically sequenced, and appropriate to the situation.
  */
 
-function runDossierGenerationQualityTests() {
+async function runDossierGenerationQualityTests() {
   const testCases = buildDossierQualityMatrix();
 
   for (const testCase of testCases) {
-    const result = runAIOrchestrator(testCase.input, { mode: 'local' });
+    const result = await runAIOrchestrator(testCase.input, { mode: 'local' });
 
     assert.equal(result.success, true, `${testCase.id}: dossier creation should succeed`);
     assert.ok(result.data, `${testCase.id}: dossier creation should return data`);

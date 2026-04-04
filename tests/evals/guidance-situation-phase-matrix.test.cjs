@@ -11,11 +11,11 @@ const { runAIOrchestrator } = require('../../src/lib/ai/orchestrator.ts');
  * Tests that guidance adapts meaningfully to both situation type and current phase.
  */
 
-function runGuidanceSituationPhaseMatrixTests() {
+async function runGuidanceSituationPhaseMatrixTests() {
   const testCases = buildSituationPhaseMatrix();
 
   for (const testCase of testCases) {
-    const result = runAIOrchestrator(testCase.input, { mode: 'local' });
+    const result = await runAIOrchestrator(testCase.input, { mode: 'local' });
 
     assert.equal(result.success, true, `${testCase.id}: guidance should succeed`);
     assert.ok(result.data, `${testCase.id}: guidance should return data`);

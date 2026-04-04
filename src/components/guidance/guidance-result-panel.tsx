@@ -82,7 +82,7 @@ export function GuidanceResultPanel({
   const suggestedTasksIntro = intent === 'deepen'
     ? `These tasks unpack the current read into a clearer path without changing the underlying ${copyProfile.domainFamily === 'clarity' ? 'position' : copyProfile.domainFamily === 'structure' ? 'plan' : 'direction'} you already confirmed.`
     : `These tasks are based on the current read and show the first concrete work it already unlocked, while staying scoped to the ${lexicon.resultFocus} above.`;
-  const emptyStateCopy = 'Describe your situation above to receive personalized guidance and next steps.';
+  const emptyStateCopy = 'Describe your situation above to receive personalized guidance, see what became clearer about it, and get next steps.';
   const bodySpacingClass = rhythm === 'spacious'
     ? 'space-y-7 p-6 sm:p-7'
     : rhythm === 'compact'
@@ -107,6 +107,7 @@ export function GuidanceResultPanel({
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-secondary)]">
               Guidance
             </p>
+            <span className="sr-only">Result panel</span>
             <h2 className={`mt-2 ${titleClass} text-[var(--text-primary)]`}>
               {safeResultContent.summary
                 ? intent === 'deepen'
@@ -116,8 +117,13 @@ export function GuidanceResultPanel({
                       ? 'You now have a plan you can act on'
                       : 'You now have a direction you can act on'
                     : 'You now have a usable guidance read'
-                : 'First universal guidance read'}
+              : 'First universal guidance read'}
             </h2>
+            {safeResultContent.summary ? (
+              <p className="mt-1 text-sm leading-6 text-[var(--text-secondary)]">
+                {`Based on the current read, you now have a ${lexicon.resultFocus} you can trust.`}
+              </p>
+            ) : null}
             {!isMinimal ? (
               <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--text-secondary)]">
                 {safeResultContent.summary ? sectionReflection : emptyStateCopy}
@@ -139,7 +145,7 @@ export function GuidanceResultPanel({
         {isLoading ? (
           <div className="ui-surface-secondary space-y-4 border-[rgba(255,255,255,0.07)] bg-[rgba(255,255,255,0.026)] px-5 py-5">
               <div className="flex items-center justify-between gap-3">
-                <span className="text-sm font-medium text-[var(--text-primary)]">Analyzing your situation...</span>
+                <span className="text-sm font-medium text-[var(--text-primary)]">Generating universal guidance...</span>
                 {!isMinimal ? (
                   <span className="text-[11px] uppercase tracking-[0.12em] text-[var(--text-muted)]">
                     Just a moment
