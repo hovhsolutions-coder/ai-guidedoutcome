@@ -250,7 +250,7 @@ export function DossierDetailClient({ dossier, completedDossiers = [] }: Dossier
       const result = await persistTaskChanges(dossier.id, newTasks, completedTasks, newActivityHistory);
       persistInFlightRef.current = false;
       if (!result.success) {
-        setPersistError('Task update could not be saved. Your changes are kept locally—try again shortly.');
+        setPersistError('Task update could not be saved. Your changes are kept locally - try again shortly.');
         setSaveStatus('idle');
       } else {
         setSaveStatus('saved');
@@ -289,7 +289,7 @@ export function DossierDetailClient({ dossier, completedDossiers = [] }: Dossier
       void persistTaskChanges(dossier.id, tasks, newSet, newActivityHistory).then((result) => {
         persistInFlightRef.current = false;
         if (!result.success) {
-          setPersistError('Progress update could not be saved. Your changes are kept locally—try again shortly.');
+          setPersistError('Progress update could not be saved. Your changes are kept locally - try again shortly.');
           setSaveStatus('idle');
         } else {
           setSaveStatus('saved');
@@ -331,7 +331,7 @@ export function DossierDetailClient({ dossier, completedDossiers = [] }: Dossier
     persistInFlightRef.current = false;
 
     if (!result.success) {
-      setPersistError('Task deletion could not be saved. Your change is kept locally—try again shortly.');
+      setPersistError('Task deletion could not be saved. Your change is kept locally - try again shortly.');
       setSaveStatus('idle');
     } else {
       setSaveStatus('saved');
@@ -396,7 +396,7 @@ export function DossierDetailClient({ dossier, completedDossiers = [] }: Dossier
     persistInFlightRef.current = false;
 
     if (!result.success) {
-      setPersistError('Task rename could not be saved. Your change is kept locally—try again shortly.');
+      setPersistError('Task rename could not be saved. Your change is kept locally - try again shortly.');
       setSaveStatus('idle');
     } else {
       setSaveStatus('saved');
@@ -441,7 +441,7 @@ export function DossierDetailClient({ dossier, completedDossiers = [] }: Dossier
     persistInFlightRef.current = false;
 
     if (!result.success) {
-      setPersistError('Task reorder could not be saved. Your change is kept locally—try again shortly.');
+      setPersistError('Task reorder could not be saved. Your change is kept locally - try again shortly.');
       setSaveStatus('idle');
     } else {
       setSaveStatus('saved');
@@ -498,7 +498,7 @@ export function DossierDetailClient({ dossier, completedDossiers = [] }: Dossier
     persistInFlightRef.current = false;
 
     if (!result.success) {
-      setPersistError('Due date could not be saved. Your change is kept locally—try again shortly.');
+      setPersistError('Due date could not be saved. Your change is kept locally - try again shortly.');
       setSaveStatus('idle');
     } else {
       setSaveStatus('saved');
@@ -554,7 +554,7 @@ export function DossierDetailClient({ dossier, completedDossiers = [] }: Dossier
     persistInFlightRef.current = false;
 
     if (!result.success) {
-      setPersistError('Note could not be saved. Your change is kept locally—try again shortly.');
+      setPersistError('Note could not be saved. Your change is kept locally - try again shortly.');
       setSaveStatus('idle');
     } else {
       setSaveStatus('saved');
@@ -603,7 +603,7 @@ export function DossierDetailClient({ dossier, completedDossiers = [] }: Dossier
     persistInFlightRef.current = false;
 
     if (!result.success) {
-      setPersistError('Priority could not be saved. Your change is kept locally—try again shortly.');
+      setPersistError('Priority could not be saved. Your change is kept locally - try again shortly.');
       setSaveStatus('idle');
     } else {
       setSaveStatus('saved');
@@ -657,7 +657,7 @@ export function DossierDetailClient({ dossier, completedDossiers = [] }: Dossier
     persistInFlightRef.current = false;
 
     if (!result.success) {
-      setPersistError('Category could not be saved. Your change is kept locally—try again shortly.');
+      setPersistError('Category could not be saved. Your change is kept locally - try again shortly.');
       setSaveStatus('idle');
     } else {
       setSaveStatus('saved');
@@ -711,7 +711,7 @@ export function DossierDetailClient({ dossier, completedDossiers = [] }: Dossier
     persistInFlightRef.current = false;
 
     if (!result.success) {
-      setPersistError('Estimate could not be saved. Your change is kept locally—try again shortly.');
+      setPersistError('Estimate could not be saved. Your change is kept locally - try again shortly.');
       setSaveStatus('idle');
     } else {
       setSaveStatus('saved');
@@ -774,7 +774,7 @@ export function DossierDetailClient({ dossier, completedDossiers = [] }: Dossier
     persistInFlightRef.current = false;
 
     if (!result.success) {
-      setPersistError('Time tracking could not be saved. Your change is kept locally—try again shortly.');
+      setPersistError('Time tracking could not be saved. Your change is kept locally - try again shortly.');
       setSaveStatus('idle');
     } else {
       setSaveStatus('saved');
@@ -853,7 +853,7 @@ export function DossierDetailClient({ dossier, completedDossiers = [] }: Dossier
     persistInFlightRef.current = false;
 
     if (!result.success) {
-      setPersistError('Dependency change could not be saved. Your change is kept locally—try again shortly.');
+      setPersistError('Dependency change could not be saved. Your change is kept locally - try again shortly.');
       setSaveStatus('idle');
     } else {
       setSaveStatus('saved');
@@ -904,7 +904,7 @@ export function DossierDetailClient({ dossier, completedDossiers = [] }: Dossier
     persistInFlightRef.current = false;
 
     if (!result.success) {
-      setPersistError('Milestone change could not be saved. Your change is kept locally—try again shortly.');
+      setPersistError('Milestone change could not be saved. Your change is kept locally - try again shortly.');
       setSaveStatus('idle');
     } else {
       setSaveStatus('saved');
@@ -948,7 +948,7 @@ export function DossierDetailClient({ dossier, completedDossiers = [] }: Dossier
     persistInFlightRef.current = false;
 
     if (!result.success) {
-      setPersistError('Subtask could not be saved. Your change is kept locally—try again shortly.');
+      setPersistError('Subtask could not be saved. Your change is kept locally - try again shortly.');
       setSaveStatus('idle');
     } else {
       setSaveStatus('saved');
@@ -998,7 +998,7 @@ export function DossierDetailClient({ dossier, completedDossiers = [] }: Dossier
     persistInFlightRef.current = false;
 
     if (!result.success) {
-      setPersistError('Subtask status could not be saved. Your change is kept locally—try again shortly.');
+      setPersistError('Subtask status could not be saved. Your change is kept locally - try again shortly.');
       setSaveStatus('idle');
     } else {
       setSaveStatus('saved');
@@ -1048,7 +1048,7 @@ export function DossierDetailClient({ dossier, completedDossiers = [] }: Dossier
     persistInFlightRef.current = false;
 
     if (!result.success) {
-      setPersistError('Subtask edit could not be saved. Your change is kept locally—try again shortly.');
+      setPersistError('Subtask edit could not be saved. Your change is kept locally - try again shortly.');
       setSaveStatus('idle');
     } else {
       setSaveStatus('saved');
@@ -1093,7 +1093,7 @@ export function DossierDetailClient({ dossier, completedDossiers = [] }: Dossier
     persistInFlightRef.current = false;
 
     if (!result.success) {
-      setPersistError('Subtask deletion could not be saved. Your change is kept locally—try again shortly.');
+      setPersistError('Subtask deletion could not be saved. Your change is kept locally - try again shortly.');
       setSaveStatus('idle');
     } else {
       setSaveStatus('saved');
@@ -1134,7 +1134,7 @@ export function DossierDetailClient({ dossier, completedDossiers = [] }: Dossier
     persistInFlightRef.current = false;
 
     if (!result.success) {
-      setPersistError('Batch complete could not be saved. Changes are kept locally—try again shortly.');
+      setPersistError('Batch complete could not be saved. Changes are kept locally - try again shortly.');
       setSaveStatus('idle');
     } else {
       setSaveStatus('saved');
@@ -1175,7 +1175,7 @@ export function DossierDetailClient({ dossier, completedDossiers = [] }: Dossier
     persistInFlightRef.current = false;
 
     if (!result.success) {
-      setPersistError('Batch uncomplete could not be saved. Changes are kept locally—try again shortly.');
+      setPersistError('Batch uncomplete could not be saved. Changes are kept locally - try again shortly.');
       setSaveStatus('idle');
     } else {
       setSaveStatus('saved');
@@ -1221,7 +1221,7 @@ export function DossierDetailClient({ dossier, completedDossiers = [] }: Dossier
     persistInFlightRef.current = false;
 
     if (!result.success) {
-      setPersistError('Batch delete could not be saved. Changes are kept locally—try again shortly.');
+      setPersistError('Batch delete could not be saved. Changes are kept locally - try again shortly.');
       setSaveStatus('idle');
     } else {
       setSaveStatus('saved');
@@ -1261,7 +1261,7 @@ export function DossierDetailClient({ dossier, completedDossiers = [] }: Dossier
     pendingRetryRef.current = { type: 'phase', data: { phase: newPhase } };
     const result = await persistPhaseChange(dossier.id, newPhase, newActivityHistory);
     if (!result.success) {
-      setPersistError('Phase change could not be saved. Your change is kept locally—try again shortly.');
+      setPersistError('Phase change could not be saved. Your change is kept locally - try again shortly.');
       setSaveStatus('idle');
     } else {
       setSaveStatus('saved');
@@ -1378,7 +1378,7 @@ export function DossierDetailClient({ dossier, completedDossiers = [] }: Dossier
             )}
             {saveStatus === 'saved' && (
               <>
-                <span className="text-[var(--color-green)]">✓</span>
+                <span className="text-[var(--color-green)]">OK</span>
                 <span className="text-[var(--color-green)]">Saved</span>
               </>
             )}
@@ -1386,7 +1386,7 @@ export function DossierDetailClient({ dossier, completedDossiers = [] }: Dossier
         )}
         {!isOnline && (
           <div className="flex items-center gap-2 text-[11px] text-[var(--color-red)] px-2 py-1 rounded bg-[rgba(255,107,107,0.1)]">
-            <span>●</span>
+            <span>!</span>
             <span>Offline</span>
           </div>
         )}
@@ -1395,14 +1395,14 @@ export function DossierDetailClient({ dossier, completedDossiers = [] }: Dossier
       {persistError && (
         <div className="ui-surface-secondary border border-[rgba(255,107,107,0.4)] px-4 py-3">
           <div className="flex items-center gap-3">
-            <span className="text-[var(--color-red)]">⚠</span>
+            <span className="text-[var(--color-red)]">!</span>
             <p className="text-sm text-[var(--text-secondary)]">{persistError}</p>
             <button
               onClick={() => setPersistError(null)}
               className="ml-auto text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
               aria-label="Dismiss error"
             >
-              ✕
+              x
             </button>
           </div>
         </div>
@@ -1570,7 +1570,7 @@ function getNextStepSummary(hasTasks: boolean, hasCompletedTasks: boolean, phase
   }
 
   if (phase === 'Executing') {
-    return 'Continue the momentum—finish the next task before adding new complexity.';
+    return 'Continue the momentum - finish the next task before adding new complexity.';
   }
 
   if (phase === 'Structuring') {
