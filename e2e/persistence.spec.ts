@@ -81,6 +81,8 @@ test.describe('Persistence Roundtrip', () => {
   });
 
   test('failed-save preview can retry save and open the persisted dossier', async ({ page }) => {
+    let retryRequestBody: unknown = null;
+
     await page.route('**/api/ai/create-dossier', (route) =>
       route.fulfill({
         status: 200,
@@ -104,6 +106,16 @@ test.describe('Persistence Roundtrip', () => {
         }),
       })
     );
+
+    await page.route('**/api/dossiers', async (route) => {
+      if (route.request().method() !== 'POST') {
+        await route.continue();
+        return;
+      }
+
+      retryRequestBody = route.request().postDataJSON();
+      await route.continue();
+    });
 
     await page.goto('/dossiers/new');
 
@@ -131,6 +143,14 @@ test.describe('Persistence Roundtrip', () => {
     expect(postResponse.ok()).toBeTruthy();
     const body = await postResponse.json();
     expect(body.success).toBeTruthy();
+    expect(body.data?.id).toBeTruthy();
+    expect(body.data?.href).toMatch(/^\/dossiers\/[a-zA-Z0-9-]+$/);
+    expect(retryRequestBody).toMatchObject({
+      title: 'Renewal motion stalled',
+      situation: 'Renewal motion stalled',
+      main_goal: 'E2E Preview Flow Goal',
+      phase: 'Understanding',
+    });
 
     await expect(page).toHaveURL(/\/dossiers\/[a-zA-Z0-9-]+/, { timeout: 15000 });
     const detail = page.locator('[data-testid="dossier-detail"]');

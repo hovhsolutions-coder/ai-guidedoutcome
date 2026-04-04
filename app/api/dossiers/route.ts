@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/src/lib/db/prisma';
 import { filterVisibleDossiers } from '@/src/lib/db/dossier-store';
+import { createStoredDossier } from '@/src/lib/dossiers/store';
+import { getDossierHref } from '@/src/lib/dossiers/routes';
 import { type GeneratedDossier } from '@/src/types/ai';
 import { checkRateLimit } from '../../../src/lib/rate-limit';
 
@@ -159,45 +161,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create dossier in database
-    const storedDossier = await prisma.dossier.create({
-      data: {
-        title: dossier.title,
-        situation: dossier.situation,
-        mainGoal: dossier.main_goal,
-        phase: dossier.phase,
-        lastActivity: 'Dossier created',
-        narrative: dossier.narrative ? JSON.stringify(dossier.narrative) : null,
-        systemPlan: dossier.systemPlan ? JSON.stringify(dossier.systemPlan) : null,
-        executionPlan: dossier.executionPlan ? JSON.stringify(dossier.executionPlan) : null,
-        characterProfile: dossier.characterProfile ? JSON.stringify(dossier.characterProfile) : null,
-        progressionState: dossier.progressionState ? JSON.stringify(dossier.progressionState) : null,
-      }
-    });
-
-    // Create suggested tasks if provided
-    if (dossier.suggested_tasks && dossier.suggested_tasks.length > 0) {
-      await prisma.task.createMany({
-        data: dossier.suggested_tasks.map((name, index) => ({
-          name,
-          dossierId: storedDossier.id,
-          priority: index < 3 ? 'high' : index < 6 ? 'medium' : 'low',
-        }))
-      });
-    }
-
-    // Create initial activity entry
-    await prisma.activityEntry.create({
-      data: {
-        type: 'dossier_created',
-        description: `Created dossier "${dossier.title}"`,
-        dossierId: storedDossier.id,
-      }
-    });
+    const storedDossier = await createStoredDossier(dossier);
 
     return NextResponse.json({
       success: true,
-      data: storedDossier,
+      data: {
+        id: storedDossier.id,
+        href: getDossierHref(storedDossier.id),
+      },
     });
   } catch (error) {
     console.error('[api:dossiers:create:error]', {

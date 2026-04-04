@@ -45,9 +45,15 @@ export interface GeneratedDossier {
   executionPlan?: GuidanceExecutionPlanContract;
 }
 
+export interface PersistedDossierIdentity {
+  id: string;
+  href: string;
+}
+
 export interface DossierPersistenceResult {
   status: 'saved' | 'save_failed';
   id?: string;
+  href?: string;
   error?: string;
 }
 
@@ -60,5 +66,11 @@ export interface CreateDossierResponseData {
 export interface CreateDossierResponse {
   success: boolean;
   data?: CreateDossierResponseData;
+  error?: string;
+}
+
+export interface SaveDossierResponse {
+  success: boolean;
+  data?: PersistedDossierIdentity;
   error?: string;
 }

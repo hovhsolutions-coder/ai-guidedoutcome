@@ -5,7 +5,15 @@ import { DossierIntakeForm } from '@/components/dossiers/DossierIntakeForm';
 import { DossierGeneratedPreview } from '@/components/dossiers/DossierGeneratedPreview';
 import { useRouter } from 'next/navigation';
 import { buildGeneratedDossier } from '@/src/lib/dossiers/build-generated-dossier';
-import { CreateDossierResponse, IntakeData, GeneratedDossier, IntakeFormValues } from '@/src/types/ai';
+import { getDossierHref } from '@/src/lib/dossiers/routes';
+import {
+  CreateDossierResponse,
+  GeneratedDossier,
+  IntakeData,
+  IntakeFormValues,
+  PersistedDossierIdentity,
+  SaveDossierResponse,
+} from '@/src/types/ai';
 
 type PreviewState = 'saved' | 'unsaved' | 'save_failed';
 
@@ -14,6 +22,7 @@ export default function NewDossierPage() {
   const [intakeData, setIntakeData] = useState<IntakeData | null>(null);
   const [intakeFormValues, setIntakeFormValues] = useState<IntakeFormValues | null>(null);
   const [generatedDossier, setGeneratedDossier] = useState<GeneratedDossier | null>(null);
+  const [persistedDossier, setPersistedDossier] = useState<PersistedDossierIdentity | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isOpeningDossier, setIsOpeningDossier] = useState(false);
   const [previewState, setPreviewState] = useState<PreviewState>('unsaved');
@@ -24,13 +33,14 @@ export default function NewDossierPage() {
   } | null>(null);
   const router = useRouter();
 
-  const hasPersistedDossier = Boolean(generatedDossier?.id);
+  const hasPersistedDossier = Boolean(persistedDossier?.id ?? generatedDossier?.id);
 
   const handleIntakeSubmit = async (data: IntakeData, values: IntakeFormValues) => {
     setIntakeData(data);
     setIntakeFormValues(values);
     setIsGenerating(true);
     setStatusNote(null);
+    setPersistedDossier(null);
 
     try {
       const response = await fetch('/api/ai/create-dossier', {
@@ -46,10 +56,19 @@ export default function NewDossierPage() {
       }
 
       const persistedId = result.data.persistence.id ?? result.data.dossier.id;
+      const persistedHref = result.data.persistence.href ?? (persistedId ? getDossierHref(persistedId) : undefined);
       setGeneratedDossier({
         ...result.data.dossier,
         ...(persistedId ? { id: persistedId } : {}),
       });
+      setPersistedDossier(
+        persistedId && persistedHref
+          ? {
+              id: persistedId,
+              href: persistedHref,
+            }
+          : null
+      );
 
       if (result.data.persistence.status === 'saved' && persistedId) {
         setPreviewState('saved');
@@ -84,6 +103,7 @@ export default function NewDossierPage() {
         ],
       });
       setGeneratedDossier(mockDossier);
+      setPersistedDossier(null);
       setPreviewState('unsaved');
       setStatusNote({
         tone: 'warning',
@@ -101,8 +121,15 @@ export default function NewDossierPage() {
       return;
     }
 
+    if (persistedDossier?.href) {
+      router.push(persistedDossier.href);
+      return;
+    }
+
     if (generatedDossier.id) {
-      router.push(`/dossiers/${generatedDossier.id}`);
+      const href = getDossierHref(generatedDossier.id);
+      setPersistedDossier({ id: generatedDossier.id, href });
+      router.push(href);
       return;
     }
 
@@ -114,17 +141,26 @@ export default function NewDossierPage() {
         body: JSON.stringify(generatedDossier),
       });
 
-      const result = await response.json().catch(() => null);
+      const result = (await response.json().catch(() => null)) as SaveDossierResponse | null;
 
-      if (!response.ok || !result?.success || !result.data?.id) {
+      const persistedIdentity = result?.data;
+
+      if (!response.ok || !result?.success || !persistedIdentity?.id || !persistedIdentity.href) {
         throw new Error(result?.error || 'Unable to save dossier right now.');
       }
 
-      setGeneratedDossier((prev) => (prev ? { ...prev, id: result.data.id } : prev));
+      setGeneratedDossier((prev) => (prev ? { ...prev, id: persistedIdentity.id } : prev));
+      setPersistedDossier(persistedIdentity);
       setPreviewState('saved');
-      router.push(`/dossiers/${result.data.id}`);
+      setStatusNote({
+        tone: 'success',
+        title: 'Saved and ready',
+        description: 'The dossier is saved. Opening the workspace now.',
+      });
+      router.push(persistedIdentity.href);
     } catch (error) {
       console.error('Failed to persist preview dossier:', error);
+      setPersistedDossier(null);
       setPreviewState('save_failed');
       setStatusNote({
         tone: 'warning',

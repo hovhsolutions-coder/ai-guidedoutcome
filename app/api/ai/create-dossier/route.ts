@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { runAIOrchestrator } from '@/src/lib/ai/orchestrator';
 import { createStoredDossier } from '@/src/lib/dossiers/store';
 import { buildGeneratedDossier } from '@/src/lib/dossiers/build-generated-dossier';
+import { getDossierHref } from '@/src/lib/dossiers/routes';
 import { AIRequestInput } from '@/src/lib/ai/types';
 import { CreateDossierResponse, IntakeData } from '@/src/types/ai';
 
@@ -118,6 +119,7 @@ export async function POST(request: NextRequest) {
           persistence: {
             status: 'saved',
             id: storedDossier.id,
+            href: getDossierHref(storedDossier.id),
           },
           usedFallback,
         },

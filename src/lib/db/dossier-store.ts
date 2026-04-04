@@ -464,6 +464,14 @@ export async function createStoredDossier(dossier: GeneratedDossier): Promise<Mo
             priority: index === 0 ? 'high' : 'medium',
           })),
         },
+        activityEntries: {
+          create: {
+            type: 'dossier_created',
+            description: `Created dossier "${sanitizeString(dossier.title, 'New Dossier')}"`,
+          },
+        },
+        characterProfile: dossier.characterProfile ? JSON.stringify(dossier.characterProfile) : null,
+        progressionState: dossier.progressionState ? JSON.stringify(dossier.progressionState) : null,
         narrative: dossier.narrative ? JSON.stringify(dossier.narrative) : null,
         systemPlan: dossier.systemPlan ? JSON.stringify(dossier.systemPlan) : null,
         executionPlan: dossier.executionPlan ? JSON.stringify(dossier.executionPlan) : null,
