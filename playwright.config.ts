@@ -30,8 +30,14 @@ export default defineConfig({
   ],
   webServer: {
     command: 'npm run build && npm run start',
+    env: {
+      ...process.env,
+      DATABASE_URL: 'file:./dev.db',
+      PRISMA_SCHEMA: 'prisma/schema.prisma',
+      DIRECT_URL: '',
+    },
     url: 'http://localhost:3000',
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
     timeout: 180000,
   },
 });

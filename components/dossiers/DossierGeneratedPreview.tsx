@@ -1,3 +1,5 @@
+'use client';
+
 import { GeneratedDossier } from '@/src/types/ai';
 import { cn } from '../../lib/utils';
 
@@ -23,21 +25,14 @@ export function DossierGeneratedPreview({
       <div className="ui-surface-primary space-y-6 p-8">
         <div className="text-center">
           <div className="mb-4 inline-flex">
-            <span className="ui-chip ui-chip-accent">Dossier Ready</span>
+            <span className="ui-chip ui-chip-accent">Draft ready</span>
           </div>
           <h2 className="mb-3 text-3xl font-semibold tracking-[-0.04em] text-[var(--text-primary)]">
-            Your dossier is ready to review
+            Review the draft
           </h2>
           <p className="mx-auto max-w-2xl text-sm leading-6 text-[var(--text-secondary)]">
-            The system has organized your situation into a clear starting structure so you can review it before opening the dossier workspace.
+            Check the title, goal, and first tasks before opening the dossier.
           </p>
-          <div className="mt-4 inline-flex flex-wrap items-center justify-center gap-3 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-secondary)] px-4 py-2 text-xs text-[var(--text-secondary)]">
-            <span className="font-semibold text-[var(--text-primary)]">Grounded in your intake</span>
-            <span className="text-[var(--text-muted)]">Situation:</span>
-            <span className="text-[var(--text-primary)]">{dossier.situation}</span>
-            <span className="text-[var(--text-muted)]">Goal:</span>
-            <span className="text-[var(--text-primary)]">{dossier.main_goal}</span>
-          </div>
         </div>
 
         {statusNote && (
@@ -86,12 +81,7 @@ export function DossierGeneratedPreview({
         </div>
 
         <div className="ui-surface-secondary space-y-4 p-6">
-          <div className="space-y-2">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--text-secondary)]">Suggested Tasks</p>
-          <p className="text-sm leading-6 text-[var(--text-secondary)]">
-            These are the first concrete actions the system recommends for getting momentum, tailored to the goal you just shared.
-          </p>
-        </div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--text-secondary)]">Suggested Tasks</p>
 
           {dossier.suggested_tasks.length > 0 ? (
             <ul className="space-y-2">
@@ -107,17 +97,17 @@ export function DossierGeneratedPreview({
           ) : (
             <div className="ui-surface-primary px-4 py-5">
               <p className="text-sm text-[var(--text-secondary)]">No suggested tasks yet.</p>
-              <p className="mt-1 text-xs text-[var(--text-muted)]">Open the dossier to refine the first action plan.</p>
+              <p className="mt-1 text-xs text-[var(--text-muted)]">Open the dossier to add the first move.</p>
             </div>
           )}
         </div>
 
         <div className="space-y-3">
           <button onClick={() => void onOpenDossier()} disabled={isOpening} className="ui-button-primary w-full">
-            {isOpening ? 'Opening workspace...' : 'Open dossier workspace'}
+            {isOpening ? 'Opening dossier...' : 'Open dossier'}
           </button>
           <p className="text-center text-xs text-[var(--text-muted)]">
-            You can refine tasks and context immediately after opening; nothing is final until you confirm inside the workspace.
+            You can refine everything inside the dossier.
           </p>
         </div>
       </div>

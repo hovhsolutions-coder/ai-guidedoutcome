@@ -24,7 +24,6 @@ export default function NewDossierPage() {
     setIsGenerating(true);
     setStatusNote(null);
 
-    // Call AI to generate dossier
     try {
       const response = await fetch('/api/ai/create-dossier', {
         method: 'POST',
@@ -44,13 +43,12 @@ export default function NewDossierPage() {
       setGeneratedDossier(result);
       setStatusNote({
         tone: 'success',
-        title: 'Structured successfully',
-        description: 'The dossier was generated from the current AI workflow and is ready for review.',
+        title: 'Draft ready',
+        description: 'The first draft is ready to review and open.',
       });
       setStep('preview');
     } catch (error) {
       console.error('Failed to generate dossier:', error);
-      // Fallback mock
       const mockDossier: GeneratedDossier = {
         title: `${data.situation} - ${data.goal}`,
         situation: data.situation,
@@ -66,8 +64,8 @@ export default function NewDossierPage() {
       setGeneratedDossier(mockDossier);
       setStatusNote({
         tone: 'warning',
-        title: 'Fallback preview',
-        description: 'The live generation step was unavailable, so a safe draft preview was created so you can still continue.',
+        title: 'Fallback draft',
+        description: 'The live generation step was unavailable, so a safe draft was created so you can still continue.',
       });
       setStep('preview');
     } finally {
@@ -109,7 +107,7 @@ export default function NewDossierPage() {
       setStatusNote({
         tone: 'warning',
         title: 'Unable to open dossier',
-        description: 'The preview is ready, but saving the dossier failed. Please try again in a moment.',
+        description: 'The draft is ready, but saving the dossier failed. Please try again in a moment.',
       });
     } finally {
       setIsOpeningDossier(false);
@@ -121,48 +119,20 @@ export default function NewDossierPage() {
       <div className="space-y-4 text-center">
         <div className="inline-flex">
           <span className="ui-chip ui-chip-accent">
-            {step === 'intake' ? 'Step 1 · Intake' : 'Step 2 · Review'}
+            {step === 'intake' ? 'Step 1 of 2' : 'Step 2 of 2'}
           </span>
         </div>
         <div className="space-y-3">
-          <h1 className="text-4xl font-semibold tracking-[-0.045em] text-[var(--text-primary)]">Create New Dossier</h1>
+          <h1 className="text-4xl font-semibold tracking-[-0.045em] text-[var(--text-primary)]">Capture the essentials</h1>
           <p className="mx-auto max-w-2xl text-sm leading-6 text-[var(--text-secondary)]">
-            Turn a messy situation into a structured starting point with clear context, a primary goal, and actionable next steps.
+            Add just enough context to shape a confident first draft.
           </p>
         </div>
       </div>
 
       {step === 'intake' && !isGenerating && (
-        <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+        <div className="mx-auto max-w-2xl">
           <DossierIntakeForm onSubmit={handleIntakeSubmit} isSubmitting={isGenerating} />
-
-          <div className="ui-surface-primary space-y-5 p-6">
-            <div className="space-y-2">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--text-secondary)]">
-                Outcome
-              </p>
-              <h2 className="text-2xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
-                A calmer starting point
-              </h2>
-            </div>
-            <p className="text-sm leading-6 text-[var(--text-secondary)]">
-              The preview helps you validate the structure before you enter the dossier workspace. It is designed to make the next move clearer, not overwhelm you with options.
-            </p>
-            <div className="space-y-3">
-              <div className="ui-surface-secondary px-4 py-4">
-                <p className="text-sm font-medium text-[var(--text-primary)]">Clear summary</p>
-                <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">A concise read on the situation and where to focus first.</p>
-              </div>
-              <div className="ui-surface-secondary px-4 py-4">
-                <p className="text-sm font-medium text-[var(--text-primary)]">Focused goal</p>
-                <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">A stable anchor for planning, sequencing, and task selection.</p>
-              </div>
-              <div className="ui-surface-secondary px-4 py-4">
-                <p className="text-sm font-medium text-[var(--text-primary)]">Practical first tasks</p>
-                <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">Early actions that reduce ambiguity and create forward momentum.</p>
-              </div>
-            </div>
-          </div>
         </div>
       )}
 
@@ -176,10 +146,10 @@ export default function NewDossierPage() {
           </div>
           <div className="space-y-3">
             <h2 className="text-2xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
-              Building your dossier preview
+              Shaping the draft
             </h2>
             <p className="mx-auto max-w-2xl text-sm leading-6 text-[var(--text-secondary)]">
-              We are organizing the situation, framing the initial goal, and shaping the first recommended actions.
+              We are shaping the title, goal, and first tasks.
             </p>
           </div>
           <div className="mx-auto grid max-w-3xl gap-4 md:grid-cols-3">

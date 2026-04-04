@@ -13,28 +13,11 @@ test.describe('Persistence Roundtrip', () => {
     
     // Verify new dossier form loaded
     await expect(page).toHaveURL('/dossiers/new');
-    await expect(page.getByRole('heading', { name: 'New Dossier', exact: true })).toBeVisible();
-    
-    // Fill in basic form fields if they exist
-    const situationInput = page.locator('textarea, input').filter({ hasText: /situation|describe/i }).first();
-    const goalInput = page.locator('textarea, input').filter({ hasText: /goal|objective/i }).first();
-    
-    // Type test data
-    if (await situationInput.isVisible().catch(() => false)) {
-      await situationInput.fill('E2E Test Situation');
-    }
-    if (await goalInput.isVisible().catch(() => false)) {
-      await goalInput.fill('E2E Test Goal');
-    }
-    
-    // Submit form if submit button exists
-    const submitButton = page.getByRole('button', { name: /create|submit|next|continue/i });
-    if (await submitButton.isVisible().catch(() => false)) {
-      await submitButton.click();
-      
-      // Verify navigation to preview or detail page
-      await expect(page).toHaveURL(/\/dossiers(\/new\/preview|\/[a-zA-Z0-9-]+)/);
-    }
+    await expect(page.locator('main').getByRole('heading', { name: 'Capture the essentials', exact: true })).toBeVisible();
+    await expect(page.locator('select').first()).toBeVisible();
+    await expect(page.getByPlaceholder('Add one line of context')).toBeVisible();
+    await expect(page.getByPlaceholder('What needs to happen next?')).toBeVisible();
+    await expect(page.getByRole('button', { name: /Generate dossier/i })).toBeVisible();
   });
 
   test('preview to workspace opens a persisted dossier', async ({ page }) => {
@@ -47,16 +30,18 @@ test.describe('Persistence Roundtrip', () => {
 
     const categorySelect = page.locator('select').first();
     await categorySelect.selectOption({ label: 'Business' });
-    await page.getByPlaceholder('What do you want to achieve?').fill('E2E Preview Flow Goal');
+    await page.getByPlaceholder('Add one line of context').fill('Renewal motion stalled');
+    await page.getByPlaceholder('What needs to happen next?').fill('E2E Preview Flow Goal');
 
     const generateBtn = page.getByRole('button', { name: /Generate Dossier/i });
     await expect(generateBtn).toBeVisible({ timeout: 10000 });
     await generateBtn.click();
 
-    await expect(page.getByText(/Step 2/i)).toBeVisible({ timeout: 25000 });
-    await expect(page.getByText(/Your dossier is ready to review/i)).toBeVisible({ timeout: 25000 });
+    await expect(page.getByText(/Step 2 of 2/i)).toBeVisible({ timeout: 25000 });
+    await expect(page.getByRole('heading', { name: 'Review the draft', exact: true })).toBeVisible({ timeout: 25000 });
+    await expect(page.getByText('Renewal motion stalled', { exact: true })).toBeVisible({ timeout: 25000 });
 
-    const openBtn = page.getByRole('button', { name: /Open Dossier|Opening dossier/i });
+    const openBtn = page.getByRole('button', { name: /Open dossier|Opening dossier/i });
     await expect(openBtn).toBeVisible({ timeout: 25000 });
 
     const postWait = page.waitForResponse(

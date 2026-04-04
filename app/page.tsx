@@ -11,53 +11,41 @@ export default function Home() {
       {/* Hero section */}
       <div className="relative min-h-screen flex items-center justify-center px-6 py-20 sm:px-8 sm:py-24 lg:px-12">
         <div className="max-w-4xl mx-auto text-center">
-          {/* Headline */}
+          <div className="mb-5 inline-flex">
+            <span className="ui-chip ui-chip-accent">Dossier workspace</span>
+          </div>
+
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 leading-tight tracking-tight">
-            <span className="bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-primary-strong)] bg-clip-text text-transparent">
-              AI-Powered
-            </span>
+            <span className="text-white">Move the next</span>
             <br />
-            <span className="text-white">Business Intelligence</span>
+            <span className="bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-primary-strong)] bg-clip-text text-transparent">
+              dossier forward
+            </span>
           </h1>
-          
-          {/* Subheadline */}
+
           <p className="text-xl sm:text-2xl text-[var(--text-secondary)] mb-12 max-w-2xl mx-auto leading-relaxed">
-            Transform your data into actionable insights with our advanced AI platform. 
-            Make smarter decisions, faster than ever before.
+            Capture the situation, review a focused draft, and open the workspace when you are ready to act.
           </p>
-          
-          {/* CTA Buttons */}
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link 
-              href="/dossiers/new" 
+            <Link
+              href="/dossiers/new"
               className="ui-button-primary text-lg px-8 py-4 min-h-[3.5rem] w-full sm:w-auto"
             >
-              Create your first dossier
+              Start a dossier
             </Link>
-            <Link 
-              href="/dossiers" 
+            <Link
+              href="/dossiers"
               className="ui-button-secondary text-lg px-8 py-4 min-h-[3.5rem] w-full sm:w-auto"
             >
-              View dashboard
+              Open queue
             </Link>
           </div>
-          
-          {/* Trust indicators */}
-          <div className="mt-20 pt-12 border-t border-[var(--border-subtle)]">
-            <div className="flex flex-col sm:flex-row justify-center items-center gap-8 text-[var(--text-muted)]">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-[var(--accent-primary)] mb-1">99.9%</div>
-                <div className="text-sm">Uptime</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-[var(--accent-primary)] mb-1">10M+</div>
-                <div className="text-sm">API Calls</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-[var(--accent-primary)] mb-1">24/7</div>
-                <div className="text-sm">Support</div>
-              </div>
-            </div>
+
+          <div className="mt-12 flex flex-wrap justify-center gap-3 text-sm text-[var(--text-muted)]">
+            <span className="ui-surface-secondary px-4 py-2">Clear intake</span>
+            <span className="ui-surface-secondary px-4 py-2">Fast preview</span>
+            <span className="ui-surface-secondary px-4 py-2">Priority queue</span>
           </div>
         </div>
       </div>

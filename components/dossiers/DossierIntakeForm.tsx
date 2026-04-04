@@ -29,7 +29,7 @@ export function DossierIntakeForm({ onSubmit, isSubmitting = false }: DossierInt
   const [involved, setInvolved] = useState<string>('');
   const [blocking, setBlocking] = useState<string>('');
 
-  const situation = selectedCategory === 'Other' ? customSituation : selectedCategory;
+  const situation = customSituation.trim() || selectedCategory;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,20 +45,15 @@ export function DossierIntakeForm({ onSubmit, isSubmitting = false }: DossierInt
             Intake
           </p>
           <h2 className="text-2xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
-            Describe the situation clearly
+            Capture the situation
           </h2>
           <p className="text-sm leading-6 text-[var(--text-secondary)]">
-            Give the system enough context to build a focused starting dossier with the right goal, phase, and next actions.
+            A short description and a clear goal are enough to generate a strong first draft.
           </p>
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-[var(--text-primary)]">
-            Choose a category or type your situation
-          </label>
-          <p className="mb-2 text-xs text-[var(--text-secondary)]">
-            One line is enough. Examples: “Close Series A round” or “Stabilize churn in EU region.”
-          </p>
+          <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">Category</label>
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
@@ -72,28 +67,30 @@ export function DossierIntakeForm({ onSubmit, isSubmitting = false }: DossierInt
               </option>
             ))}
           </select>
-          {selectedCategory === 'Other' && (
-            <input
-              type="text"
-              placeholder="e.g., Rebuild launch plan after vendor delay"
-              value={customSituation}
-              onChange={(e) => setCustomSituation(e.target.value)}
-              className="ui-input mt-2"
-              disabled={isSubmitting}
-              required
-            />
-          )}
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-[var(--text-primary)]">What is your goal?</label>
-          <p className="mb-2 text-xs text-[var(--text-secondary)]">
-            Be specific about the outcome or decision you need in the next 2-4 weeks.
+          <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">Situation details</label>
+          <input
+            type="text"
+            placeholder="Add one line of context"
+            value={customSituation}
+            onChange={(e) => setCustomSituation(e.target.value)}
+            className="ui-input"
+            disabled={isSubmitting}
+            required={selectedCategory === 'Other'}
+          />
+          <p className="mt-2 text-xs text-[var(--text-muted)]">
+            Optional unless you choose Other.
           </p>
+        </div>
+
+        <div>
+          <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">Goal</label>
           <textarea
             value={goal}
             onChange={(e) => setGoal(e.target.value)}
-            placeholder="e.g., Launch the pilot with 5 design partners and lock success metrics"
+            placeholder="What needs to happen next?"
             className="ui-textarea min-h-24"
             disabled={isSubmitting}
             required
@@ -101,7 +98,7 @@ export function DossierIntakeForm({ onSubmit, isSubmitting = false }: DossierInt
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">How urgent is this?</label>
+          <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">Urgency</label>
           <select
             value={urgency}
             onChange={(e) => setUrgency(e.target.value)}
@@ -117,45 +114,30 @@ export function DossierIntakeForm({ onSubmit, isSubmitting = false }: DossierInt
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-[var(--text-primary)]">Who is involved?</label>
-          <p className="mb-2 text-xs text-[var(--text-secondary)]">
-            Optional - list key teams, customers, or decision makers.
-          </p>
+          <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">People involved</label>
           <input
             type="text"
             value={involved}
             onChange={(e) => setInvolved(e.target.value)}
-            placeholder="e.g., Sales EU, Design partners, Legal review"
+            placeholder="Teams, clients, or stakeholders"
             className="ui-input"
             disabled={isSubmitting}
           />
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-[var(--text-primary)]">What is blocking you?</label>
-          <p className="mb-2 text-xs text-[var(--text-secondary)]">
-            Optional - call out the risk, dependency, or unknown slowing you down.
-          </p>
+          <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">Current blocker</label>
           <textarea
             value={blocking}
             onChange={(e) => setBlocking(e.target.value)}
-            placeholder="e.g., Awaiting security review; unclear budget owner"
+            placeholder="Anything slowing this down"
             className="ui-textarea min-h-24"
             disabled={isSubmitting}
           />
         </div>
 
-        <div className="ui-surface-secondary space-y-2 px-4 py-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--text-secondary)]">
-            What happens next
-          </p>
-          <p className="text-sm leading-6 text-[var(--text-secondary)]">
-            We generate a structured dossier, summarize the situation, and suggest the first actions to help you move forward with clarity.
-          </p>
-        </div>
-
         <button type="submit" disabled={isSubmitting} className="ui-button-primary w-full">
-          {isSubmitting ? 'Creating dossier...' : 'Create dossier'}
+          {isSubmitting ? 'Generating dossier...' : 'Generate dossier'}
         </button>
       </div>
     </form>

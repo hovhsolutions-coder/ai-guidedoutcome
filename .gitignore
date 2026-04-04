@@ -49,5 +49,6 @@ dev.log
 normal-runner.log
 sparse-test-output.log
 .vscode/
+test-results/.e2e-seeded
 
 .vercel
