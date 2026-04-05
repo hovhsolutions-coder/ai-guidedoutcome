@@ -521,6 +521,10 @@ function getSafeActionFallback(): AIResponseOutput {
 }
 
 function shouldSkipProviderCall(input: AIRequestInput): boolean {
+  if (!process.env.OPENAI_API_KEY?.trim()) {
+    return true;
+  }
+
   if (input.action !== 'guidance') {
     return false;
   }
