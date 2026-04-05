@@ -4,7 +4,7 @@ import {
   createSessionForUser,
   createUserAccount,
   getSafeNextPath,
-} from '@/src/lib/auth/auth';
+} from '../../../../src/lib/auth/auth';
 
 export async function POST(request: NextRequest) {
   try {
@@ -24,6 +24,7 @@ export async function POST(request: NextRequest) {
     });
 
     const session = await createSessionForUser(user.id);
+
     const response = NextResponse.json({
       success: true,
       data: {
