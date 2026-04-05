@@ -1,11 +1,24 @@
  'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { SignOutButton } from '@/components/auth/SignOutButton';
+import { type AuthUser } from '@/src/lib/auth/auth';
 
-export function Topbar() {
+interface TopbarProps {
+  user: AuthUser | null;
+}
+
+export function Topbar({ user }: TopbarProps) {
   const pathname = usePathname();
   const context = getTopbarContext(pathname);
+  const initials = user?.name
+    .split(' ')
+    .map((part) => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase() ?? 'GO';
 
   return (
     <header className="sticky top-0 z-20 border-b border-[var(--border-subtle)] bg-[color:var(--surface-secondary)]/88 backdrop-blur-xl">
@@ -25,12 +38,21 @@ export function Topbar() {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="hidden rounded-full border border-[var(--border-strong)] bg-[var(--surface-primary)] px-4 py-2 text-sm text-[var(--text-secondary)] lg:block">
-            Workspace active
-          </div>
-          <div className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--border-strong)] bg-[var(--surface-primary)] text-sm font-semibold text-[var(--text-primary)] shadow-[var(--shadow-panel)]">
-            U
-          </div>
+          {user ? (
+            <>
+              <div className="hidden rounded-full border border-[var(--border-strong)] bg-[var(--surface-primary)] px-4 py-2 text-sm text-[var(--text-secondary)] lg:block">
+                {user.email}
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--border-strong)] bg-[var(--surface-primary)] text-sm font-semibold text-[var(--text-primary)] shadow-[var(--shadow-panel)]">
+                {initials}
+              </div>
+              <SignOutButton />
+            </>
+          ) : (
+            <Link href="/sign-in" className="ui-button-secondary">
+              Sign in
+            </Link>
+          )}
         </div>
       </div>
     </header>
@@ -42,19 +64,19 @@ function getTopbarContext(pathname: string | null): {
   title: string;
   subtitle: string;
 } {
-  if (!pathname || pathname === '/') {
+  if (!pathname || pathname === '/dashboard') {
     return {
-      eyebrow: 'Overview',
-      title: 'Command Center',
-      subtitle: 'Calm visibility across dossiers, tasks, and guided execution.',
+      eyebrow: 'Dashboard',
+      title: 'Your workspace',
+      subtitle: 'See what is active, what is blocked, and what to move next.',
     };
   }
 
   if (pathname === '/dossiers') {
     return {
       eyebrow: 'Workspace',
-      title: 'Dossiers',
-      subtitle: 'Review active dossiers, their current phase, and where attention is needed.',
+      title: 'My Dossiers',
+      subtitle: 'Open saved dossiers, continue work, or start a new one cleanly.',
     };
   }
 
@@ -62,7 +84,7 @@ function getTopbarContext(pathname: string | null): {
     return {
       eyebrow: 'Creation',
       title: 'New Dossier',
-      subtitle: 'Turn a messy situation into a structured starting point before entering execution.',
+      subtitle: 'Capture the essentials, generate the first draft, and open the live dossier.',
     };
   }
 
@@ -70,13 +92,13 @@ function getTopbarContext(pathname: string | null): {
     return {
       eyebrow: 'Dossier Detail',
       title: 'Guided Outcome',
-      subtitle: 'Keep context, tasks, and AI guidance aligned in one working surface.',
+      subtitle: 'Continue the live dossier with context, tasks, and progress in one place.',
     };
   }
 
   return {
     eyebrow: 'Workspace',
     title: 'AI Guided Outcome',
-    subtitle: 'Structured decision support for dossiers, execution, and progress.',
+    subtitle: 'Your personal dossier workspace.',
   };
 }

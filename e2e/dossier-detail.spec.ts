@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { signInAsSeedUser } from './helpers/auth';
 
 /**
  * E2E Test: Dossier Detail
@@ -7,6 +8,10 @@ import { test, expect } from '@playwright/test';
  */
 
 test.describe('Dossier Detail', () => {
+  test.beforeEach(async ({ page }) => {
+    await signInAsSeedUser(page, '/dossiers');
+  });
+
   test('opening an existing dossier works', async ({ page }) => {
     // First go to dossiers list
     await page.goto('/dossiers');
@@ -362,27 +367,27 @@ test.describe('Dossier Detail', () => {
 
     // Contract 2: No active-work framing in NextStepPanel
     // Should NOT see "Momentum focus" badge (that's for active work)
-    const momentumBadge = page.locator('text=Momentum focus');
+    const momentumBadge = dossierContainer.getByText('Momentum focus', { exact: true });
     await expect(momentumBadge).not.toBeVisible();
 
     // Should NOT see "Next move" (active-work language)
-    const nextMoveLabel = page.locator('text=Next move').first();
+    const nextMoveLabel = dossierContainer.getByText('Next move', { exact: true });
     await expect(nextMoveLabel).not.toBeVisible();
 
     // Contract 3: CTA is "Review record" not "Keep going"
-    const keepGoingCta = page.locator('text=Keep going').first();
+    const keepGoingCta = dossierContainer.getByText('Keep going', { exact: true });
     await expect(keepGoingCta).not.toBeVisible();
 
     // Contract 4: Reference-oriented language is present
     // Should see "Review record" (the primary CTA for completed dossiers)
-    const reviewRecordCta = page.locator('text=Review record').first();
+    const reviewRecordCta = dossierContainer.getByRole('button', { name: 'Review record', exact: true });
     await expect(reviewRecordCta).toBeVisible();
 
     // Contract 5: No active-work action prompts
     // Should NOT see "Start now" or "Define first action" (those are for incomplete states)
-    const startNowCta = page.locator('text=Start now').first();
+    const startNowCta = dossierContainer.getByText('Start now', { exact: true });
     await expect(startNowCta).not.toBeVisible();
-    const defineFirstAction = page.locator('text=Define first action').first();
+    const defineFirstAction = dossierContainer.getByText('Define first action', { exact: true });
     await expect(defineFirstAction).not.toBeVisible();
   });
 });

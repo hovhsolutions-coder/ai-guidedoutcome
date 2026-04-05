@@ -72,7 +72,10 @@ export function DossierMissionHeader({ title, phase, mission, onPhaseChange }: D
           </h1>
         </div>
         <div className="flex items-center gap-2">
-          <span className={cn('ui-chip px-4 py-1.5 text-sm tracking-[0.1em]', getPhaseColor(phase))}>
+          <span
+            data-testid="phase-badge"
+            className={cn('ui-chip px-4 py-1.5 text-sm tracking-[0.1em]', getPhaseColor(phase))}
+          >
             {phase}
           </span>
           {canAdvance && (
