@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { signInAsSeedUser } from './helpers/auth';
 
 /**
  * E2E Test: Persistence Roundtrip
@@ -8,6 +9,10 @@ import { test, expect } from '@playwright/test';
 test.describe('Persistence Roundtrip', () => {
   // Run persistence flows serially to avoid cross-test data resets in shared SQLite
   test.describe.configure({ mode: 'serial' });
+  test.beforeEach(async ({ page }) => {
+    await signInAsSeedUser(page);
+  });
+
   test('create a new dossier through UI', async ({ page }) => {
     await page.goto('/dossiers/new');
     

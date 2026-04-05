@@ -16,6 +16,10 @@ const SHOULD_HIDE_TEST_DATA =
   process.env.VERCEL_ENV === 'production' ||
   process.env.NEXT_PUBLIC_HIDE_TEST_DOSSIERS === 'true';
 
+type DossierAccessOptions = {
+  ownerUserId?: string | null;
+};
+
 // ============================================
 // SANITIZATION (preserved from original store)
 // ============================================
@@ -71,6 +75,14 @@ export function filterVisibleDossiers<T extends { title?: string; main_goal?: st
     return dossiers;
   }
   return dossiers.filter((dossier) => !isTestOrDemoDossier(dossier));
+}
+
+function getOwnerWhereClause(ownerUserId?: string | null) {
+  if (!ownerUserId) {
+    return {};
+  }
+
+  return { ownerId: ownerUserId };
 }
 
 // ============================================
@@ -164,8 +176,9 @@ function parseChatContent(content: string): string | { summary: string; next_ste
 // PUBLIC API (preserving original interface)
 // ============================================
 
-export async function getAllDossiers(): Promise<MockDossier[]> {
+export async function getAllDossiers(ownerUserId?: string | null): Promise<MockDossier[]> {
   const prismaDossiers = await prisma.dossier.findMany({
+    where: getOwnerWhereClause(ownerUserId),
     include: {
       tasks: {
         include: {
@@ -198,11 +211,15 @@ export async function getAllDossiers(): Promise<MockDossier[]> {
 
 export async function getCompletedDossiers(
   limit = 3,
-  activeDossier?: { title: string; main_goal: string }
+  activeDossier?: { title: string; main_goal: string },
+  ownerUserId?: string | null
 ): Promise<Array<{ id: string; title: string; main_goal: string; relevanceScore?: number; outcomeSummary?: string; taskPatterns?: string[] }>> {
   // Fetch completed dossiers with task and activity data for outcome derivation
   const prismaDossiers = await prisma.dossier.findMany({
-    where: { phase: 'Completed' },
+    where: {
+      phase: 'Completed',
+      ...getOwnerWhereClause(ownerUserId),
+    },
     select: {
       id: true,
       title: true,
@@ -407,9 +424,12 @@ export function extractSignificantWords(text: string): string[] {
   return [...new Set(words)];
 }
 
-export async function getStoredDossierById(id: string): Promise<MockDossier | undefined> {
-  const prismaDossier = await prisma.dossier.findUnique({
-    where: { id },
+export async function getStoredDossierById(id: string, ownerUserId?: string | null): Promise<MockDossier | undefined> {
+  const prismaDossier = await prisma.dossier.findFirst({
+    where: {
+      id,
+      ...getOwnerWhereClause(ownerUserId),
+    },
     include: {
       tasks: {
         include: {
@@ -438,7 +458,10 @@ export async function getStoredDossierById(id: string): Promise<MockDossier | un
   return convertPrismaDossierToMockDossier(prismaDossier);
 }
 
-export async function createStoredDossier(dossier: GeneratedDossier): Promise<MockDossier> {
+export async function createStoredDossier(
+  dossier: GeneratedDossier,
+  options: DossierAccessOptions = {}
+): Promise<MockDossier> {
   const now = new Date();
   const id = dossier.id ?? crypto.randomUUID();
 
@@ -452,6 +475,7 @@ export async function createStoredDossier(dossier: GeneratedDossier): Promise<Mo
     const prismaDossier = await prisma.dossier.create({
       data: {
         id,
+        ownerId: options.ownerUserId ?? null,
         title: sanitizeString(dossier.title, 'New Dossier'),
         situation: sanitizeString(dossier.situation, 'No situation provided'),
         mainGoal: sanitizeString(dossier.main_goal, 'No goal specified'),
@@ -508,10 +532,14 @@ export async function createStoredDossier(dossier: GeneratedDossier): Promise<Mo
 
 export async function updateStoredDossier(
   id: string,
-  updates: Partial<Omit<MockDossier, 'id' | 'createdAt'>>
+  updates: Partial<Omit<MockDossier, 'id' | 'createdAt'>>,
+  options: DossierAccessOptions = {}
 ): Promise<MockDossier | null> {
-  const existing = await prisma.dossier.findUnique({
-    where: { id },
+  const existing = await prisma.dossier.findFirst({
+    where: {
+      id,
+      ...getOwnerWhereClause(options.ownerUserId),
+    },
     include: {
       tasks: true,
     },
@@ -660,10 +688,22 @@ export async function updateStoredDossier(
   return convertPrismaDossierToMockDossier(updatedPrismaDossier);
 }
 
-export async function deleteStoredDossier(id: string): Promise<boolean> {
+export async function deleteStoredDossier(id: string, ownerUserId?: string | null): Promise<boolean> {
   try {
+    const dossier = await prisma.dossier.findFirst({
+      where: {
+        id,
+        ...getOwnerWhereClause(ownerUserId),
+      },
+      select: { id: true },
+    });
+
+    if (!dossier) {
+      return false;
+    }
+
     await prisma.dossier.delete({
-      where: { id },
+      where: { id: dossier.id },
     });
     console.log(`[dossier:delete:success] id:${id}`);
     return true;

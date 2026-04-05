@@ -9,8 +9,13 @@ import { DossierPriorityCard } from '@/components/dossiers/DossierPriorityCard';
 import { getAllDossiers } from '@/src/lib/dossiers/store';
 import { prioritizeDossiers } from '@/src/lib/dossiers/prioritization';
 
-export async function DashboardOverview() {
-  const dossiers = await getAllDossiers();
+interface DashboardOverviewProps {
+  ownerUserId: string;
+  ownerName: string;
+}
+
+export async function DashboardOverview({ ownerUserId, ownerName }: DashboardOverviewProps) {
+  const dossiers = await getAllDossiers(ownerUserId);
   const prioritized = prioritizeDossiers(dossiers);
   const focusNow = prioritized[0] ?? null;
   const needsDecision = prioritized.slice(1, 4);
@@ -26,13 +31,13 @@ export async function DashboardOverview() {
       <div className="mx-auto max-w-4xl space-y-6 text-center">
         <div className="space-y-3">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--text-secondary)]">
-            Priority stack
+            Dashboard
           </p>
           <h1 className="text-3xl font-semibold tracking-[-0.04em] text-[var(--text-primary)]">
-            Nothing in queue yet
+            Start your first dossier
           </h1>
           <p className="mx-auto max-w-2xl text-base text-[var(--text-secondary)]">
-            Start one dossier and the queue will form around it.
+            {ownerName.split(' ')[0]}, create one dossier and your personal workspace will start to take shape.
           </p>
         </div>
 
@@ -49,7 +54,7 @@ export async function DashboardOverview() {
     <div className="mx-auto max-w-7xl space-y-12">
       <div className="space-y-3">
         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--text-secondary)]">
-          Priority stack
+          Dashboard
         </p>
         <h1 className="text-3xl font-semibold tracking-[-0.04em] text-[var(--text-primary)]">
           Focus the next move

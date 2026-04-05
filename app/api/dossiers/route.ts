@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/src/lib/db/prisma';
 import { filterVisibleDossiers } from '@/src/lib/db/dossier-store';
+import { getCurrentUserFromRequest } from '@/src/lib/auth/auth';
 import { createStoredDossier } from '@/src/lib/dossiers/store';
 import { getDossierHref } from '@/src/lib/dossiers/routes';
 import { type GeneratedDossier } from '@/src/types/ai';
@@ -69,14 +70,25 @@ function sanitizeGeneratedDossier(input: unknown): GeneratedDossier | null {
 }
 
 // GET /api/dossiers - List all dossiers
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const user = await getCurrentUserFromRequest(request);
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'Sign in to view dossiers.' },
+        { status: 401 }
+      );
+    }
+
     console.info('[api:dossiers:get:start]', {
       dbProvider: process.env.DATABASE_URL?.split(':')[0],
       prismaSchema: process.env.PRISMA_SCHEMA,
     });
 
     const dossiers = await prisma.dossier.findMany({
+      where: {
+        ownerId: user.id,
+      },
       orderBy: { updatedAt: 'desc' },
       include: {
         tasks: {
@@ -117,6 +129,14 @@ export async function GET() {
 // POST /api/dossiers - Create new dossier
 export async function POST(request: NextRequest) {
   try {
+    const user = await getCurrentUserFromRequest(request);
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'Sign in to save a dossier.' },
+        { status: 401 }
+      );
+    }
+
     console.info('[api:dossiers:create:start]', {
       dbProvider: process.env.DATABASE_URL?.split(':')[0],
       prismaSchema: process.env.PRISMA_SCHEMA,
@@ -161,7 +181,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const storedDossier = await createStoredDossier(dossier);
+    const storedDossier = await createStoredDossier(dossier, { ownerUserId: user.id });
 
     return NextResponse.json({
       success: true,

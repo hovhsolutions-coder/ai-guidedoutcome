@@ -1,10 +1,12 @@
 import Link from 'next/link';
 import { DossierDetailClient } from '@/components/dossiers/DossierDetailClient';
+import { requireCurrentUser } from '@/src/lib/auth/auth';
 import { getStoredDossierById } from '@/src/lib/dossiers/store';
 
 export default async function DossierDetailPage(props: PageProps<'/dossiers/[id]'>) {
   const { id } = await props.params;
-  const dossier = await getStoredDossierById(id);
+  const user = await requireCurrentUser(`/dossiers/${id}`);
+  const dossier = await getStoredDossierById(id, user.id);
 
   if (!dossier) {
     return (
@@ -18,10 +20,10 @@ export default async function DossierDetailPage(props: PageProps<'/dossiers/[id]
           </Link>
         </div>
         <div className="ui-surface-primary py-12 text-center">
-          <h1 className="text-2xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">Dossier Not Found</h1>
-          <p className="mt-2 text-[var(--text-secondary)]">The dossier you're looking for doesn't exist.</p>
+          <h1 className="text-2xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">Dossier not found</h1>
+          <p className="mt-2 text-[var(--text-secondary)]">This dossier is unavailable for your account.</p>
           <Link href="/dossiers" className="ui-button-secondary mt-4 inline-flex">
-            Return to Dossiers
+            Return to My Dossiers
           </Link>
         </div>
       </div>

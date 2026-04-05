@@ -5,8 +5,21 @@
  */
 
 const { PrismaClient } = require('@prisma/client');
+const { randomBytes, scryptSync } = require('node:crypto');
 
 const prisma = new PrismaClient();
+const SEEDED_USER = {
+  id: 'e2e-user-1',
+  name: 'E2E User',
+  email: 'e2e@guidedoutcome.app',
+  password: 'Password123!',
+};
+
+function hashPassword(password) {
+  const salt = randomBytes(16).toString('hex');
+  const derived = scryptSync(password, salt, 64).toString('hex');
+  return `${salt}:${derived}`;
+}
 
 async function seedE2EData() {
   console.log('🌱 Seeding E2E test data...');
@@ -19,13 +32,25 @@ async function seedE2EData() {
   await prisma.task.deleteMany({});
   await prisma.chatMessage.deleteMany({});
   await prisma.dossier.deleteMany({});
+  await prisma.session.deleteMany({});
+  await prisma.user.deleteMany({});
 
   console.log('🧹 Cleaned up all existing dossiers');
+
+  const seededUser = await prisma.user.create({
+    data: {
+      id: SEEDED_USER.id,
+      name: SEEDED_USER.name,
+      email: SEEDED_USER.email,
+      passwordHash: hashPassword(SEEDED_USER.password),
+    },
+  });
 
   // Create ready-to-execute dossier with tasks for mode-aware UI testing
   const executingDossier = await prisma.dossier.create({
     data: {
       id: 'e2e-test-dossier-1',
+      ownerId: seededUser.id,
       title: 'E2E Test: Execution Mode',
       situation: 'Test situation for execution mode verification',
       mainGoal: 'Verify execution UI appears with mode-aware labels',
@@ -83,6 +108,7 @@ async function seedE2EData() {
   const structuringDossier = await prisma.dossier.create({
     data: {
       id: 'e2e-test-dossier-2',
+      ownerId: seededUser.id,
       title: 'E2E Test: Structuring Mode',
       situation: 'Test situation for structuring phase verification',
       mainGoal: 'Verify structuring UI appears with planning labels',
@@ -127,6 +153,7 @@ async function seedE2EData() {
   const completedDossier = await prisma.dossier.create({
     data: {
       id: 'e2e-test-dossier-3',
+      ownerId: seededUser.id,
       title: 'E2E Test: Completed Mode',
       situation: 'Test situation for completed phase verification',
       mainGoal: 'Verify completed UI shows reference/review state instead of active-work',
@@ -192,6 +219,7 @@ async function seedE2EData() {
   });
 
   console.log('✅ E2E test data seeded successfully');
+  console.log(`   - Seeded user: ${SEEDED_USER.email} / ${SEEDED_USER.password}`);
   console.log('   - E2E Test: Execution Mode (phase: Executing, progress: 33%, tasks: 3)');
   console.log('   - E2E Test: Structuring Mode (phase: Structuring, progress: 15%, tasks: 2)');
   console.log('   - E2E Test: Completed Mode (phase: Completed, progress: 100%, tasks: 3)');

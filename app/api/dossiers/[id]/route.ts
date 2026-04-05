@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { type MockDossier, type Task, type ActivityEntry, type ActivityType } from '@/lib/mockData';
+import { getCurrentUserFromRequest } from '@/src/lib/auth/auth';
 import { checkRateLimit } from '../../../../src/lib/rate-limit';
 import { updateStoredDossier } from '@/src/lib/db/dossier-store';
 
@@ -301,6 +302,14 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params;
+    const user = await getCurrentUserFromRequest(request);
+
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'Sign in to update this dossier.' },
+        { status: 401 }
+      );
+    }
 
     // Payload size check
     const sizeCheck = checkPayloadSize(request);
@@ -341,7 +350,7 @@ export async function PATCH(
       );
     }
 
-    const updatedDossier = await updateStoredDossier(id, updates);
+    const updatedDossier = await updateStoredDossier(id, updates, { ownerUserId: user.id });
 
     if (!updatedDossier) {
       console.log(`[api:dossier:update:not_found] id:${id}`);

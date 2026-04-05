@@ -6,8 +6,9 @@ import { usePathname } from 'next/navigation';
 import { cn } from '../../lib/utils';
 
 const navigationItems = [
-  { name: 'Dashboard', href: '/' },
-  { name: 'Dossiers', href: '/dossiers' },
+  { name: 'Dashboard', href: '/dashboard' },
+  { name: 'My Dossiers', href: '/dossiers' },
+  { name: 'New Dossier', href: '/dossiers/new' },
 ];
 
 export function Navigation() {
@@ -38,8 +39,16 @@ function isActiveRoute(pathname: string | null, href: string): boolean {
     return false;
   }
 
-  if (href === '/') {
-    return pathname === '/';
+  if (href === '/dashboard') {
+    return pathname === '/dashboard';
+  }
+
+  if (href === '/dossiers/new') {
+    return pathname === '/dossiers/new';
+  }
+
+  if (href === '/dossiers') {
+    return pathname === '/dossiers' || /^\/dossiers\/[^/]+$/.test(pathname);
   }
 
   return pathname === href || pathname.startsWith(`${href}/`);

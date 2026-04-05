@@ -3,11 +3,20 @@ import { runAIOrchestrator } from '@/src/lib/ai/orchestrator';
 import { createStoredDossier } from '@/src/lib/dossiers/store';
 import { buildGeneratedDossier } from '@/src/lib/dossiers/build-generated-dossier';
 import { getDossierHref } from '@/src/lib/dossiers/routes';
+import { getCurrentUserFromRequest } from '@/src/lib/auth/auth';
 import { AIRequestInput } from '@/src/lib/ai/types';
 import { CreateDossierResponse, IntakeData } from '@/src/types/ai';
 
 export async function POST(request: NextRequest) {
   try {
+    const user = await getCurrentUserFromRequest(request);
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'Sign in to create a dossier.' },
+        { status: 401 }
+      );
+    }
+
     const correlationId = crypto.randomUUID();
 
     console.info('[api:ai:create-dossier:start]', {
@@ -104,7 +113,7 @@ export async function POST(request: NextRequest) {
     };
 
     try {
-      const storedDossier = await createStoredDossier(draft);
+      const storedDossier = await createStoredDossier(draft, { ownerUserId: user.id });
 
       console.info('[api:ai:create-dossier:success]', {
         correlationId,
