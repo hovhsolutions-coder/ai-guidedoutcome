@@ -33,12 +33,13 @@ export async function POST(request: NextRequest) {
 
     return applySessionCookie(response, session);
   } catch (error) {
+    console.error('Sign-up error:', error);
     return NextResponse.json(
       {
         success: false,
-        error: (error as Error).message || 'Unable to create account right now.',
+        error: 'Unable to create account. Please try again or contact support if the problem continues.',
       },
-      { status: 400 }
+      { status: 500 }
     );
   }
 }
