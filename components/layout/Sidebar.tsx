@@ -8,12 +8,12 @@ export function Sidebar() {
       <div className="relative border-b border-[var(--border-subtle)] px-6 py-6">
         <div className="space-y-3">
           <div className="inline-flex items-center rounded-full border border-[var(--border-strong)] bg-[var(--accent-primary-soft)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--accent-primary)]">
-            Strategic Workspace
+            Personal workspace
           </div>
           <div className="space-y-1">
             <h2 className="text-xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">AI Guided Outcome</h2>
             <p className="text-sm leading-6 text-[var(--text-secondary)]">
-              Structured decision support for dossiers, execution, and progress.
+              Your saved dossiers, current priorities, and next actions in one place.
             </p>
           </div>
         </div>
@@ -31,9 +31,9 @@ export function Sidebar() {
       </div>
 
       <div className="relative border-t border-[var(--border-subtle)] px-6 py-5">
-        <p className="text-xs uppercase tracking-[0.14em] text-[var(--text-secondary)]/75">Focused Mode</p>
+        <p className="text-xs uppercase tracking-[0.14em] text-[var(--text-secondary)]/75">Keep Moving</p>
         <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">
-          Keep dossiers calm, current, and actionable.
+          Start cleanly, pick the next move, and keep every dossier recoverable.
         </p>
       </div>
     </aside>

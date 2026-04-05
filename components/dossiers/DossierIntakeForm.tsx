@@ -68,8 +68,9 @@ export function DossierIntakeForm({
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">Category</label>
+          <label htmlFor="dossier-category" className="mb-2 block text-sm font-medium text-[var(--text-primary)]">Category</label>
           <select
+            id="dossier-category"
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
             className="ui-input"
@@ -85,8 +86,9 @@ export function DossierIntakeForm({
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">Situation details</label>
+          <label htmlFor="dossier-situation-details" className="mb-2 block text-sm font-medium text-[var(--text-primary)]">Situation details</label>
           <input
+            id="dossier-situation-details"
             type="text"
             placeholder="Add one line of context"
             value={customSituation}
@@ -101,8 +103,9 @@ export function DossierIntakeForm({
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">Goal</label>
+          <label htmlFor="dossier-goal" className="mb-2 block text-sm font-medium text-[var(--text-primary)]">Goal</label>
           <textarea
+            id="dossier-goal"
             value={goal}
             onChange={(e) => setGoal(e.target.value)}
             placeholder="What needs to happen next?"
@@ -113,8 +116,9 @@ export function DossierIntakeForm({
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">Urgency</label>
+          <label htmlFor="dossier-urgency" className="mb-2 block text-sm font-medium text-[var(--text-primary)]">Urgency</label>
           <select
+            id="dossier-urgency"
             value={urgency}
             onChange={(e) => setUrgency(e.target.value)}
             className="ui-input"
@@ -129,8 +133,9 @@ export function DossierIntakeForm({
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">People involved</label>
+          <label htmlFor="dossier-involved" className="mb-2 block text-sm font-medium text-[var(--text-primary)]">People involved</label>
           <input
+            id="dossier-involved"
             type="text"
             value={involved}
             onChange={(e) => setInvolved(e.target.value)}
@@ -141,8 +146,9 @@ export function DossierIntakeForm({
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">Current blocker</label>
+          <label htmlFor="dossier-blocking" className="mb-2 block text-sm font-medium text-[var(--text-primary)]">Current blocker</label>
           <textarea
+            id="dossier-blocking"
             value={blocking}
             onChange={(e) => setBlocking(e.target.value)}
             placeholder="Anything slowing this down"
