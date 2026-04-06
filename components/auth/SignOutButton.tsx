@@ -23,7 +23,7 @@ export function SignOutButton({
     setIsPending(true);
 
     try {
-      await fetch('/api/auth/sign-out', {
+      await fetch('/api/auth/signout', {
         method: 'POST',
       });
     } finally {

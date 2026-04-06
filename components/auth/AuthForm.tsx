@@ -26,6 +26,7 @@ export function AuthForm({ mode, nextPath }: AuthFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isSignUp = mode === 'sign-up';
+  const authEndpoint = isSignUp ? '/api/auth/signup' : '/api/auth/signin';
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -37,15 +38,20 @@ export function AuthForm({ mode, nextPath }: AuthFormProps) {
     setError(null);
 
     try {
-      const response = await fetch(`/api/auth/${mode}`, {
+      const formData = new FormData(event.currentTarget);
+      const nameValue = String(formData.get('name') ?? '');
+      const emailValue = String(formData.get('email') ?? '');
+      const passwordValue = String(formData.get('password') ?? '');
+
+      const response = await fetch(authEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name,
-          email,
-          password,
+          name: nameValue,
+          email: emailValue,
+          password: passwordValue,
           nextPath,
         }),
       });
@@ -87,6 +93,7 @@ export function AuthForm({ mode, nextPath }: AuthFormProps) {
             <label htmlFor="auth-name" className="mb-2 block text-sm font-medium text-[var(--text-primary)]">Name</label>
             <input
               id="auth-name"
+              name="name"
               type="text"
               value={name}
               onChange={(event) => setName(event.target.value)}
@@ -102,6 +109,7 @@ export function AuthForm({ mode, nextPath }: AuthFormProps) {
           <label htmlFor="auth-email" className="mb-2 block text-sm font-medium text-[var(--text-primary)]">Email</label>
           <input
             id="auth-email"
+            name="email"
             type="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
@@ -116,6 +124,7 @@ export function AuthForm({ mode, nextPath }: AuthFormProps) {
           <label htmlFor="auth-password" className="mb-2 block text-sm font-medium text-[var(--text-primary)]">Password</label>
           <input
             id="auth-password"
+            name="password"
             type="password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
