@@ -7,17 +7,41 @@
  */
 
 const { execSync } = require('child_process');
+const { existsSync, readFileSync } = require('fs');
+const { resolve } = require('path');
+const dotenv = require('dotenv');
 const cwd = process.cwd();
 
-const schema = (process.env.PRISMA_SCHEMA || 'prisma/schema.prisma').trim();
-const skipDbPush = ((process.env.SKIP_DB_PUSH || '').trim()) === '1';
+function buildRuntimeEnv() {
+  const runtimeEnv = { ...process.env };
+
+  for (const envFile of ['.env', '.env.local']) {
+    const fullPath = resolve(cwd, envFile);
+    if (!existsSync(fullPath)) {
+      continue;
+    }
+
+    const parsed = dotenv.parse(readFileSync(fullPath));
+    for (const [key, value] of Object.entries(parsed)) {
+      if (!(key in process.env)) {
+        runtimeEnv[key] = value;
+      }
+    }
+  }
+
+  return runtimeEnv;
+}
+
+const runtimeEnv = buildRuntimeEnv();
+const schema = (runtimeEnv.PRISMA_SCHEMA || 'prisma/schema.prisma').trim();
+const skipDbPush = ((runtimeEnv.SKIP_DB_PUSH || '').trim()) === '1';
 
 function run(step, cmd) {
   console.log(`\n▶️ ${step}: ${cmd}`);
   try {
     execSync(cmd, {
       stdio: 'inherit',
-      env: process.env,
+      env: runtimeEnv,
       cwd,
     });
   } catch (err) {
@@ -32,10 +56,10 @@ console.log(`├ SKIP_DB_PUSH: ${skipDbPush ? '1' : '0'}`);
 console.log(`└ CWD: ${cwd}`);
 
 if (!skipDbPush) {
-  const useDirect = Boolean(process.env.DIRECT_URL);
+  const useDirect = Boolean(runtimeEnv.DIRECT_URL);
   const envForPush = {
-    ...process.env,
-    DATABASE_URL: useDirect ? process.env.DIRECT_URL : process.env.DATABASE_URL,
+    ...runtimeEnv,
+    DATABASE_URL: useDirect ? runtimeEnv.DIRECT_URL : runtimeEnv.DATABASE_URL,
   };
   console.log(`├ db push URL source: ${useDirect ? 'DIRECT_URL (override)' : 'DATABASE_URL (default)'}`);
   try {

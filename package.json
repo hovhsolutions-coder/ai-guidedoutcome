@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "auto": "node scripts/auto-run.cjs",
-    "dev": "next dev",
+    "dev": "node scripts/dev-with-schema.cjs",
     "build": "node scripts/build-with-schema.cjs",
     "start": "next start",
     "test": "node tests/evals/run-integrated-evals.cjs",
