@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '../../lib/utils';
 
 const navigationItems = [
+  { name: 'Home', href: '/' },
   { name: 'Dashboard', href: '/dashboard' },
   { name: 'My Dossiers', href: '/dossiers' },
   { name: 'New Dossier', href: '/dossiers/new' },
