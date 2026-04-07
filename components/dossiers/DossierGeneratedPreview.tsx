@@ -1,6 +1,7 @@
 'use client';
 
 import { GeneratedDossier } from '@/src/types/ai';
+import { CoachProfile } from '@/src/lib/coaches/catalog';
 import { cn } from '../../lib/utils';
 
 interface DossierGeneratedPreviewProps {
@@ -16,6 +17,7 @@ interface DossierGeneratedPreviewProps {
     description: string;
   } | null;
   isOpening?: boolean;
+  coach?: CoachProfile | null;
 }
 
 export function DossierGeneratedPreview({
@@ -27,6 +29,7 @@ export function DossierGeneratedPreview({
   secondaryActionLabel = null,
   statusNote = null,
   isOpening = false,
+  coach = null,
 }: DossierGeneratedPreviewProps) {
   return (
     <div className="space-y-6">
@@ -61,6 +64,21 @@ export function DossierGeneratedPreview({
               {statusNote.title}
             </p>
             <p className="mt-2 text-sm leading-6 text-[var(--text-primary)]">{statusNote.description}</p>
+          </div>
+        )}
+
+        {coach && (
+          <div className="ui-surface-secondary border border-[rgba(109,156,255,0.24)] p-5">
+            <div className="space-y-2">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--accent-primary-strong)]">
+                Your Coach
+              </p>
+              <h3 className="text-xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">{coach.name}</h3>
+              <p className="text-sm leading-6 text-[var(--text-secondary)]">{coach.tagline}</p>
+              <p className="text-sm text-[var(--text-primary)]">
+                <span className="font-semibold">First support:</span> {coach.firstStep}
+              </p>
+            </div>
           </div>
         )}
 

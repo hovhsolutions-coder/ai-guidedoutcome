@@ -8,6 +8,7 @@ import { RecentProgressPanel } from '@/components/dashboard/RecentProgressPanel'
 import { DossierPriorityCard } from '@/components/dossiers/DossierPriorityCard';
 import { getAllDossiers } from '@/src/lib/dossiers/store';
 import { prioritizeDossiers } from '@/src/lib/dossiers/prioritization';
+import { getSuggestedCoaches } from '@/src/lib/coaches/catalog';
 
 interface DashboardOverviewProps {
   ownerUserId: string;
@@ -25,6 +26,10 @@ export async function DashboardOverview({ ownerUserId, ownerName }: DashboardOve
     .sort((a, b) => b.progress - a.progress)
     .slice(0, 4);
   const secondaryPreview = prioritized.slice(1, 5).map((dossier) => ({ ...dossier, isFocusNow: false }));
+  const starterCoaches = getSuggestedCoaches({}).slice(0, 3);
+  const focusCoach = focusNow
+    ? getSuggestedCoaches({ situation: focusNow.title, goal: focusNow.mainGoal ?? '' })[0]
+    : null;
 
   if (prioritized.length === 0) {
     return (
@@ -37,13 +42,33 @@ export async function DashboardOverview({ ownerUserId, ownerName }: DashboardOve
             Start your first dossier
           </h1>
           <p className="mx-auto max-w-2xl text-base text-[var(--text-secondary)]">
-            {ownerName.split(' ')[0]}, create one dossier and your personal workspace will start to take shape.
+            {ownerName.split(' ')[0]}, start with one clear situation and we will guide you to a fitting coach style before your draft is generated.
           </p>
         </div>
 
-        <div className="flex justify-center">
+        <div className="ui-surface-secondary mx-auto max-w-3xl space-y-4 p-6 text-left">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--accent-primary-strong)]">
+            Who Helps You Here?
+          </p>
+          <p className="text-sm leading-6 text-[var(--text-secondary)]">
+            In the intake, you will see suggested coaches for your situation and pick the one that feels right.
+          </p>
+          <div className="grid gap-3 md:grid-cols-3">
+            {starterCoaches.map((coach) => (
+              <div key={coach.id} className="ui-surface-primary p-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-secondary)]">
+                  {coach.category}
+                </p>
+                <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">{coach.name}</p>
+                <p className="mt-1 text-xs text-[var(--text-secondary)]">{coach.tagline}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex justify-center pt-2">
           <Link href="/dossiers/new" className="ui-button-primary px-6 py-3">
-            Start a dossier
+            Start with guided intake
           </Link>
         </div>
       </div>
@@ -57,12 +82,29 @@ export async function DashboardOverview({ ownerUserId, ownerName }: DashboardOve
           Dashboard
         </p>
         <h1 className="text-3xl font-semibold tracking-[-0.04em] text-[var(--text-primary)]">
-          Focus the next move
+          Your next clear move
         </h1>
         <p className="max-w-2xl text-lg font-medium text-[var(--text-secondary)]">
-          Open the active dossier, clear blockers, and keep the rest moving.
+          Stay calm, keep focus, and move one meaningful step at a time.
         </p>
       </div>
+
+      {focusCoach && (
+        <div className="ui-surface-secondary border border-[rgba(109,156,255,0.22)] p-5">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--accent-primary-strong)]">
+            Active Coach
+          </p>
+          <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h2 className="text-xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">{focusCoach.name}</h2>
+              <p className="text-sm text-[var(--text-secondary)]">{focusCoach.tagline}</p>
+            </div>
+            <p className="text-sm text-[var(--text-primary)]">
+              <span className="font-semibold">Next support:</span> {focusCoach.firstStep}
+            </p>
+          </div>
+        </div>
+      )}
 
       {focusNow && <FocusDossierCard dossier={focusNow} />}
 

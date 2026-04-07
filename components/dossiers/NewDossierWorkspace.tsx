@@ -6,6 +6,7 @@ import { DossierIntakeForm } from '@/components/dossiers/DossierIntakeForm';
 import { DossierGeneratedPreview } from '@/components/dossiers/DossierGeneratedPreview';
 import { buildGeneratedDossier } from '@/src/lib/dossiers/build-generated-dossier';
 import { getDossierHref } from '@/src/lib/dossiers/routes';
+import { CoachProfile, getCoachById } from '@/src/lib/coaches/catalog';
 import {
   CreateDossierResponse,
   GeneratedDossier,
@@ -23,6 +24,7 @@ export function NewDossierWorkspace() {
   const [intakeFormValues, setIntakeFormValues] = useState<IntakeFormValues | null>(null);
   const [generatedDossier, setGeneratedDossier] = useState<GeneratedDossier | null>(null);
   const [persistedDossier, setPersistedDossier] = useState<PersistedDossierIdentity | null>(null);
+  const [activeCoach, setActiveCoach] = useState<CoachProfile | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isOpeningDossier, setIsOpeningDossier] = useState(false);
   const [previewState, setPreviewState] = useState<PreviewState>('unsaved');
@@ -36,8 +38,10 @@ export function NewDossierWorkspace() {
   const hasPersistedDossier = Boolean(persistedDossier?.id ?? generatedDossier?.id);
 
   const handleIntakeSubmit = async (data: IntakeData, values: IntakeFormValues) => {
+    const selectedCoach = getCoachById(data.coachId);
     setIntakeData(data);
     setIntakeFormValues(values);
+    setActiveCoach(selectedCoach);
     setIsGenerating(true);
     setStatusNote(null);
     setPersistedDossier(null);
@@ -82,7 +86,9 @@ export function NewDossierWorkspace() {
           title: 'Draft ready',
           description: result.data.usedFallback
             ? 'A safe fallback shaped this draft, and the dossier is saved and ready to open.'
-            : 'The first draft is ready to review and open.',
+            : selectedCoach
+              ? `${selectedCoach.name} is ready to guide this first draft. Review and open when ready.`
+              : 'The first draft is ready to review and open.',
         });
       } else {
         setPreviewState('save_failed');
@@ -113,7 +119,9 @@ export function NewDossierWorkspace() {
       setStatusNote({
         tone: 'warning',
         title: 'Draft only',
-        description: 'The draft is ready. Save it when you are ready to continue.',
+        description: selectedCoach
+          ? `The draft is ready. ${selectedCoach.name} can still guide your next move once you save it.`
+          : 'The draft is ready. Save it when you are ready to continue.',
       });
       setStep('preview');
     } finally {
@@ -198,10 +206,14 @@ export function NewDossierWorkspace() {
         : 'Save and open dossier';
 
   const actionHint = previewState === 'saved' && hasPersistedDossier
-    ? 'You can refine everything inside the dossier.'
+    ? activeCoach
+      ? `${activeCoach.name} stays with this dossier while you refine it.`
+      : 'You can refine everything inside the dossier.'
     : previewState === 'save_failed'
       ? 'Your draft stays here while you recover the save.'
-      : 'We will save the draft before opening the live dossier.';
+      : activeCoach
+        ? `We will save the draft, then open the live dossier with ${activeCoach.name}.`
+        : 'We will save the draft before opening the live dossier.';
 
   const secondaryActionLabel = previewState === 'saved' ? null : 'Back to edit';
 
@@ -216,7 +228,7 @@ export function NewDossierWorkspace() {
         <div className="space-y-3">
           <h1 className="text-4xl font-semibold tracking-[-0.045em] text-[var(--text-primary)]">Capture the essentials</h1>
           <p className="mx-auto max-w-2xl text-sm leading-6 text-[var(--text-secondary)]">
-            Add just enough context to shape a confident first draft.
+            Share your situation, pick your coach style, and get a clear first plan.
           </p>
         </div>
       </div>
@@ -244,7 +256,9 @@ export function NewDossierWorkspace() {
               Shaping the draft
             </h2>
             <p className="mx-auto max-w-2xl text-sm leading-6 text-[var(--text-secondary)]">
-              We are shaping the title, goal, and first tasks.
+              {activeCoach
+                ? `${activeCoach.name} is shaping the title, goal, and first tasks.`
+                : 'We are shaping the title, goal, and first tasks.'}
             </p>
           </div>
           <div className="mx-auto grid max-w-3xl gap-4 md:grid-cols-3">
@@ -265,6 +279,7 @@ export function NewDossierWorkspace() {
           secondaryActionLabel={secondaryActionLabel}
           statusNote={statusNote}
           isOpening={isOpeningDossier}
+          coach={activeCoach}
         />
       )}
     </div>

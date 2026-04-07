@@ -84,7 +84,7 @@ function getTopbarContext(pathname: string | null): {
     return {
       eyebrow: 'Creation',
       title: 'New Dossier',
-      subtitle: 'Capture the essentials, generate the first draft, and open the live dossier.',
+      subtitle: 'Capture your situation, choose your coach style, and open a guided first draft.',
     };
   }
 

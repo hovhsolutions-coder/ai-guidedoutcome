@@ -20,6 +20,8 @@ export interface IntakeData {
   urgency: string;
   involved: string;
   blocking: string;
+  coachId?: string;
+  coachName?: string;
 }
 
 export interface IntakeFormValues {
@@ -29,6 +31,7 @@ export interface IntakeFormValues {
   urgency: string;
   involved: string;
   blocking: string;
+  coachId: string;
 }
 
 export interface GeneratedDossier {

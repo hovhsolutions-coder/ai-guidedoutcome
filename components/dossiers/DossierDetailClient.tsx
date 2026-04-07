@@ -12,6 +12,7 @@ import { ProgressFrameCard } from '@/components/dossiers/ProgressFrameCard';
 import { ActivityHistory } from '@/components/dossiers/ActivityHistory';
 import { DossierStructuredContractsPanel } from '@/src/components/dossier';
 import { type MockDossier, type DossierPhase, type Task, type ActivityEntry, type ActivityType, type TaskPriority } from '@/lib/mockData';
+import { getSuggestedCoaches } from '@/src/lib/coaches/catalog';
 
 interface DossierDetailClientProps {
   dossier: MockDossier;
@@ -196,6 +197,10 @@ async function persistTaskChanges(
 }
 
 export function DossierDetailClient({ dossier, completedDossiers = [] }: DossierDetailClientProps) {
+  const activeCoach = getSuggestedCoaches({
+    situation: dossier.situation,
+    goal: dossier.main_goal,
+  })[0];
   const [tasks, setTasks] = useState<Task[]>(() => normalizeTasks(dossier.tasks));
   const [completedTasks, setCompletedTasks] = useState<Set<string>>(
     () => new Set(dossier.completedTasks || [])
@@ -1472,6 +1477,21 @@ export function DossierDetailClient({ dossier, completedDossiers = [] }: Dossier
               <p className="text-sm text-[var(--text-primary)]">{currentObjective.title}</p>
             </div>
           </div>
+
+          {activeCoach && (
+            <div className="ui-surface-secondary border border-[rgba(109,156,255,0.22)] p-5 rounded-[18px]">
+              <div className="space-y-1">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--accent-primary-strong)]">
+                  Coach support
+                </p>
+                <h2 className="text-lg font-semibold tracking-[-0.02em] text-[var(--text-primary)]">{activeCoach.name}</h2>
+                <p className="text-sm text-[var(--text-secondary)]">{activeCoach.tagline}</p>
+                <p className="text-sm text-[var(--text-primary)]">
+                  <span className="font-semibold">Next coaching move:</span> {activeCoach.firstStep}
+                </p>
+              </div>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1.35fr_0.75fr_0.75fr]">
             <NextStepPanel
