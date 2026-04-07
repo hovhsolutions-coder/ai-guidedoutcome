@@ -3,15 +3,9 @@ import { type DossierPhase } from '@/lib/mockData';
 import { cn } from '@/lib/utils';
 import { ChatInput } from '@/components/chat/ChatInput';
 import { type AIResponseContent, type ChatMessageData } from '@/components/chat/ChatMessage';
-import { GuidanceActionList } from '@/components/guidance/GuidanceActionList';
-import { AskSpecialistPanel } from '@/components/guidance/AskSpecialistPanel';
-import { GuidanceCurrentRead } from '@/components/guidance/GuidanceCurrentRead';
-import { GuidanceDecisionPrompt } from '@/components/guidance/GuidanceDecisionPrompt';
 import { GuidanceEmptyState } from '@/components/guidance/GuidanceEmptyState';
 import { GuidanceErrorCard } from '@/components/guidance/GuidanceErrorCard';
-import { GuidanceHistoryFeed } from '@/components/guidance/GuidanceHistoryFeed';
 import { GuidanceNextMove } from '@/components/guidance/GuidanceNextMove';
-import { RecommendedTrainerStrip } from '@/components/guidance/RecommendedTrainerStrip';
 import { TrainerResponseBlock } from '@/components/guidance/TrainerResponseBlock';
 import { getTrainerRecommendations } from '@/components/guidance/trainerRecommendations';
 import { detectDomain } from '@/src/lib/ai/domain/detect-domain';
@@ -112,7 +106,7 @@ export function GuidanceEnginePanel({
       <div className="border-b border-[var(--border-subtle)] bg-[linear-gradient(90deg,rgba(255,255,255,0.03),transparent)] px-6 py-5">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h3 className="text-lg font-semibold tracking-[-0.03em] text-[var(--text-primary)]">Guidance Engine</h3>
+            <h3 className="text-lg font-semibold tracking-[-0.03em] text-[var(--text-primary)]">Coach guidance</h3>
             <p className="mt-2 text-xs uppercase tracking-[0.14em] text-[var(--text-secondary)]">
               {getGuidanceSubtitle(phase)}
             </p>
@@ -139,10 +133,13 @@ export function GuidanceEnginePanel({
           <>
             {currentGuidance && (
               <div className="space-y-5">
-                <GuidanceCurrentRead
-                  summary={currentGuidance.summary}
-                  label={currentGuidanceLabel ?? 'Current read'}
-                />
+                <div className="ui-surface-secondary space-y-3 p-5">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-secondary)]">
+                    {currentGuidanceLabel ?? 'Current read'}
+                  </p>
+                  <p className="text-sm leading-6 text-[var(--text-primary)]">{currentGuidance.summary}</p>
+                </div>
+
                 <GuidanceNextMove
                   nextStep={currentObjective}
                   focusBadge={focusBadge}
@@ -152,54 +149,55 @@ export function GuidanceEnginePanel({
                   onPrimaryAction={onPrimaryAction}
                   onReviewTasks={onReviewTasks}
                 />
-                <div className="flex flex-wrap gap-2">
-                  {trainerRecommendations.inlineActions.map((action) => (
+
+                {currentGuidance.suggested_tasks.length > 0 && (
+                  <div className="ui-surface-secondary space-y-3 p-5">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-secondary)]">
+                      Quick supporting moves
+                    </p>
+                    <div className="space-y-2">
+                      {currentGuidance.suggested_tasks.slice(0, 2).map((task) => (
+                        <button
+                          key={task}
+                          type="button"
+                          onClick={() => onAddAction(task)}
+                          disabled={isActionAdded(task)}
+                          className={cn(
+                            'w-full rounded-[12px] border px-3 py-2.5 text-left text-sm transition-colors',
+                            isActionAdded(task)
+                              ? 'border-[rgba(114,213,154,0.26)] bg-[var(--success-soft)] text-[var(--success-strong)]'
+                              : 'border-[var(--border-subtle)] bg-[var(--surface-primary)] text-[var(--text-primary)] hover:border-[var(--border-strong)]'
+                          )}
+                        >
+                          {isActionAdded(task) ? `Added: ${task}` : task}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="ui-surface-secondary space-y-3 p-5">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-secondary)]">
+                    Decision support
+                  </p>
+                  <p className="text-sm leading-6 text-[var(--text-secondary)]">{decisionPrompt}</p>
+                  <div className="flex flex-wrap gap-2">
                     <button
-                      key={action.trainer}
                       type="button"
-                      onClick={() => onSelectTrainer(action.trainer)}
-                      disabled={trainerLoading !== null}
-                      className={[
-                        'ui-button-secondary min-h-0 px-3 py-2 text-[11px] uppercase tracking-[0.12em] sm:px-4',
-                        action.emphasized ? 'ui-objective-highlight border-[rgba(94,142,242,0.24)] bg-[rgba(94,142,242,0.08)]' : '',
-                      ].join(' ')}
+                      onClick={onDecisionPrimary}
+                      className="ui-button-secondary min-h-0 px-3 py-2 text-[11px] uppercase tracking-[0.12em]"
                     >
-                      {action.label}
+                      Clarify next move
                     </button>
-                  ))}
+                    <button
+                      type="button"
+                      onClick={onDecisionSecondary}
+                      className="ui-button-secondary min-h-0 px-3 py-2 text-[11px] uppercase tracking-[0.12em]"
+                    >
+                      Surface blind spots
+                    </button>
+                  </div>
                 </div>
-                <GuidanceActionList
-                  actions={currentGuidance.suggested_tasks}
-                  nextStep={currentGuidance.next_step}
-                  onAddAction={onAddAction}
-                  isAdded={isActionAdded}
-                />
-                <RecommendedTrainerStrip
-                  orderedTrainers={trainerRecommendations.orderedTrainers}
-                  topTrainer={trainerRecommendations.topTrainer}
-                  confidenceLabel={trainerRecommendations.confidenceLabel}
-                  rationaleSummary={trainerRecommendations.rationaleSummary}
-                  activeTrainer={activeTrainer}
-                  loadingTrainer={trainerLoading}
-                  onSelectTrainer={onSelectTrainer}
-                />
-                <AskSpecialistPanel
-                  activeTrainer={activeTrainer}
-                  loadingTrainer={trainerLoading}
-                  onSelectTrainer={onSelectTrainer}
-                />
-                <TrainerResponseBlock
-                  response={trainerResponse}
-                  error={trainerError}
-                  isLoading={trainerLoading !== null}
-                  loadingTrainer={trainerLoading}
-                  onAddAction={onAddAction}
-                />
-                <GuidanceDecisionPrompt
-                  prompt={decisionPrompt}
-                  onPrimaryPrompt={onDecisionPrimary}
-                  onSecondaryPrompt={onDecisionSecondary}
-                />
               </div>
             )}
 
@@ -219,14 +217,63 @@ export function GuidanceEnginePanel({
               </div>
             )}
 
-            <GuidanceHistoryFeed messages={historyMessages} />
+            {(historyMessages.length > 0 || trainerRecommendations.inlineActions.length > 0 || trainerResponse || trainerError) && (
+              <details className="ui-surface-secondary p-5">
+                <summary className="cursor-pointer text-sm font-medium text-[var(--text-primary)]">
+                  Advanced coach tools
+                </summary>
+                <div className="mt-4 space-y-4">
+                  {trainerRecommendations.inlineActions.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {trainerRecommendations.inlineActions.slice(0, 3).map((action) => (
+                        <button
+                          key={action.trainer}
+                          type="button"
+                          onClick={() => onSelectTrainer(action.trainer)}
+                          disabled={trainerLoading !== null}
+                          className={cn(
+                            'ui-button-secondary min-h-0 px-3 py-2 text-[11px] uppercase tracking-[0.12em] sm:px-4',
+                            action.emphasized && 'ui-objective-highlight border-[rgba(94,142,242,0.24)] bg-[rgba(94,142,242,0.08)]'
+                          )}
+                        >
+                          {action.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  <TrainerResponseBlock
+                    response={trainerResponse}
+                    error={trainerError}
+                    isLoading={trainerLoading !== null}
+                    loadingTrainer={trainerLoading}
+                    onAddAction={onAddAction}
+                  />
+
+                  {historyMessages.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-secondary)]">
+                        Recent coach notes
+                      </p>
+                      <div className="space-y-2">
+                        {historyMessages.slice(-3).map((message) => (
+                          <div key={message.id} className="rounded-[12px] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2.5">
+                            <p className="text-xs text-[var(--text-secondary)]">{getMessagePreview(message)}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </details>
+            )}
           </>
         )}
       </div>
 
       <div className="space-y-4 border-t border-[var(--border-subtle)] bg-[color:var(--surface-secondary)]/78 px-6 py-4 backdrop-blur-sm">
         <div className="flex flex-wrap gap-2">
-          {getIntentQuickPrompts(phase).map(({ label, prompt }) => (
+          {getIntentQuickPrompts(phase).slice(0, 2).map(({ label, prompt }) => (
             <button
               key={label}
               onClick={() => onQuickPrompt(prompt)}
@@ -246,6 +293,18 @@ export function GuidanceEnginePanel({
       </div>
     </div>
   );
+}
+
+function getMessagePreview(message: ChatMessageData): string {
+  if (typeof message.content === 'string') {
+    return message.content;
+  }
+
+  if (message.content.next_step?.trim()) {
+    return `Next step: ${message.content.next_step}`;
+  }
+
+  return message.content.summary || 'Coach note';
 }
 
 function buildTrainerContextInput(input: {

@@ -4,7 +4,6 @@ import { type DossierPhase, type Task, type TaskPriority, type ActivityEntry } f
 import { CompletedTaskGroup } from '@/components/dossiers/CompletedTaskGroup';
 import { PriorityTaskCard } from '@/components/dossiers/PriorityTaskCard';
 import { QueuedTaskList } from '@/components/dossiers/QueuedTaskList';
-import { TaskMomentumBanner } from '@/components/dossiers/TaskMomentumBanner';
 import { generateExecutionContext, type ExecutionContext } from '@/src/lib/execution/execution-context';
 import { generateScheduleRecommendation, type ScheduleRecommendation } from '@/src/lib/scheduling/engine';
 import { generateProgressAnalytics, type ProgressAnalytics } from '@/src/lib/analytics/engine';
@@ -377,7 +376,6 @@ export function ExecutionTaskPanel({
       guidanceNextStep &&
       priorityTask.name.trim().toLowerCase() === guidanceNextStep.trim().toLowerCase()
   );
-  const momentumMessage = getMomentumMessage(phase, tasks.length, doneTasks.length);
 
   // Calculate dossier progress (including subtasks)
   const dossierProgress = React.useMemo(() => calculateDossierProgress(tasks, completedTasks), [tasks, completedTasks]);
@@ -509,7 +507,7 @@ export function ExecutionTaskPanel({
 
   return (
     <div className="space-y-5">
-        <div className="space-y-2">
+      <div className="space-y-2">
         <div className="flex flex-wrap items-center gap-2">
           <p className={cn(
             "text-[11px] font-semibold uppercase tracking-[0.16em]",
@@ -530,11 +528,52 @@ export function ExecutionTaskPanel({
         </p>
       </div>
 
-      <TaskMomentumBanner
-        totalTasks={tasks.length}
-        completedCount={doneTasks.length}
-        message={momentumMessage}
-      />
+      {tasks.length > 0 && (
+        <div className="ui-surface-secondary rounded-[18px] border border-[var(--border-subtle)] p-4 space-y-4">
+          <div className="flex items-start justify-between gap-4">
+            <div className="space-y-1">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--accent-primary-strong)]">
+                Coach focus now
+              </p>
+              <p className="text-sm font-semibold text-[var(--text-primary)]">{nextBestAction.action}</p>
+              <p className="text-xs leading-5 text-[var(--text-secondary)]">{nextBestAction.message}</p>
+            </div>
+            <span className={cn(
+              'rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em]',
+              nextBestAction.urgency === 'high' && 'bg-[var(--accent-error)]/20 text-[var(--accent-error)]',
+              nextBestAction.urgency === 'medium' && 'bg-[var(--accent-warning)]/20 text-[var(--accent-warning)]',
+              nextBestAction.urgency === 'low' && 'bg-[var(--color-green)]/20 text-[var(--color-green)]'
+            )}>
+              {nextBestAction.urgency === 'high' ? 'Priority' : nextBestAction.urgency === 'medium' ? 'Next' : 'Stable'}
+            </span>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-xs text-[var(--text-secondary)]">
+              <span>Progress</span>
+              <span>{dossierProgress.completed} / {dossierProgress.total} done</span>
+            </div>
+            <div className="h-2.5 overflow-hidden rounded-full bg-[var(--border-subtle)]">
+              <div
+                className="h-full bg-gradient-to-r from-[var(--accent-primary)] to-[var(--color-green)] transition-all duration-500"
+                style={{ width: `${dossierProgress.percentage}%` }}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-[var(--text-secondary)]">{dossierProgress.percentage}% complete</span>
+              <span className={cn(
+                'rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em]',
+                statusLabel.variant === 'success' && 'bg-[var(--color-green)]/20 text-[var(--color-green)]',
+                statusLabel.variant === 'warning' && 'bg-[var(--accent-warning)]/20 text-[var(--accent-warning)]',
+                statusLabel.variant === 'info' && 'bg-[var(--accent-primary)]/20 text-[var(--accent-primary)]',
+                statusLabel.variant === 'neutral' && 'bg-[rgba(255,255,255,0.1)] text-[var(--text-secondary)]'
+              )}>
+                {statusLabel.label}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Execution Guidance Panel - AI coaching during execution */}
       {tasks.length > 0 && (
@@ -549,95 +588,12 @@ export function ExecutionTaskPanel({
             }
           }}
           onViewBlocker={(taskName) => {
-            // Scroll to and highlight blocked task
             const element = document.querySelector(`[data-task-name="${taskName}"]`);
             if (element) {
               element.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
           }}
         />
-      )}
-
-      {/* Dossier progress and status */}
-      {tasks.length > 0 && (
-        <div className="ui-surface-secondary rounded-[18px] p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-[var(--text-primary)]">
-              Overall progress
-            </span>
-            <span className={cn(
-              'text-xs font-semibold px-2 py-0.5 rounded-full',
-              statusLabel.variant === 'success' && 'bg-[var(--color-green)]/20 text-[var(--color-green)]',
-              statusLabel.variant === 'warning' && 'bg-[var(--accent-warning)]/20 text-[var(--accent-warning)]',
-              statusLabel.variant === 'info' && 'bg-[var(--accent-primary)]/20 text-[var(--accent-primary)]',
-              statusLabel.variant === 'neutral' && 'bg-[rgba(255,255,255,0.1)] text-[var(--text-secondary)]'
-            )}>
-              {statusLabel.label}
-            </span>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="flex-1 h-3 bg-[var(--border-subtle)] rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-[var(--accent-primary)] to-[var(--color-green)] transition-all duration-500"
-                style={{ width: `${dossierProgress.percentage}%` }}
-              />
-            </div>
-            <span className="text-sm text-[var(--text-secondary)] whitespace-nowrap">
-              {dossierProgress.percentage}%
-            </span>
-          </div>
-          <p className="text-xs text-[var(--text-secondary)]">
-            {dossierProgress.completed} of {dossierProgress.total} items completed
-          </p>
-        </div>
-      )}
-
-      {/* Next best action indicator - streamlined */}
-      {tasks.length > 0 && (
-        <div className={cn(
-          'rounded-[18px] p-4 flex items-center gap-4',
-          nextBestAction.urgency === 'high' && 'bg-[var(--accent-error)]/10 border border-[var(--accent-error)]/30',
-          nextBestAction.urgency === 'medium' && 'bg-[var(--accent-warning)]/10 border border-[var(--accent-warning)]/30',
-          nextBestAction.urgency === 'low' && 'bg-[var(--color-green)]/10 border border-[var(--color-green)]/30'
-        )}>
-          <div className={cn(
-            'flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center',
-            nextBestAction.urgency === 'high' && 'bg-[var(--accent-error)]/20',
-            nextBestAction.urgency === 'medium' && 'bg-[var(--accent-warning)]/20',
-            nextBestAction.urgency === 'low' && 'bg-[var(--color-green)]/20'
-          )}>
-            <svg className={cn(
-              'h-5 w-5',
-              nextBestAction.urgency === 'high' && 'text-[var(--accent-error)]',
-              nextBestAction.urgency === 'medium' && 'text-[var(--accent-warning)]',
-              nextBestAction.urgency === 'low' && 'text-[var(--color-green)]'
-            )} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              {nextBestAction.urgency === 'high' ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              ) : nextBestAction.urgency === 'medium' ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              )}
-            </svg>
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-[var(--text-primary)]">
-              {nextBestAction.action}
-            </p>
-            <p className="text-xs text-[var(--text-secondary)]">
-              {nextBestAction.message}
-            </p>
-          </div>
-          <span className={cn(
-            'flex-shrink-0 text-[10px] font-semibold uppercase tracking-[0.12em] px-2 py-1 rounded-full',
-            nextBestAction.urgency === 'high' && 'bg-[var(--accent-error)]/20 text-[var(--accent-error)]',
-            nextBestAction.urgency === 'medium' && 'bg-[var(--accent-warning)]/20 text-[var(--accent-warning)]',
-            nextBestAction.urgency === 'low' && 'bg-[var(--color-green)]/20 text-[var(--color-green)]'
-          )}>
-            {nextBestAction.urgency === 'high' ? 'Focus' : nextBestAction.urgency === 'medium' ? 'Next' : 'Done'}
-          </span>
-        </div>
       )}
 
       {/* Completion state - all tasks done, dossier becomes work record */}

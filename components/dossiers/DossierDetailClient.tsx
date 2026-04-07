@@ -3,12 +3,9 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ChatPanel } from '@/components/chat/ChatPanel';
-import { BlockersCard } from '@/components/dossiers/BlockersCard';
 import { DossierHeader } from '@/components/dossiers/DossierHeader';
 import { DossierMissionHeader } from '@/components/dossiers/DossierMissionHeader';
 import { ExecutionTaskPanel } from '@/components/dossiers/ExecutionTaskPanel';
-import { NextStepPanel } from '@/components/dossiers/NextStepPanel';
-import { ProgressFrameCard } from '@/components/dossiers/ProgressFrameCard';
 import { ActivityHistory } from '@/components/dossiers/ActivityHistory';
 import { DossierStructuredContractsPanel } from '@/src/components/dossier';
 import { type MockDossier, type DossierPhase, type Task, type ActivityEntry, type ActivityType, type TaskPriority } from '@/lib/mockData';
@@ -1493,40 +1490,56 @@ export function DossierDetailClient({ dossier, completedDossiers = [] }: Dossier
             </div>
           )}
 
-          <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1.35fr_0.75fr_0.75fr]">
-            <NextStepPanel
-              nextStep={currentObjective.title}
-              focusBadge={currentObjective.focusBadge}
-              statusLine={currentObjective.statusLine}
-              primaryCtaLabel={primaryCtaLabel}
-              onPrimaryAction={handlePrimaryAction}
-              onReviewTasks={scrollToTasks}
-            />
-            <ProgressFrameCard
-              phase={phase}
-              totalTasks={tasks.length}
-              completedTasks={completedCount}
-              currentObjective={currentObjective.title}
-              focusBadge={currentObjective.focusBadge}
-              progressNarrative={currentObjective.progressLine || progressNarrative}
-            />
-            {blockerState && phase !== 'Completed' ? (
-              <BlockersCard title={blockerState.title} description={blockerState.description} />
-            ) : blockerState && phase === 'Completed' ? null : (
-              <div className="ui-surface-secondary h-full p-5">
-                <div className="space-y-2">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--accent-primary-strong)]">
-                    Momentum signal
+          <div className="ui-surface-secondary border border-[var(--border-subtle)] p-5">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--accent-primary-strong)]">
+                  Right now
+                </p>
+                <h2 className="text-2xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
+                  {currentObjective.title}
+                </h2>
+                <p className="text-sm leading-6 text-[var(--text-secondary)]">{currentObjective.statusLine}</p>
+              </div>
+
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <button
+                  type="button"
+                  onClick={handlePrimaryAction}
+                  className="ui-button-primary w-full sm:w-auto"
+                >
+                  {primaryCtaLabel}
+                </button>
+                <button
+                  type="button"
+                  onClick={scrollToTasks}
+                  className="ui-button-secondary w-full sm:w-auto"
+                >
+                  Review task list
+                </button>
+              </div>
+
+              <p className="text-sm text-[var(--text-secondary)]">{currentObjective.progressLine || progressNarrative}</p>
+
+              {blockerState && phase !== 'Completed' ? (
+                <div className="rounded-[14px] border border-[rgba(242,202,115,0.26)] bg-[var(--warning-soft)] px-4 py-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--warning-strong)]">
+                    Watch out
                   </p>
-                  <h2 className="text-xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
-                    Momentum is holding
-                  </h2>
-                  <p className="text-sm leading-6 text-[var(--text-secondary)]">
-                    Keep the current objective tight. The next gain will likely come from finishing one more meaningful task before expanding scope.
+                  <p className="mt-1 text-sm font-medium text-[var(--text-primary)]">{blockerState.title}</p>
+                  <p className="mt-1 text-sm text-[var(--text-secondary)]">{blockerState.description}</p>
+                </div>
+              ) : phase !== 'Completed' ? (
+                <div className="rounded-[14px] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-4 py-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--accent-primary-strong)]">
+                    Keep it simple
+                  </p>
+                  <p className="mt-1 text-sm text-[var(--text-secondary)]">
+                    Move one meaningful task before opening new threads.
                   </p>
                 </div>
-              </div>
-            )}
+              ) : null}
+            </div>
           </div>
         </div>
       </section>
