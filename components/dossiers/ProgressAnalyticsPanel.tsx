@@ -42,33 +42,33 @@ function ForecastSection({ forecast }: { forecast: ProgressAnalytics['forecast']
       color: 'text-[var(--color-green)]',
       bgColor: 'bg-[var(--color-green)]/10',
       borderColor: 'border-[var(--color-green)]/30',
-      label: 'Op schema',
+      label: 'On track',
     },
     'slight-delay': {
       icon: '~',
       color: 'text-[var(--accent-warning)]',
       bgColor: 'bg-[var(--accent-warning)]/10',
       borderColor: 'border-[var(--accent-warning)]/30',
-      label: 'Lichte vertraging',
+      label: 'Slight delay',
     },
     'increased-risk': {
       icon: '⚠',
       color: 'text-[var(--accent-warning)]',
       bgColor: 'bg-[var(--accent-warning)]/10',
       borderColor: 'border-[var(--accent-warning)]/30',
-      label: 'Verhoogd risico',
+      label: 'Increased risk',
     },
     'critical': {
       icon: '🚨',
       color: 'text-[var(--accent-error)]',
       bgColor: 'bg-[var(--accent-error)]/10',
       borderColor: 'border-[var(--accent-error)]/30',
-      label: 'Kritiek',
+      label: 'Critical',
     },
   };
 
   const config = statusConfig[forecast.status];
-  const confidenceLabel = forecast.confidence === 'high' ? 'hoog vertrouwen' : forecast.confidence === 'medium' ? 'redelijk vertrouwen' : 'laag vertrouwen';
+  const confidenceLabel = forecast.confidence === 'high' ? 'high confidence' : forecast.confidence === 'medium' ? 'moderate confidence' : 'low confidence';
 
   return (
     <div className={cn('rounded-lg p-3 border', config.bgColor, config.borderColor)}>
@@ -124,7 +124,7 @@ function VelocitySection({ velocity }: { velocity: ProgressAnalytics['velocity']
     <div className="rounded-lg bg-[rgba(255,255,255,0.03)] p-3">
       <div className="flex items-center justify-between mb-2">
         <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--text-secondary)]">
-          Snelheid
+          Velocity
         </p>
         <span className="text-sm">{directionEmoji}</span>
       </div>
@@ -143,7 +143,7 @@ function VelocitySection({ velocity }: { velocity: ProgressAnalytics['velocity']
               <div
                 key={week.week}
                 className="flex-1 flex flex-col items-center gap-1"
-                title={`${week.week}: ${week.tasksCompleted} taken, ${week.subtasksCompleted} subtasks`}
+                title={`${week.week}: ${week.tasksCompleted} tasks, ${week.subtasksCompleted} subtasks`}
               >
                 <div
                   className={cn(
@@ -211,10 +211,10 @@ function HealthSection({ health }: { health: ProgressAnalytics['health'] }) {
               key={i}
               className="text-[9px] px-1.5 py-0.5 rounded bg-[var(--accent-error)]/20 text-[var(--accent-error)]"
             >
-              {flag === 'health-declining-fast' && 'Snelle daling'}
-              {flag === 'health-declining' && 'Health daalt'}
-              {flag === 'stall-accumulating' && 'Stilstand stapelt'}
-              {flag === 'blocker-increasing' && 'Meer blokkades'}
+              {flag === 'health-declining-fast' && 'Fast decline'}
+              {flag === 'health-declining' && 'Health is declining'}
+              {flag === 'stall-accumulating' && 'Stalls are stacking'}
+              {flag === 'blocker-increasing' && 'More blockers'}
             </span>
           ))}
         </div>
@@ -230,7 +230,7 @@ function StallPatternsSection({ patterns }: { patterns: ProgressAnalytics['stall
   return (
     <div className="rounded-lg bg-[var(--accent-warning)]/5 p-3">
       <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--accent-warning)] mb-2">
-        Stilstand Patronen
+        Stall patterns
       </p>
 
       <div className="space-y-2">
@@ -281,9 +281,10 @@ function AdherenceSection({ adherence }: { adherence: ProgressAnalytics['schedul
 
       {adherence.completionsTracked < 5 && (
         <p className="text-[10px] text-[var(--text-secondary)] mt-1">
-          Gebaseerd op {adherence.completionsTracked} voltooide taken - nog beperkt
+          Based on {adherence.completionsTracked} completed tasks - still limited
         </p>
       )}
     </div>
   );
 }
+

@@ -51,7 +51,7 @@ export function ExecutionGuidancePanel({
       <div className="flex items-center gap-2 pb-2 border-b border-[var(--border-subtle)]">
         <span className="text-[var(--accent-primary)]">💡</span>
         <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--accent-primary)]">
-          Begeleiding
+          Guidance
         </span>
       </div>
 
@@ -108,8 +108,8 @@ function generateGuidance(
   if (context.keyUnlocker && context.keyUnlocker.unlocksCount > 0) {
     guidance.nowImportant = {
       type: 'unlocker',
-      title: 'Prioriteit: unblocker taak',
-      message: `"${context.keyUnlocker.taskName}" blokkeert ${context.keyUnlocker.unlocksCount} andere taken. Dit eerst afmaken geeft de meeste voortgang.`,
+      title: 'Priority: key unlocker task',
+      message: `"${context.keyUnlocker.taskName}" blocks ${context.keyUnlocker.unlocksCount} other tasks. Finishing this first creates the most momentum.`,
       taskName: context.keyUnlocker.taskName,
     };
   }
@@ -119,8 +119,8 @@ function generateGuidance(
     if (overdue) {
       guidance.nowImportant = {
         type: 'priority',
-        title: 'Dringend: overdue taak',
-        message: `"${overdue.task.name}" is achterstallig. Deze eerst afronden reduceert risico.`,
+        title: 'Urgent: overdue task',
+        message: `"${overdue.task.name}" is overdue. Completing this first reduces risk.`,
         taskName: overdue.task.name,
       };
     }
@@ -131,8 +131,8 @@ function generateGuidance(
     if (stalledHigh) {
       guidance.nowImportant = {
         type: 'stall',
-        title: 'Aandacht nodig: stilgezette taak',
-        message: `"${stalledHigh.name}" staat al ${stalledHigh.daysIdle} dagen stil en heeft hoge prioriteit.`,
+        title: 'Attention needed: stalled task',
+        message: `"${stalledHigh.name}" has been stalled for ${stalledHigh.daysIdle} days and is high priority.`,
         taskName: stalledHigh.name,
       };
     }
@@ -143,7 +143,7 @@ function generateGuidance(
   if (analytics.forecast.status === 'critical' || analytics.forecast.status === 'increased-risk') {
     guidance.watchOut = {
       type: 'risk',
-      title: analytics.forecast.status === 'critical' ? 'Kritiek: dossier loopt vast' : 'Let op: verhoogd risico',
+      title: analytics.forecast.status === 'critical' ? 'Critical: dossier is stalling' : 'Watch out: increased risk',
       message: analytics.forecast.explanation,
     };
   }
@@ -151,15 +151,15 @@ function generateGuidance(
   else if (context.stats.blocked > 3) {
     guidance.watchOut = {
       type: 'blocker',
-      title: 'Blokkades stapelen',
-      message: `${context.stats.blocked} taken zijn geblokkeerd. Bekijk welke dependencies eerst moeten.`,
+      title: 'Blockers are stacking',
+      message: `${context.stats.blocked} tasks are blocked. Review dependencies that need to be cleared first.`,
     };
   }
   // Health declining
   else if (analytics.health.direction === 'declining' && analytics.health.riskFlags.length > 0) {
     guidance.watchOut = {
       type: 'risk',
-      title: 'Health daalt',
+      title: 'Health is declining',
       message: analytics.health.insight,
     };
   }
@@ -173,7 +173,7 @@ function generateGuidance(
     if (!isBlocked) {
       guidance.recommendedStep = {
         type: 'action',
-        title: 'Volgende stap',
+        title: 'Next step',
         message: schedule.todayFocus.approach,
         taskName: schedule.todayFocus.primaryTask,
       };
@@ -184,7 +184,7 @@ function generateGuidance(
     const first = schedule.nextTasks[0];
     guidance.recommendedStep = {
       type: 'action',
-      title: 'Begin hier',
+      title: 'Start here',
       message: first.reasoning.explanation,
       taskName: first.task.name,
     };
@@ -217,7 +217,7 @@ function NowImportantBlock({
         <span className="text-lg">{icons[item.type]}</span>
         <div className="flex-1 min-w-0">
           <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--accent-primary)]">
-            Nu belangrijk
+            Now important
           </p>
           <p className="text-xs font-medium text-[var(--text-primary)] mt-0.5">{item.title}</p>
           <p className="text-xs text-[var(--text-secondary)] mt-1">{item.message}</p>
@@ -227,7 +227,7 @@ function NowImportantBlock({
               onClick={() => onFocusTask(item.taskName!)}
               className="mt-2 text-[10px] px-3 py-1.5 rounded-full bg-[var(--accent-primary)] text-white font-medium hover:bg-[var(--accent-primary)]/90 transition-colors"
             >
-              Markeer als focus
+              Mark as focus
             </button>
           )}
         </div>
@@ -257,13 +257,13 @@ function WatchOutBlock({
   const getAction = () => {
     if (item.type === 'blocker' && onViewBlocker) {
       return {
-        label: 'Bekijk blockers',
+        label: 'Review blockers',
         onClick: () => onViewBlocker(item.taskName || ''),
       };
     }
     if (item.type === 'risk' && onRescheduleWeek) {
       return {
-        label: 'Herplan week',
+        label: 'Replan week',
         onClick: onRescheduleWeek,
       };
     }
@@ -278,7 +278,7 @@ function WatchOutBlock({
         <span className="text-lg">{icons[item.type]}</span>
         <div className="flex-1 min-w-0">
           <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--accent-warning)]">
-            Let op
+            Watch out
           </p>
           <p className="text-xs font-medium text-[var(--text-primary)] mt-0.5">{item.title}</p>
           <p className="text-xs text-[var(--text-secondary)] mt-1">{item.message}</p>
@@ -321,7 +321,7 @@ function RecommendedStepBlock({
         <span className="text-lg">{icons[item.type]}</span>
         <div className="flex-1 min-w-0">
           <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--color-green)]">
-            Aanbevolen stap
+            Recommended step
           </p>
           <p className="text-xs font-medium text-[var(--text-primary)] mt-0.5">
             {item.taskName || item.title}
@@ -335,7 +335,7 @@ function RecommendedStepBlock({
                   onClick={() => onFocusTask(item.taskName!)}
                   className="text-[10px] px-3 py-1.5 rounded-full bg-[var(--color-green)]/20 text-[var(--color-green)] font-medium hover:bg-[var(--color-green)]/30 transition-colors"
                 >
-                  Focus hierop
+                  Focus this
                 </button>
               )}
               {onCreateSubtasks && (
@@ -343,7 +343,7 @@ function RecommendedStepBlock({
                   onClick={() => onCreateSubtasks(item.taskName!)}
                   className="text-[10px] px-3 py-1.5 rounded-full bg-[rgba(255,255,255,0.06)] text-[var(--text-secondary)] font-medium hover:bg-[rgba(255,255,255,0.1)] transition-colors"
                 >
-                  + Subtaken
+                  + Subtasks
                 </button>
               )}
             </div>
@@ -353,3 +353,4 @@ function RecommendedStepBlock({
     </div>
   );
 }
+

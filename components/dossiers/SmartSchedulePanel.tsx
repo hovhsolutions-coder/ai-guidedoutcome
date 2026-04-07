@@ -51,9 +51,9 @@ function TodayFocusSection({
         <div className="flex items-start gap-2">
           <span className="text-[var(--accent-warning)]">⏳</span>
           <div>
-            <p className="text-sm font-medium text-[var(--text-primary)]">Alles geblokkeerd</p>
+            <p className="text-sm font-medium text-[var(--text-primary)]">Everything is blocked</p>
             <p className="text-xs text-[var(--text-secondary)] mt-0.5">
-              Focus op het voltooien van afhankelijkheden om verder te kunnen.
+              Focus on clearing dependencies so work can move again.
             </p>
           </div>
         </div>
@@ -64,7 +64,7 @@ function TodayFocusSection({
   return (
     <div className="rounded-lg bg-[var(--accent-primary)]/5 p-3">
       <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--accent-primary)] mb-2">
-        Focus vandaag
+        Today's focus
       </p>
 
       <button
@@ -81,7 +81,7 @@ function TodayFocusSection({
 
       {focus.fallbackTasks.length > 0 && (
         <div className="mt-3 pt-2 border-t border-[var(--border-subtle)]">
-          <p className="text-[10px] text-[var(--text-secondary)] mb-1.5">Daarna:</p>
+          <p className="text-[10px] text-[var(--text-secondary)] mb-1.5">Then:</p>
           <div className="flex flex-wrap gap-1.5">
             {focus.fallbackTasks.map((task) => (
               <button
@@ -150,7 +150,7 @@ function NextTasksSection({
   return (
     <div className="space-y-2">
       <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--text-secondary)]">
-        Aanbevolen volgorde
+        Recommended order
       </p>
 
       {tasks.map((scheduledTask, index) => (
@@ -192,7 +192,7 @@ function TaskCard({
             <span className="text-sm font-medium text-[var(--text-primary)]">{task.name}</span>
             {task.priority === 'high' && (
               <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-[var(--accent-error)]/20 text-[var(--accent-error)]">
-                hoog
+                high
               </span>
             )}
             {reasoning.unlocks && reasoning.unlocks.length > 0 && (
@@ -236,7 +236,7 @@ function WeekFocusSection({ focus }: { focus: ScheduleRecommendation['weekFocus'
     <div className="rounded-lg bg-[rgba(255,255,255,0.03)] p-3">
       <div className="flex items-center justify-between mb-2">
         <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--text-secondary)]">
-          Deze week
+          This week
         </p>
         <span
           className={cn(
@@ -249,10 +249,10 @@ function WeekFocusSection({ focus }: { focus: ScheduleRecommendation['weekFocus'
           )}
           title={
             focus.confidence === 'high'
-              ? 'Planning lijkt haalbaar'
+              ? 'Plan looks feasible'
               : focus.confidence === 'medium'
-                ? 'Sommige onzekerheden'
-                : 'Veel onzekerheden, blijf flexibel'
+                ? 'Some uncertainty'
+                : 'High uncertainty, stay flexible'
           }
         >
           {confidenceEmoji}
@@ -271,7 +271,7 @@ function WeekFocusSection({ focus }: { focus: ScheduleRecommendation['weekFocus'
       {/* Watch for */}
       {focus.watchFor.length > 0 && (
         <div className="mt-2 pt-2 border-t border-[var(--border-subtle)]">
-          <p className="text-[10px] text-[var(--text-secondary)] mb-1">Let op:</p>
+          <p className="text-[10px] text-[var(--text-secondary)] mb-1">Watch out:</p>
           <ul className="space-y-0.5">
             {focus.watchFor.map((watch, i) => (
               <li key={i} className="text-[10px] text-[var(--text-secondary)]">
@@ -302,11 +302,11 @@ function BlockedTasksSection({ tasks }: { tasks: ScheduledTask[] }) {
   return (
     <div className="rounded-lg bg-[var(--text-secondary)]/5 p-3">
       <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--text-secondary)] mb-2">
-        Geblokkeerd ({tasks.length})
+        Blocked ({tasks.length})
       </p>
 
       <p className="text-[10px] text-[var(--text-secondary)]">
-        {tasks.length} taak{tasks.length > 1 ? 'en' : ''} wacht{tasks.length === 1 ? 'en' : ''} op afhankelijkheden
+        {tasks.length} task{tasks.length > 1 ? 's' : ''} waiting on dependencies
       </p>
 
       {byBlocker.size > 0 && (
@@ -316,7 +316,7 @@ function BlockedTasksSection({ tasks }: { tasks: ScheduledTask[] }) {
             .slice(0, 2)
             .map(([blocker, blocked]) => (
               <p key={blocker} className="text-[10px] text-[var(--text-secondary)]">
-                • {blocker} blokkeert {blocked.length} taak{blocked.length > 1 ? 'en' : ''}
+                • {blocker} blocks {blocked.length} task{blocked.length > 1 ? 's' : ''}
               </p>
             ))}
         </div>
@@ -324,3 +324,6 @@ function BlockedTasksSection({ tasks }: { tasks: ScheduledTask[] }) {
     </div>
   );
 }
+
+
+

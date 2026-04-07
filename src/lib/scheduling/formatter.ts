@@ -1,14 +1,14 @@
 /**
  * Human-Readable Schedule Formatter
- * 
+ *
  * Converts scheduling recommendations into natural language guidance.
  * "Not just order in data, but language like:"
- * - 'Rond eerst X af; dit maakt 3 taken vrij.'
- * - 'Y is belangrijk, maar blijft geblokkeerd tot Z klaar is.'
- * - 'Deze week is taak A realistischer dan taak B.'
+ * - 'Complete X first; this unlocks 3 tasks.'
+ * - 'Y matters, but stays blocked until Z is done.'
+ * - 'This week task A is more realistic than task B.'
  */
 
-import { type ScheduledTask, type ScheduleRecommendation, type ScheduleRiskType } from './types';
+import { type ScheduledTask, type ScheduleRecommendation } from './types';
 
 /**
  * Format the complete schedule recommendation as readable guidance
@@ -46,13 +46,13 @@ function buildHeader(recommendation: ScheduleRecommendation): string {
   const unblockedCount = recommendation.nextTasks.length + recommendation.queuedTasks.length;
 
   if (totalTasks === 0) {
-    return '🎉 Alle taken voltooid! Het dossier kan worden afgesloten.';
+    return 'All tasks completed. The dossier can now be closed.';
   }
 
-  let header = `📋 **Planningadvies** — ${unblockedCount} van ${totalTasks} taken kunnen nu worden uitgevoerd`;
+  let header = `Planning guidance � ${unblockedCount} of ${totalTasks} tasks can be worked on now`;
 
   if (recommendation.blockedTasks.length > 0) {
-    header += ` (${recommendation.blockedTasks.length} geblokkeerd)`;
+    header += ` (${recommendation.blockedTasks.length} blocked)`;
   }
 
   return header;
@@ -65,17 +65,17 @@ function buildTodaySection(recommendation: ScheduleRecommendation): string {
   const { todayFocus } = recommendation;
 
   if (!todayFocus.primaryTask) {
-    return `⏳ **Vandaag:** Alle taken zijn momenteel geblokkeerd. Focus op het voltooien van afhankelijkheden om verder te kunnen.`;
+    return 'Today: All tasks are currently blocked. Focus on clearing dependencies to move forward.';
   }
 
   const lines: string[] = [];
-  lines.push(`🎯 **Vandaag:** ${todayFocus.primaryTask}`);
-  lines.push(`   ${todayFocus.approach}`);
-  lines.push(`   _${todayFocus.reasoning}_`);
+  lines.push(`Today: ${todayFocus.primaryTask}`);
+  lines.push(`  ${todayFocus.approach}`);
+  lines.push(`  ${todayFocus.reasoning}`);
 
   if (todayFocus.fallbackTasks.length > 0) {
-    lines.push(`   `);
-    lines.push(`   Als dat af is: ${todayFocus.fallbackTasks.join(', ')}`);
+    lines.push('');
+    lines.push(`  Then: ${todayFocus.fallbackTasks.join(', ')}`);
   }
 
   return lines.join('\n');
@@ -86,29 +86,29 @@ function buildTodaySection(recommendation: ScheduleRecommendation): string {
  */
 function buildNextTasksSection(recommendation: ScheduleRecommendation): string {
   const lines: string[] = [];
-  lines.push('📌 **Aanbevolen volgorde:**');
+  lines.push('Recommended order:');
 
   recommendation.nextTasks.forEach((scheduledTask, index) => {
     const task = scheduledTask.task;
     const reasoning = scheduledTask.reasoning;
     const risk = scheduledTask.risk;
 
-    const orderEmoji = index === 0 ? '1️⃣' : index === 1 ? '2️⃣' : '3️⃣';
+    const orderMarker = `${index + 1}.`;
 
-    let taskLine = `${orderEmoji} **${task.name}**`;
+    let taskLine = `${orderMarker} ${task.name}`;
 
     // Add priority badge if high
     if (task.priority === 'high') {
-      taskLine += ' [hoog]';
+      taskLine += ' [high]';
     }
 
     // Add due date if near
     if (task.dueDate) {
       const daysUntil = getDaysUntil(task.dueDate);
       if (daysUntil < 0) {
-        taskLine += ' ⚠️ OVERDUE';
+        taskLine += ' [OVERDUE]';
       } else if (daysUntil <= 2) {
-        taskLine += ` ⏰ ${daysUntil === 0 ? 'vandaag' : daysUntil === 1 ? 'morgen' : 'overmorgen'}`;
+        taskLine += ` [due ${daysUntil === 0 ? 'today' : daysUntil === 1 ? 'tomorrow' : 'in 2 days'}]`;
       }
     }
 
@@ -118,21 +118,21 @@ function buildNextTasksSection(recommendation: ScheduleRecommendation): string {
     // Add unlocker detail
     if (reasoning.unlocks && reasoning.unlocks.length > 0) {
       const unlockCount = reasoning.unlocks.length;
-      lines.push(`   🔓 Dit maakt ${unlockCount} taak${unlockCount > 1 ? 'en' : ''} vrij`);
+      lines.push(`   Unlocks ${unlockCount} task${unlockCount > 1 ? 's' : ''}`);
     }
 
     // Add risk note if present
     if (risk.level !== 'none' && risk.level !== 'low') {
-      lines.push(`   ⚠️ ${risk.explanation}`);
+      lines.push(`   Risk: ${risk.explanation}`);
     }
 
     // Add estimate guidance
     if (task.estimate) {
       const estimate = parseEstimate(task.estimate);
       if (estimate <= 15) {
-        lines.push(`   💨 Snelle klus (${task.estimate})`);
+        lines.push(`   Quick win (${task.estimate})`);
       } else if (estimate >= 120) {
-        lines.push(`   🧠 Focus blok nodig (${task.estimate})`);
+        lines.push(`   Focus block needed (${task.estimate})`);
       }
     }
 
@@ -147,17 +147,16 @@ function buildNextTasksSection(recommendation: ScheduleRecommendation): string {
  */
 function buildRisksSection(recommendation: ScheduleRecommendation): string {
   const lines: string[] = [];
-  lines.push('⚠️ **Aandachtspunten:**');
+  lines.push('Watch-outs:');
 
   recommendation.globalRisks.forEach((risk) => {
-    const emoji = risk.severity === 'critical' ? '🚨' : '⚡';
-    lines.push(`${emoji} ${risk.message}`);
-    lines.push(`   ${risk.suggestion}`);
+    lines.push(`- ${risk.message}`);
+    lines.push(`  ${risk.suggestion}`);
 
     if (risk.affectedTasks.length > 0) {
       const taskList = risk.affectedTasks.slice(0, 3).join(', ');
-      const more = risk.affectedTasks.length > 3 ? ` (+${risk.affectedTasks.length - 3} meer)` : '';
-      lines.push(`   Betreft: ${taskList}${more}`);
+      const more = risk.affectedTasks.length > 3 ? ` (+${risk.affectedTasks.length - 3} more)` : '';
+      lines.push(`  Affects: ${taskList}${more}`);
     }
 
     lines.push('');
@@ -173,27 +172,27 @@ function buildWeekSection(recommendation: ScheduleRecommendation): string {
   const { weekFocus } = recommendation;
 
   const lines: string[] = [];
-  lines.push(`📅 **Deze week** ${getConfidenceEmoji(weekFocus.confidence)}`);
+  lines.push(`This week ${getConfidenceEmoji(weekFocus.confidence)}`);
 
   // Objectives
   if (weekFocus.objectives.length > 0) {
     weekFocus.objectives.forEach((objective) => {
-      lines.push(`   🎯 ${objective}`);
+      lines.push(`  - ${objective}`);
     });
   }
 
   // Target tasks
   if (weekFocus.targetTasks.length > 0) {
     lines.push('');
-    lines.push(`   Doel: ${weekFocus.targetTasks.slice(0, 3).join(', ')}${weekFocus.targetTasks.length > 3 ? '...' : ''}`);
+    lines.push(`  Target: ${weekFocus.targetTasks.slice(0, 3).join(', ')}${weekFocus.targetTasks.length > 3 ? '...' : ''}`);
   }
 
   // Watch for
   if (weekFocus.watchFor.length > 0) {
     lines.push('');
-    lines.push('   👀 Let op:');
+    lines.push('  Watch out:');
     weekFocus.watchFor.forEach((watch) => {
-      lines.push(`      • ${watch}`);
+      lines.push(`    - ${watch}`);
     });
   }
 
@@ -209,17 +208,17 @@ export function formatTaskRecommendation(scheduledTask: ScheduledTask): string {
   let line = task.name;
 
   if (reasoning.primaryFactor === 'key-unlocker' && reasoning.unlocks) {
-    line += ` → maakt ${reasoning.unlocks.length} taken vrij`;
+    line += ` -> unlocks ${reasoning.unlocks.length} tasks`;
   } else if (reasoning.primaryFactor === 'blocked' && reasoning.blockedBy) {
-    line += ` (wacht op ${reasoning.blockedBy[0]})`;
+    line += ` (waiting on ${reasoning.blockedBy[0]})`;
   } else if (reasoning.primaryFactor === 'overdue') {
     line += ' [OVERDUE]';
   } else if (reasoning.primaryFactor === 'near-due') {
-    line += ' [bijna deadline]';
+    line += ' [near deadline]';
   }
 
   if (risk.level === 'high') {
-    line += ' ⚠️';
+    line += ' [RISK]';
   }
 
   return line;
@@ -248,7 +247,7 @@ export function formatScheduleForAI(recommendation: ScheduleRecommendation): str
   if (recommendation.globalRisks.length > 0) {
     lines.push('Risks:');
     recommendation.globalRisks.slice(0, 2).forEach((r) => {
-      lines.push(`  • ${r.message}`);
+      lines.push(`  - ${r.message}`);
     });
   }
 
@@ -266,11 +265,11 @@ export function formatScheduleForAI(recommendation: ScheduleRecommendation): str
 function getConfidenceEmoji(confidence: 'high' | 'medium' | 'low'): string {
   switch (confidence) {
     case 'high':
-      return '✓';
+      return '[high]';
     case 'medium':
-      return '~';
+      return '[medium]';
     case 'low':
-      return '?';
+      return '[low]';
   }
 }
 

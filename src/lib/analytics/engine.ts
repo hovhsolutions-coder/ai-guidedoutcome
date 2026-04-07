@@ -135,13 +135,13 @@ function calculateVelocity(
   // Human-readable summary
   let summary: string;
   if (direction === 'stalled') {
-    summary = 'Geen activiteit in de afgelopen weken';
+    summary = 'No activity in recent weeks';
   } else if (direction === 'accelerating') {
-    summary = `Versnelling: ~${currentRate.toFixed(1)} taken/week`;
+    summary = `Accelerating: ~${currentRate.toFixed(1)} tasks/week`;
   } else if (direction === 'slowing') {
-    summary = `Afvallend: ~${currentRate.toFixed(1)} taken/week`;
+    summary = `Slowing: ~${currentRate.toFixed(1)} tasks/week`;
   } else {
-    summary = `Stabiel: ~${currentRate.toFixed(1)} taken/week`;
+    summary = `Steady: ~${currentRate.toFixed(1)} tasks/week`;
   }
 
   return {
@@ -199,11 +199,11 @@ function calculateHealthTrend(
   // Insight
   let insight: string;
   if (direction === 'improving') {
-    insight = 'Dossier wordt gezonder - momentum is positief';
+    insight = 'Dossier health is improving - momentum is positive';
   } else if (direction === 'declining') {
-    insight = 'Dossier health daalt - aandacht nodig';
+    insight = 'Dossier health is declining - attention needed';
   } else {
-    insight = 'Dossier health stabiel';
+    insight = 'Dossier health is steady';
   }
 
   // Risk flags
@@ -299,11 +299,11 @@ function analyzeStallPatterns(
 
     let insight: string;
     if (data.stalled / data.total > 0.5) {
-      insight = `Meer dan helft van "${category}" staat stil - patroon zichtbaar`;
+      insight = `More than half of "${category}" is stalled - pattern detected`;
     } else if (avgDays > 7) {
-      insight = `"${category}" taken blijven lang hangen`;
+      insight = `"${category}" tasks remain stalled for too long`;
     } else {
-      insight = `Enkele "${category}" taken vertragen`;
+      insight = `Some "${category}" tasks are slowing down`;
     }
 
     patterns.push({
@@ -333,7 +333,7 @@ function analyzeStallPatterns(
         stallRate: stalledWithPriority.length / Math.max(withPriority.length, 1),
         avgDaysStalled: 0,
         type: 'priority',
-        insight: `${stalledWithPriority.length} ${priority} prioriteit taken staan stil`,
+        insight: `${stalledWithPriority.length} ${priority} priority tasks are stalled`,
       });
     }
   });
@@ -362,7 +362,7 @@ function calculateScheduleAdherence(
       adherenceRate: 0,
       completionsTracked: completions.length,
       recentTrend: 'steady',
-      insight: 'Nog niet genoeg data om patroon te herkennen',
+      insight: 'Not enough data yet to detect a pattern',
     };
   }
 
@@ -409,11 +409,11 @@ function calculateScheduleAdherence(
 
   let insight: string;
   if (adherenceRate > 80) {
-    insight = 'Je volgt prioriteit goed - efficiënte werkwijze';
+    insight = 'You are following priority well - efficient execution pattern';
   } else if (adherenceRate > 50) {
-    insight = 'Soms afwijkend van prioriteit - soms logisch';
+    insight = 'Sometimes deviating from priority - can be valid in context';
   } else {
-    insight = 'Vaak andere volgorde dan aanbevolen - check of planning klopt';
+    insight = 'Order often differs from recommendation - review if planning still fits';
   }
 
   return {
@@ -444,13 +444,13 @@ function calculateForecast(
     factors.push({
       type: 'velocity',
       impact: 'positive',
-      description: 'Snelheid neemt toe',
+      description: 'Velocity is increasing',
     });
   } else if (velocity.direction === 'slowing' || velocity.direction === 'stalled') {
     factors.push({
       type: 'velocity',
       impact: 'negative',
-      description: velocity.direction === 'stalled' ? 'Volledig stilgelegd' : 'Snelheid daalt',
+      description: velocity.direction === 'stalled' ? 'Fully stalled' : 'Velocity is decreasing',
     });
   }
 
@@ -459,13 +459,13 @@ function calculateForecast(
     factors.push({
       type: 'health',
       impact: 'positive',
-      description: 'Health verbetert',
+      description: 'Health is improving',
     });
   } else if (health.direction === 'declining') {
     factors.push({
       type: 'health',
       impact: 'negative',
-      description: 'Health daalt',
+      description: 'Health is declining',
     });
   }
 
@@ -476,7 +476,7 @@ function calculateForecast(
     factors.push({
       type: 'stalls',
       impact: totalStallRate > 0.3 ? 'negative' : 'neutral',
-      description: `${stallPatterns.length} stilstand patronen zichtbaar`,
+      description: `${stallPatterns.length} stall patterns detected`,
     });
   }
 
@@ -485,13 +485,13 @@ function calculateForecast(
     factors.push({
       type: 'adherence',
       impact: 'positive',
-      description: 'Goede planning-discipline',
+      description: 'Strong planning discipline',
     });
   } else if (adherence.adherenceRate < 40) {
     factors.push({
       type: 'adherence',
       impact: 'neutral',
-      description: 'Veel afwijkingen van planning',
+      description: 'Frequent deviation from plan',
     });
   }
 
@@ -518,26 +518,26 @@ function calculateForecast(
 
   // Explanation
   const explanations: Record<ForecastLight['status'], string> = {
-    'on-track': 'Goede voortgang - op schema',
-    'slight-delay': 'Lichte vertraging maar herstelbaar',
-    'increased-risk': 'Verhoogd risico - actie aanbevolen',
-    'critical': 'Kritieke situatie - ingrijpen nodig',
+    'on-track': 'Strong progress - on track',
+    'slight-delay': 'Slight delay but recoverable',
+    'increased-risk': 'Increased risk - action recommended',
+    'critical': 'Critical situation - intervention needed',
   };
 
   // Suggestion
   let suggestion: string;
   switch (status) {
     case 'on-track':
-      suggestion = 'Ga zo door - momentum behouden';
+      suggestion = 'Keep going - protect momentum';
       break;
     case 'slight-delay':
-      suggestion = 'Focus op de top 3 aanbevolen taken';
+      suggestion = 'Focus on the top 3 recommended tasks';
       break;
     case 'increased-risk':
-      suggestion = 'Herprioritiseer - blokkeerders eerst aanpakken';
+      suggestion = 'Reprioritize - address blockers first';
       break;
     case 'critical':
-      suggestion = 'Dringend: plan tijd in voor dossier of verklein scope';
+      suggestion = 'Urgent: schedule focused time for this dossier or reduce scope';
       break;
   }
 
@@ -595,3 +595,6 @@ export function generateProgressAnalytics(
 }
 
 export { type AnalyticsConfig, DEFAULT_ANALYTICS_CONFIG, type ProgressAnalytics };
+
+
+
