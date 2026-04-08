@@ -34,12 +34,21 @@ const impactAreaOptions = [
   'Time',
 ] as const;
 
+const costSignalOptions = [
+  'Energy',
+  'Time',
+  'Money',
+  'Trust',
+  'Focus',
+  'Stability',
+] as const;
+
 const supportStyleOptions = [
-  'Calm and empathic',
-  'Direct and decisive',
+  'Calm, grounding, and empathic',
   'Practical and step-by-step',
+  'Direct and accountable',
   'Strategic and big-picture',
-  'Motivating and accountability-focused',
+  'Motivating and momentum-focused',
 ];
 
 const emotionalStateOptions = [
@@ -61,33 +70,33 @@ const timelineOptions = [
 const intakeSteps = [
   {
     id: 'situation',
-    title: 'Situation',
-    question: 'What is happening right now?',
-    helper: 'This anchors your dossier and helps us choose the right coach lens.',
+    title: 'Context',
+    question: 'What is happening, and why does this need attention now?',
+    helper: 'You can write this in rough notes. We will structure it with you.',
   },
   {
     id: 'pain-impact',
     title: 'Pain & Impact',
-    question: 'Where does this hurt most today?',
-    helper: 'Naming pain clearly helps us prioritize what must be stabilized first.',
+    question: 'Where is this draining you most right now?',
+    helper: 'The clearer the pressure, the better your coach can prioritize support.',
   },
   {
     id: 'outcome-reality',
     title: 'Outcome & Reality',
-    question: 'What do you want, and what is blocking it?',
-    helper: 'We turn this into realistic next moves, not vague intentions.',
+    question: 'What must improve first, and what cannot be ignored?',
+    helper: 'We turn this into a grounded first move, not generic advice.',
   },
   {
     id: 'coach-fit',
-    title: 'Coach Fit',
-    question: 'What kind of support helps you move?',
-    helper: 'Your coach match should feel personal, not generic.',
+    title: 'Support Fit',
+    question: 'What kind of coaching helps you move safely and consistently?',
+    helper: 'Your coach should match your situation and how you prefer support.',
   },
   {
     id: 'review',
-    title: 'Review',
-    question: 'Does this reflect your real situation?',
-    helper: 'Quick check before we generate your guided dossier.',
+    title: 'Shared Summary',
+    question: 'Check if this reflects your reality before we generate',
+    helper: 'Your dossier, coach guidance, and first priorities are based on this summary.',
   },
 ] as const;
 
@@ -100,13 +109,17 @@ export function DossierIntakeForm({
   const [selectedCategory, setSelectedCategory] = useState<string>(initialValues?.category ?? '');
   const [customSituation, setCustomSituation] = useState<string>(initialValues?.situationDetails ?? '');
   const [timeline, setTimeline] = useState<string>(initialValues?.timeline ?? '');
+  const [attentionNow, setAttentionNow] = useState<string>(initialValues?.attentionNow ?? '');
   const [urgency, setUrgency] = useState<string>(initialValues?.urgency ?? '');
   const [painPoints, setPainPoints] = useState<string>(initialValues?.painPoints ?? '');
+  const [biggestFriction, setBiggestFriction] = useState<string>(initialValues?.biggestFriction ?? '');
+  const [costSignals, setCostSignals] = useState<string[]>(initialValues?.costSignals ?? []);
   const [impactAreas, setImpactAreas] = useState<string[]>(initialValues?.impactAreas ?? []);
   const [impactIfUnresolved, setImpactIfUnresolved] = useState<string>(initialValues?.impactIfUnresolved ?? '');
   const [goal, setGoal] = useState<string>(initialValues?.goal ?? '');
   const [longTermOutcome, setLongTermOutcome] = useState<string>(initialValues?.longTermOutcome ?? '');
   const [triedAlready, setTriedAlready] = useState<string>(initialValues?.triedAlready ?? '');
+  const [supportAlreadyUsed, setSupportAlreadyUsed] = useState<string>(initialValues?.supportAlreadyUsed ?? '');
   const [involved, setInvolved] = useState<string>(initialValues?.involved ?? '');
   const [blocking, setBlocking] = useState<string>(initialValues?.blocking ?? '');
   const [constraints, setConstraints] = useState<string>(initialValues?.constraints ?? '');
@@ -115,6 +128,7 @@ export function DossierIntakeForm({
   const [supportStyle, setSupportStyle] = useState<string>(initialValues?.supportStyle ?? '');
   const [coachStyle, setCoachStyle] = useState<string>(initialValues?.coachStyle ?? '');
   const [firstPriority, setFirstPriority] = useState<string>(initialValues?.firstPriority ?? '');
+  const [nonNegotiable, setNonNegotiable] = useState<string>(initialValues?.nonNegotiable ?? '');
   const [selectedCoachId, setSelectedCoachId] = useState<string>(initialValues?.coachId ?? '');
   const [quickError, setQuickError] = useState<string | null>(null);
 
@@ -126,11 +140,16 @@ export function DossierIntakeForm({
         category: selectedCategory,
         situation,
         goal,
+        attentionNow,
         painPoints,
+        biggestFriction,
+        costSignals,
         impactIfUnresolved,
         blocking,
         triedAlready,
+        supportAlreadyUsed,
         firstPriority,
+        nonNegotiable,
         urgency,
         supportStyle,
         coachStyle,
@@ -140,11 +159,16 @@ export function DossierIntakeForm({
       selectedCategory,
       situation,
       goal,
+      attentionNow,
       painPoints,
+      biggestFriction,
+      costSignals,
       impactIfUnresolved,
       blocking,
       triedAlready,
+      supportAlreadyUsed,
       firstPriority,
+      nonNegotiable,
       urgency,
       supportStyle,
       coachStyle,
@@ -169,20 +193,24 @@ export function DossierIntakeForm({
 
   const getStepError = (step: number): string | null => {
     if (step === 0) {
-      if (!selectedCategory) return 'Choose the area where this situation belongs.';
+      if (!selectedCategory) return 'Choose where this situation mainly lives.';
       if (!situation) return 'Describe what is happening so we can anchor your dossier clearly.';
-      if (!goal.trim()) return 'Name the near-term result you want to reach.';
+      if (!attentionNow.trim()) return 'Tell us what made this need attention now.';
+      if (!goal.trim()) return 'Name the first result you want to reach.';
     }
 
     if (step === 1) {
-      if (!painPoints.trim()) return 'Name what hurts most right now.';
+      if (!painPoints.trim()) return 'Name what feels most painful right now.';
+      if (!biggestFriction.trim()) return 'Describe where things keep getting stuck.';
+      if (costSignals.length === 0) return 'Select at least one cost signal.';
       if (impactAreas.length === 0) return 'Select at least one area that is being affected.';
       if (!impactIfUnresolved.trim()) return 'Describe what happens if this remains unresolved.';
     }
 
     if (step === 2) {
-      if (!goal.trim()) return 'Define your short-term result so we can target your first dossier output.';
+      if (!goal.trim()) return 'Define your short-term outcome so we can target the first moves.';
       if (!firstPriority.trim()) return 'Set the first stabilization priority before generating.';
+      if (!nonNegotiable.trim()) return 'Name what absolutely cannot be ignored.';
     }
 
     if (step === 3) {
@@ -199,17 +227,25 @@ export function DossierIntakeForm({
     setImpactAreas((prev) => (prev.includes(area) ? prev.filter((item) => item !== area) : [...prev, area]));
   };
 
+  const toggleCostSignal = (signal: string) => {
+    setCostSignals((prev) => (prev.includes(signal) ? prev.filter((item) => item !== signal) : [...prev, signal]));
+  };
+
   const submitIntake = (overrides?: Partial<IntakeFormValues>) => {
     const nextValues: IntakeFormValues = {
       category: selectedCategory,
       situationDetails: customSituation,
       timeline,
+      attentionNow,
       painPoints,
+      biggestFriction,
+      costSignals,
       impactAreas,
       impactIfUnresolved,
       goal,
       longTermOutcome,
       triedAlready,
+      supportAlreadyUsed,
       urgency,
       involved,
       blocking,
@@ -219,6 +255,7 @@ export function DossierIntakeForm({
       supportStyle,
       coachStyle,
       firstPriority,
+      nonNegotiable,
       coachId: selectedCoachId,
       ...overrides,
     };
@@ -229,12 +266,16 @@ export function DossierIntakeForm({
     const intakeAnswers: Record<string, unknown> = {
       category: nextValues.category,
       timeline: nextValues.timeline,
+      attention_now: nextValues.attentionNow,
       pain_points: nextValues.painPoints,
+      biggest_friction: nextValues.biggestFriction,
+      cost_signals: nextValues.costSignals,
       impact_areas: nextValues.impactAreas,
       impact_if_unresolved: nextValues.impactIfUnresolved,
       short_term_outcome: nextValues.goal,
       long_term_outcome: nextValues.longTermOutcome,
       tried_already: nextValues.triedAlready,
+      support_already_used: nextValues.supportAlreadyUsed,
       involved: nextValues.involved,
       blocker: nextValues.blocking,
       constraints: nextValues.constraints,
@@ -243,6 +284,7 @@ export function DossierIntakeForm({
       support_style: nextValues.supportStyle,
       coach_style: nextValues.coachStyle,
       first_priority: nextValues.firstPriority,
+      non_negotiable: nextValues.nonNegotiable,
       urgency: nextValues.urgency,
     };
 
@@ -255,18 +297,23 @@ export function DossierIntakeForm({
         blocking: nextValues.blocking,
         category: nextValues.category,
         timeline: nextValues.timeline,
+        attentionNow: nextValues.attentionNow,
         painPoints: nextValues.painPoints,
+        biggestFriction: nextValues.biggestFriction,
+        costSignals: nextValues.costSignals,
         impactAreas: nextValues.impactAreas,
         impactIfUnresolved: nextValues.impactIfUnresolved,
         shortTermOutcome: nextValues.goal,
         longTermOutcome: nextValues.longTermOutcome,
         triedAlready: nextValues.triedAlready,
+        supportAlreadyUsed: nextValues.supportAlreadyUsed,
         constraints: nextValues.constraints,
         resources: nextValues.resources,
         emotionalState: nextValues.emotionalState,
         supportStyle: nextValues.supportStyle,
         coachStyle: nextValues.coachStyle,
         firstPriority: nextValues.firstPriority,
+        nonNegotiable: nextValues.nonNegotiable,
         intakeAnswers,
         coachId: fallbackCoach?.id,
         coachName: fallbackCoach?.name,
@@ -286,13 +333,17 @@ export function DossierIntakeForm({
     }
 
     submitIntake({
+      attentionNow: attentionNow || `Needs attention now because progress around "${goal}" is blocked.`,
       urgency: urgency || 'Medium',
       supportStyle: supportStyle || 'Practical and step-by-step',
-      painPoints: painPoints || `Need clarity and forward movement around: ${situation}`,
+      painPoints: painPoints || `Need clarity and momentum around: ${situation}`,
+      biggestFriction: biggestFriction || 'Hard to decide what to do first and stay consistent.',
+      costSignals: costSignals.length > 0 ? costSignals : ['Time', 'Focus'],
       impactAreas: impactAreas.length > 0 ? impactAreas : ['Time', 'Confidence'],
       impactIfUnresolved:
-        impactIfUnresolved || 'Momentum will stay blocked and pressure will keep increasing.',
+        impactIfUnresolved || 'Pressure will keep increasing and momentum will stay blocked.',
       firstPriority: firstPriority || goal,
+      nonNegotiable: nonNegotiable || 'Prevent this from escalating this week.',
       coachId: selectedCoachId || recommendedCoaches[0]?.id || '',
     });
   };
@@ -355,6 +406,9 @@ export function DossierIntakeForm({
               {currentStepMeta.question}
             </h2>
             <p className="text-sm leading-6 text-[var(--text-secondary)]">{currentStepMeta.helper}</p>
+            <p className="text-xs text-[var(--text-muted)]">
+              You do not need polished language. Short honest notes are enough.
+            </p>
           </div>
         </div>
 
@@ -362,7 +416,7 @@ export function DossierIntakeForm({
           <div className="space-y-4">
             <div>
               <label htmlFor="dossier-category" className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
-                Area of life or work
+                Where is this mainly showing up?
               </label>
               <select
                 id="dossier-category"
@@ -393,9 +447,20 @@ export function DossierIntakeForm({
                 disabled={isSubmitting}
                 required={selectedCategory === 'Other'}
               />
-              <p className="mt-2 text-xs text-[var(--text-muted)]">
-                This becomes the core context your coach and dossier work from.
-              </p>
+            </div>
+
+            <div>
+              <label htmlFor="dossier-attention-now" className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
+                Why does this need attention now?
+              </label>
+              <textarea
+                id="dossier-attention-now"
+                value={attentionNow}
+                onChange={(e) => setAttentionNow(e.target.value)}
+                placeholder="What happened, changed, or escalated that made this urgent now?"
+                className="ui-textarea min-h-24"
+                disabled={isSubmitting}
+              />
             </div>
 
             <div>
@@ -410,6 +475,9 @@ export function DossierIntakeForm({
                 className="ui-textarea min-h-24"
                 disabled={isSubmitting}
               />
+              <p className="mt-2 text-xs text-[var(--text-muted)]">
+                Focus on the first meaningful shift, not the final perfect outcome.
+              </p>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
@@ -472,6 +540,45 @@ export function DossierIntakeForm({
             </div>
 
             <div>
+              <label htmlFor="dossier-biggest-friction" className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
+                Where does this keep getting stuck?
+              </label>
+              <textarea
+                id="dossier-biggest-friction"
+                value={biggestFriction}
+                onChange={(e) => setBiggestFriction(e.target.value)}
+                placeholder="Describe the repeating friction: decisions, conversations, capacity, process, or uncertainty."
+                className="ui-textarea min-h-24"
+                disabled={isSubmitting}
+              />
+            </div>
+
+            <div>
+              <p className="mb-2 block text-sm font-medium text-[var(--text-primary)]">What is this costing you most?</p>
+              <div className="flex flex-wrap gap-2">
+                {costSignalOptions.map((signal) => {
+                  const active = costSignals.includes(signal);
+                  return (
+                    <button
+                      key={signal}
+                      type="button"
+                      onClick={() => toggleCostSignal(signal)}
+                      className={cn(
+                        'rounded-full border px-3 py-1.5 text-xs font-medium transition-colors',
+                        active
+                          ? 'border-[rgba(109,156,255,0.45)] bg-[var(--accent-primary-soft)] text-[var(--accent-primary-strong)]'
+                          : 'border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                      )}
+                      disabled={isSubmitting}
+                    >
+                      {signal}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div>
               <p className="mb-2 block text-sm font-medium text-[var(--text-primary)]">Where do you feel the impact?</p>
               <div className="flex flex-wrap gap-2">
                 {impactAreaOptions.map((area) => {
@@ -522,7 +629,7 @@ export function DossierIntakeForm({
                 id="dossier-goal"
                 value={goal}
                 onChange={(e) => setGoal(e.target.value)}
-                placeholder="Refine the near-term result you want this dossier to deliver."
+                placeholder="What should be measurably better in the near term?"
                 className="ui-textarea min-h-24"
                 disabled={isSubmitting}
               />
@@ -555,9 +662,24 @@ export function DossierIntakeForm({
                 className="ui-input"
                 disabled={isSubmitting}
               />
+            </div>
+
+            <div>
+              <label htmlFor="dossier-non-negotiable" className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
+                What absolutely cannot be ignored?
+              </label>
+              <input
+                id="dossier-non-negotiable"
+                type="text"
+                value={nonNegotiable}
+                onChange={(e) => setNonNegotiable(e.target.value)}
+                placeholder="Name the risk, deadline, or fragile area that must stay protected."
+                className="ui-input"
+                disabled={isSubmitting}
+              />
               {(urgency === 'High' || urgency === 'Critical') && (
                 <p className="mt-2 text-xs text-[var(--warning-strong)]">
-                  Because urgency is {urgency.toLowerCase()}, this should be the first move that creates immediate stability.
+                  Because urgency is {urgency.toLowerCase()}, this line will heavily shape the first actions.
                 </p>
               )}
             </div>
@@ -578,6 +700,20 @@ export function DossierIntakeForm({
                     className="ui-textarea min-h-20"
                     disabled={isSubmitting}
                     placeholder="Share attempts that did not work, or partly worked."
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label htmlFor="dossier-support-used" className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
+                    What support have you already used? (optional)
+                  </label>
+                  <textarea
+                    id="dossier-support-used"
+                    value={supportAlreadyUsed}
+                    onChange={(e) => setSupportAlreadyUsed(e.target.value)}
+                    className="ui-textarea min-h-20"
+                    disabled={isSubmitting}
+                    placeholder="Examples: mentor, colleague, therapist, advisor, legal help, financial help."
                   />
                 </div>
 
@@ -698,7 +834,7 @@ export function DossierIntakeForm({
                 onChange={(e) => setCoachStyle(e.target.value)}
                 className="ui-input"
                 disabled={isSubmitting}
-                placeholder="Example: concise, calm, and practical"
+                placeholder="Example: concise, calm, practical, and honest."
               />
             </div>
 
@@ -713,7 +849,15 @@ export function DossierIntakeForm({
                     coach={coach}
                     selected={selectedCoachId === coach.id}
                     highlight={index === 0 ? 'Best match' : null}
-                    rationale={buildCoachRationale(coach, { supportStyle, urgency, painPoints, firstPriority })}
+                    rationale={buildCoachRationale(coach, {
+                      supportStyle,
+                      urgency,
+                      painPoints,
+                      biggestFriction,
+                      firstPriority,
+                      nonNegotiable,
+                      costSignals,
+                    })}
                     onSelect={() => setSelectedCoachId(coach.id)}
                   />
                 ))}
@@ -730,7 +874,15 @@ export function DossierIntakeForm({
                     key={coach.id}
                     coach={coach}
                     selected={selectedCoachId === coach.id}
-                    rationale={buildCoachRationale(coach, { supportStyle, urgency, painPoints, firstPriority })}
+                    rationale={buildCoachRationale(coach, {
+                      supportStyle,
+                      urgency,
+                      painPoints,
+                      biggestFriction,
+                      firstPriority,
+                      nonNegotiable,
+                      costSignals,
+                    })}
                     onSelect={() => setSelectedCoachId(coach.id)}
                   />
                 ))}
@@ -743,28 +895,49 @@ export function DossierIntakeForm({
           <div className="space-y-4">
             <div className="ui-surface-secondary space-y-4 p-5">
               <SummaryBlock
-                title="Situation"
-                body={`${selectedCategory || 'No area selected'}${timeline ? ` | ${timeline}` : ''}\n${situation || 'No situation provided yet.'}`}
+                title="Context"
+                body={[
+                  `${selectedCategory || 'No area selected'}${timeline ? ` | ${timeline}` : ''}`,
+                  `Situation: ${situation || 'Not provided'}`,
+                  `Attention now: ${attentionNow || 'Not provided'}`,
+                ].join('\n')}
                 onEdit={() => setCurrentStep(0)}
               />
               <SummaryBlock
                 title="Pain & Impact"
-                body={`${painPoints || 'No pain points yet.'}\nImpact: ${impactAreas.length > 0 ? impactAreas.join(', ') : 'No impact areas selected'}\nIf unresolved: ${impactIfUnresolved || 'Not provided'}`}
+                body={[
+                  `Pain points: ${painPoints || 'Not provided'}`,
+                  `Biggest friction: ${biggestFriction || 'Not provided'}`,
+                  `Cost signals: ${costSignals.length > 0 ? costSignals.join(', ') : 'Not provided'}`,
+                  `Impact areas: ${impactAreas.length > 0 ? impactAreas.join(', ') : 'Not provided'}`,
+                  `If unresolved: ${impactIfUnresolved || 'Not provided'}`,
+                ].join('\n')}
                 onEdit={() => setCurrentStep(1)}
               />
               <SummaryBlock
-                title="Outcome & Reality"
-                body={`Short-term outcome: ${goal || 'Not provided'}\nFirst priority: ${firstPriority || 'Not provided'}\nCurrent blocker: ${blocking || 'Not provided'}`}
+                title="Outcome & Priority"
+                body={[
+                  `Short-term outcome: ${goal || 'Not provided'}`,
+                  `Long-term outcome: ${longTermOutcome || 'Not provided'}`,
+                  `First priority: ${firstPriority || 'Not provided'}`,
+                  `Non-negotiable: ${nonNegotiable || 'Not provided'}`,
+                  `Current blocker: ${blocking || 'Not provided'}`,
+                ].join('\n')}
                 onEdit={() => setCurrentStep(2)}
               />
               <SummaryBlock
                 title="Coach Match"
-                body={`Coach: ${getCoachById(selectedCoachId)?.name ?? 'Not selected'}\nSupport style: ${supportStyle || 'Not selected'}\nCoach tone: ${coachStyle || 'Not provided'}`}
+                body={[
+                  `Coach: ${getCoachById(selectedCoachId)?.name ?? 'Not selected'}`,
+                  `Support style: ${supportStyle || 'Not selected'}`,
+                  `Coach tone: ${coachStyle || 'Not provided'}`,
+                  `Emotional state: ${emotionalState || 'Not provided'}`,
+                ].join('\n')}
                 onEdit={() => setCurrentStep(3)}
               />
             </div>
             <p className="text-sm leading-6 text-[var(--text-secondary)]">
-              If this feels accurate, generate your dossier. Your coach, priorities, and first guidance will be based on this summary.
+              If this feels accurate, generate your dossier. Your coach, priorities, and first guidance will be grounded in this summary.
             </p>
           </div>
         )}
@@ -863,17 +1036,40 @@ function CoachCard({ coach, selected, onSelect, highlight = null, rationale }: C
 
 function buildCoachRationale(
   coach: CoachProfile,
-  input: { supportStyle: string; urgency: string; painPoints: string; firstPriority: string }
+  input: {
+    supportStyle: string;
+    urgency: string;
+    painPoints: string;
+    biggestFriction: string;
+    firstPriority: string;
+    nonNegotiable: string;
+    costSignals: string[];
+  }
 ): string {
-  const combined = `${input.supportStyle} ${input.painPoints} ${input.firstPriority}`.toLowerCase();
-  if (coach.id === 'mindset' && /(overwhelm|stress|anxious|confidence)/.test(combined)) {
+  const combined = [
+    input.supportStyle,
+    input.painPoints,
+    input.biggestFriction,
+    input.firstPriority,
+    input.nonNegotiable,
+    input.costSignals.join(' '),
+  ]
+    .join(' ')
+    .toLowerCase();
+  if (coach.id === 'mindset' && /(overwhelm|stress|anxious|confidence|mental load)/.test(combined)) {
     return 'Strong fit for emotional load and mental clarity.';
   }
   if (coach.id === 'finance' && /(money|cash|debt|budget|invoice|rent)/.test(combined)) {
-    return 'Strong fit for financial pressure and decisions.';
+    return 'Strong fit for financial pressure and tradeoff decisions.';
   }
-  if (coach.id === 'legal-structure' && /(legal|contract|risk|compliance|policy)/.test(combined)) {
-    return 'Strong fit for legal and structural risk.';
+  if (coach.id === 'legal-structure' && /(legal|contract|risk|compliance|policy|deadline)/.test(combined)) {
+    return 'Strong fit for legal exposure and structural risk.';
+  }
+  if (coach.id === 'relationship-family' && /(relationship|conflict|trust|family|communication)/.test(combined)) {
+    return 'Strong fit for sensitive people dynamics and trust repair.';
+  }
+  if (coach.id === 'health-balance' && /(energy|burnout|health|sleep)/.test(combined)) {
+    return 'Strong fit for protecting energy and sustainable progress.';
   }
   if (coach.id === 'practical-life' && (input.urgency === 'High' || input.urgency === 'Critical')) {
     return 'Strong fit for fast stabilization and concrete action.';

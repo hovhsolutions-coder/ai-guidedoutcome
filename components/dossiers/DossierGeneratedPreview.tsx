@@ -92,9 +92,9 @@ export function DossierGeneratedPreview({
 
             <div className="grid gap-3 md:grid-cols-2">
               <div className="rounded-[12px] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-secondary)]">Main pressure</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-secondary)]">What needs attention now</p>
                 <p className="mt-2 text-sm leading-6 text-[var(--text-primary)]">
-                  {intakeData.painPoints || intakeData.blocking || 'Pressure points were not provided explicitly.'}
+                  {intakeData.attentionNow || intakeData.painPoints || intakeData.blocking || 'Primary pressure was not provided explicitly.'}
                 </p>
               </div>
 
@@ -106,15 +106,36 @@ export function DossierGeneratedPreview({
               </div>
             </div>
 
-            {(intakeData.impactIfUnresolved || intakeData.impactAreas?.length) && (
+            {(intakeData.biggestFriction || intakeData.impactIfUnresolved || intakeData.impactAreas?.length) && (
               <div className="rounded-[12px] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-secondary)]">Impact context</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-secondary)]">Main friction and impact</p>
                 <p className="mt-2 text-sm leading-6 text-[var(--text-primary)]">
-                  {intakeData.impactIfUnresolved || 'Impact context was provided in intake.'}
+                  {intakeData.biggestFriction || intakeData.impactIfUnresolved || 'Impact context was provided in intake.'}
                 </p>
                 {intakeData.impactAreas && intakeData.impactAreas.length > 0 && (
                   <p className="mt-2 text-xs text-[var(--text-secondary)]">
                     Affected areas: {intakeData.impactAreas.join(', ')}
+                  </p>
+                )}
+                {intakeData.costSignals && intakeData.costSignals.length > 0 && (
+                  <p className="mt-1 text-xs text-[var(--text-secondary)]">
+                    Cost signals: {intakeData.costSignals.join(', ')}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {(intakeData.nonNegotiable || intakeData.supportStyle || intakeData.coachStyle) && (
+              <div className="rounded-[12px] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-secondary)]">
+                  What we will protect in guidance
+                </p>
+                <p className="mt-2 text-sm leading-6 text-[var(--text-primary)]">
+                  {intakeData.nonNegotiable || intakeData.firstPriority || 'No non-negotiable item was provided yet.'}
+                </p>
+                {(intakeData.supportStyle || intakeData.coachStyle) && (
+                  <p className="mt-2 text-xs text-[var(--text-secondary)]">
+                    Support fit: {[intakeData.supportStyle, intakeData.coachStyle].filter(Boolean).join(' | ')}
                   </p>
                 )}
               </div>

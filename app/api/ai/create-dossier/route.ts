@@ -184,12 +184,16 @@ function buildCreateDossierIntakeNarrative(intake: IntakeData): string {
   const lines = [
     `Urgency: ${intake.urgency || 'Not provided'}`,
     `Timeline: ${intake.timeline || 'Not provided'}`,
+    `Attention now: ${intake.attentionNow || 'Not provided'}`,
     `Pain points: ${intake.painPoints || 'Not provided'}`,
+    `Biggest friction: ${intake.biggestFriction || 'Not provided'}`,
+    `Cost signals: ${intake.costSignals?.join(', ') || 'Not provided'}`,
     `Impact if unresolved: ${intake.impactIfUnresolved || 'Not provided'}`,
     `Impact areas: ${intake.impactAreas?.join(', ') || 'Not provided'}`,
     `Short-term outcome: ${intake.shortTermOutcome || intake.goal || 'Not provided'}`,
     `Long-term outcome: ${intake.longTermOutcome || 'Not provided'}`,
     `Tried already: ${intake.triedAlready || 'Not provided'}`,
+    `Support already used: ${intake.supportAlreadyUsed || 'Not provided'}`,
     `Involved: ${intake.involved || 'Not provided'}`,
     `Blocking: ${intake.blocking || 'Not provided'}`,
     `Constraints: ${intake.constraints || 'Not provided'}`,
@@ -198,6 +202,7 @@ function buildCreateDossierIntakeNarrative(intake: IntakeData): string {
     `Support style: ${intake.supportStyle || 'Not provided'}`,
     `Coach style: ${intake.coachStyle || 'Not provided'}`,
     `First priority: ${intake.firstPriority || 'Not provided'}`,
+    `Non-negotiable: ${intake.nonNegotiable || 'Not provided'}`,
   ];
 
   return lines.join('\n');
@@ -211,12 +216,16 @@ function buildIntakeAnswers(intake: IntakeData): Record<string, unknown> {
     main_goal: intake.shortTermOutcome || intake.goal,
     urgency: intake.urgency ?? '',
     timeline: intake.timeline ?? '',
+    attention_now: intake.attentionNow ?? '',
     pain_points: intake.painPoints ?? '',
+    biggest_friction: intake.biggestFriction ?? '',
+    cost_signals: intake.costSignals ?? [],
     impact_areas: intake.impactAreas ?? [],
     impact_if_unresolved: intake.impactIfUnresolved ?? '',
     short_term_outcome: intake.shortTermOutcome ?? '',
     long_term_outcome: intake.longTermOutcome ?? '',
     tried_already: intake.triedAlready ?? '',
+    support_already_used: intake.supportAlreadyUsed ?? '',
     involved: intake.involved ?? '',
     blocker: intake.blocking ?? '',
     constraints: intake.constraints ?? '',
@@ -225,6 +234,7 @@ function buildIntakeAnswers(intake: IntakeData): Record<string, unknown> {
     support_style: intake.supportStyle ?? '',
     coach_style: intake.coachStyle ?? '',
     first_priority: intake.firstPriority ?? '',
+    non_negotiable: intake.nonNegotiable ?? '',
     coach_name: intake.coachName ?? '',
   };
 }

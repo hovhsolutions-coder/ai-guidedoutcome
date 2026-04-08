@@ -103,11 +103,12 @@ export function NewDossierWorkspace() {
     } catch (error) {
       console.error('Failed to generate dossier:', error);
       const mockDossier: GeneratedDossier = buildGeneratedDossier({
-        titleSource: data.firstPriority || data.situation || data.goal,
+        titleSource: data.firstPriority || data.nonNegotiable || data.situation || data.goal,
         situation: data.situation,
         mainGoal: data.shortTermOutcome || data.goal,
         suggestedTasks: [
           data.firstPriority ? `Stabilize: ${data.firstPriority}` : 'Define the first stabilization move',
+          data.nonNegotiable ? `Protect now: ${data.nonNegotiable}` : 'Protect the one thing that cannot slip',
           data.blocking ? `Unblock: ${data.blocking}` : 'Clarify the main blocker',
           data.painPoints ? `Capture proof of progress against: ${data.painPoints}` : 'Capture one concrete next step',
         ],
@@ -229,7 +230,7 @@ export function NewDossierWorkspace() {
         <div className="space-y-3">
           <h1 className="text-4xl font-semibold tracking-[-0.045em] text-[var(--text-primary)]">Capture the essentials</h1>
           <p className="mx-auto max-w-2xl text-sm leading-6 text-[var(--text-secondary)]">
-            This guided intake shapes your coach match, dossier quality, and the first moves we recommend.
+            You do not need perfect words. We help you untangle what is happening, what hurts most, and what should come first.
           </p>
         </div>
       </div>

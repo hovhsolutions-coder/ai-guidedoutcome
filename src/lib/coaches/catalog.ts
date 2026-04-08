@@ -125,11 +125,16 @@ export function getSuggestedCoaches(input: {
   category?: string;
   situation?: string;
   goal?: string;
+  attentionNow?: string;
   painPoints?: string;
+  biggestFriction?: string;
+  costSignals?: string[];
   impactIfUnresolved?: string;
   blocking?: string;
   triedAlready?: string;
+  supportAlreadyUsed?: string;
   firstPriority?: string;
+  nonNegotiable?: string;
   urgency?: string;
   supportStyle?: string;
   coachStyle?: string;
@@ -138,11 +143,15 @@ export function getSuggestedCoaches(input: {
   const text = [
     input.situation,
     input.goal,
+    input.attentionNow,
     input.painPoints,
+    input.biggestFriction,
     input.impactIfUnresolved,
     input.blocking,
     input.triedAlready,
+    input.supportAlreadyUsed,
     input.firstPriority,
+    input.nonNegotiable,
     input.emotionalState,
   ]
     .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
@@ -169,6 +178,8 @@ export function getSuggestedCoaches(input: {
   const supportHint = `${input.supportStyle ?? ''} ${input.coachStyle ?? ''}`.toLowerCase();
   applySupportStyleBoost(score, supportHint);
   applyUrgencyBoost(score, input.urgency, text);
+  applyCostSignalBoost(score, input.costSignals);
+  applyCriticalRiskBoost(score, text);
 
   return [...COACH_CATALOG].sort((a, b) => {
     const delta = (score.get(b.id) ?? 0) - (score.get(a.id) ?? 0);
@@ -231,6 +242,52 @@ function applyUrgencyBoost(score: Map<CoachId, number>, urgency: string | undefi
 
   if (hasAny(text, ['contract', 'legal', 'compliance', 'dispute', 'policy'])) {
     boost(score, 'legal-structure', 10);
+  }
+}
+
+function applyCostSignalBoost(score: Map<CoachId, number>, costSignals: string[] | undefined): void {
+  if (!Array.isArray(costSignals) || costSignals.length === 0) {
+    return;
+  }
+
+  const normalized = costSignals.join(' ').toLowerCase();
+
+  if (hasAny(normalized, ['money', 'income', 'cash'])) {
+    boost(score, 'finance', 12);
+  }
+  if (hasAny(normalized, ['trust', 'relationship'])) {
+    boost(score, 'relationship-family', 9);
+  }
+  if (hasAny(normalized, ['stability', 'safety'])) {
+    boost(score, 'practical-life', 9);
+    boost(score, 'legal-structure', 6);
+  }
+  if (hasAny(normalized, ['energy', 'health'])) {
+    boost(score, 'health-balance', 9);
+    boost(score, 'mindset', 6);
+  }
+  if (hasAny(normalized, ['time', 'focus'])) {
+    boost(score, 'practical-life', 9);
+    boost(score, 'business', 6);
+  }
+}
+
+function applyCriticalRiskBoost(score: Map<CoachId, number>, text: string): void {
+  if (!text.trim()) {
+    return;
+  }
+
+  if (hasAny(text, ['lawsuit', 'legal notice', 'deadline', 'penalty', 'compliance risk'])) {
+    boost(score, 'legal-structure', 14);
+  }
+
+  if (hasAny(text, ['missing payment', 'cash crisis', 'debt spiral', 'rent risk'])) {
+    boost(score, 'finance', 14);
+  }
+
+  if (hasAny(text, ['burnout', 'panic', 'sleep loss', 'mental load'])) {
+    boost(score, 'health-balance', 10);
+    boost(score, 'mindset', 10);
   }
 }
 
