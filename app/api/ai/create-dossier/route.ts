@@ -36,17 +36,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const intakeAnswers = buildIntakeAnswers(intake);
+
     const input: AIRequestInput = {
       action: 'create_dossier',
       situation: intake.situation,
-      main_goal: intake.goal,
+      main_goal: intake.shortTermOutcome || intake.goal,
       phase: 'Understanding',
       tasks: [],
-      user_input: [
-        `Urgency: ${intake.urgency || 'Not provided'}`,
-        `Involved: ${intake.involved || 'Not provided'}`,
-        `Blocking: ${intake.blocking || 'Not provided'}`,
-      ].join('\n'),
+      user_input: buildCreateDossierIntakeNarrative(intake),
+      intakeAnswers,
     };
 
     let result = await runAIOrchestrator(input);
@@ -93,9 +92,9 @@ export async function POST(request: NextRequest) {
     }
 
     const draft = buildGeneratedDossier({
-      titleSource: intake.situation || intake.goal,
+      titleSource: intake.firstPriority || intake.situation || intake.goal,
       situation: result.data.summary,
-      mainGoal: intake.goal,
+      mainGoal: intake.shortTermOutcome || intake.goal,
       suggestedTasks: result.data.suggested_tasks,
       phase: 'Understanding',
     });
@@ -173,10 +172,59 @@ function validateIntakeData(intake: IntakeData): { valid: boolean; errors: strin
     errors.push('goal must be a non-empty string');
   }
 
-  // urgency, involved, blocking are optional
+  // Additional enriched intake fields are optional for backward compatibility.
 
   return {
     valid: errors.length === 0,
     errors
+  };
+}
+
+function buildCreateDossierIntakeNarrative(intake: IntakeData): string {
+  const lines = [
+    `Urgency: ${intake.urgency || 'Not provided'}`,
+    `Timeline: ${intake.timeline || 'Not provided'}`,
+    `Pain points: ${intake.painPoints || 'Not provided'}`,
+    `Impact if unresolved: ${intake.impactIfUnresolved || 'Not provided'}`,
+    `Impact areas: ${intake.impactAreas?.join(', ') || 'Not provided'}`,
+    `Short-term outcome: ${intake.shortTermOutcome || intake.goal || 'Not provided'}`,
+    `Long-term outcome: ${intake.longTermOutcome || 'Not provided'}`,
+    `Tried already: ${intake.triedAlready || 'Not provided'}`,
+    `Involved: ${intake.involved || 'Not provided'}`,
+    `Blocking: ${intake.blocking || 'Not provided'}`,
+    `Constraints: ${intake.constraints || 'Not provided'}`,
+    `Resources: ${intake.resources || 'Not provided'}`,
+    `Emotional state: ${intake.emotionalState || 'Not provided'}`,
+    `Support style: ${intake.supportStyle || 'Not provided'}`,
+    `Coach style: ${intake.coachStyle || 'Not provided'}`,
+    `First priority: ${intake.firstPriority || 'Not provided'}`,
+  ];
+
+  return lines.join('\n');
+}
+
+function buildIntakeAnswers(intake: IntakeData): Record<string, unknown> {
+  return {
+    category: intake.category ?? '',
+    situation: intake.situation,
+    goal: intake.goal,
+    main_goal: intake.shortTermOutcome || intake.goal,
+    urgency: intake.urgency ?? '',
+    timeline: intake.timeline ?? '',
+    pain_points: intake.painPoints ?? '',
+    impact_areas: intake.impactAreas ?? [],
+    impact_if_unresolved: intake.impactIfUnresolved ?? '',
+    short_term_outcome: intake.shortTermOutcome ?? '',
+    long_term_outcome: intake.longTermOutcome ?? '',
+    tried_already: intake.triedAlready ?? '',
+    involved: intake.involved ?? '',
+    blocker: intake.blocking ?? '',
+    constraints: intake.constraints ?? '',
+    resources: intake.resources ?? '',
+    emotional_state: intake.emotionalState ?? '',
+    support_style: intake.supportStyle ?? '',
+    coach_style: intake.coachStyle ?? '',
+    first_priority: intake.firstPriority ?? '',
+    coach_name: intake.coachName ?? '',
   };
 }

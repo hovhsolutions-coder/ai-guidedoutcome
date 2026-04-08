@@ -103,14 +103,13 @@ export function NewDossierWorkspace() {
     } catch (error) {
       console.error('Failed to generate dossier:', error);
       const mockDossier: GeneratedDossier = buildGeneratedDossier({
-        titleSource: data.situation || data.goal,
+        titleSource: data.firstPriority || data.situation || data.goal,
         situation: data.situation,
-        mainGoal: data.goal,
+        mainGoal: data.shortTermOutcome || data.goal,
         suggestedTasks: [
-          'Research options',
-          'Gather information',
-          'Consult experts',
-          'Create action plan',
+          data.firstPriority ? `Stabilize: ${data.firstPriority}` : 'Define the first stabilization move',
+          data.blocking ? `Unblock: ${data.blocking}` : 'Clarify the main blocker',
+          data.painPoints ? `Capture proof of progress against: ${data.painPoints}` : 'Capture one concrete next step',
         ],
       });
       setGeneratedDossier(mockDossier);
@@ -120,8 +119,8 @@ export function NewDossierWorkspace() {
         tone: 'warning',
         title: 'Draft only',
         description: selectedCoach
-          ? `The draft is ready. ${selectedCoach.name} can still guide your next move once you save it.`
-          : 'The draft is ready. Save it when you are ready to continue.',
+          ? `The draft is ready using your intake context. ${selectedCoach.name} can still guide your next move once you save it.`
+          : 'The draft is ready from your intake context. Save it when you are ready to continue.',
       });
       setStep('preview');
     } finally {
@@ -212,7 +211,9 @@ export function NewDossierWorkspace() {
     : previewState === 'save_failed'
       ? 'Your draft stays here while you recover the save.'
       : activeCoach
-        ? `We will save the draft, then open the live dossier with ${activeCoach.name}.`
+        ? intakeData?.firstPriority
+          ? `We will save the draft, then open the live dossier with ${activeCoach.name} focused on: ${intakeData.firstPriority}.`
+          : `We will save the draft, then open the live dossier with ${activeCoach.name}.`
         : 'We will save the draft before opening the live dossier.';
 
   const secondaryActionLabel = previewState === 'saved' ? null : 'Back to edit';
@@ -228,7 +229,7 @@ export function NewDossierWorkspace() {
         <div className="space-y-3">
           <h1 className="text-4xl font-semibold tracking-[-0.045em] text-[var(--text-primary)]">Capture the essentials</h1>
           <p className="mx-auto max-w-2xl text-sm leading-6 text-[var(--text-secondary)]">
-            Share your situation, pick your coach style, and get a clear first plan.
+            This guided intake shapes your coach match, dossier quality, and the first moves we recommend.
           </p>
         </div>
       </div>
@@ -280,6 +281,7 @@ export function NewDossierWorkspace() {
           statusNote={statusNote}
           isOpening={isOpeningDossier}
           coach={activeCoach}
+          intakeData={intakeData}
         />
       )}
     </div>

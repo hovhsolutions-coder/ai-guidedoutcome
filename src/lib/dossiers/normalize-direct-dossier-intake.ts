@@ -13,9 +13,27 @@ export interface NormalizedDirectDossierIntake {
 export function normalizeDirectDossierIntake(input: IntakeData): NormalizedDirectDossierIntake {
   const situation = normalizeRequiredString(input.situation);
   const goal = normalizeRequiredString(input.goal);
+  const category = normalizeOptionalString(input.category);
+  const timeline = normalizeOptionalString(input.timeline);
+  const painPoints = normalizeOptionalString(input.painPoints);
+  const impactIfUnresolved = normalizeOptionalString(input.impactIfUnresolved);
+  const shortTermOutcome = normalizeOptionalString(input.shortTermOutcome);
+  const longTermOutcome = normalizeOptionalString(input.longTermOutcome);
+  const triedAlready = normalizeOptionalString(input.triedAlready);
   const urgency = normalizeOptionalString(input.urgency);
   const involved = normalizeOptionalString(input.involved);
   const blocking = normalizeOptionalString(input.blocking);
+  const constraints = normalizeOptionalString(input.constraints);
+  const resources = normalizeOptionalString(input.resources);
+  const emotionalState = normalizeOptionalString(input.emotionalState);
+  const supportStyle = normalizeOptionalString(input.supportStyle);
+  const coachStyle = normalizeOptionalString(input.coachStyle);
+  const firstPriority = normalizeOptionalString(input.firstPriority);
+  const impactAreas = Array.isArray(input.impactAreas)
+    ? input.impactAreas
+      .map((area) => normalizeOptionalString(area))
+      .filter((area): area is string => Boolean(area))
+    : [];
 
   const intake: IntakeData = {
     situation,
@@ -23,39 +41,72 @@ export function normalizeDirectDossierIntake(input: IntakeData): NormalizedDirec
     urgency: urgency ?? '',
     involved: involved ?? '',
     blocking: blocking ?? '',
+    ...(category ? { category } : {}),
+    ...(timeline ? { timeline } : {}),
+    ...(painPoints ? { painPoints } : {}),
+    ...(impactAreas.length > 0 ? { impactAreas } : {}),
+    ...(impactIfUnresolved ? { impactIfUnresolved } : {}),
+    ...(shortTermOutcome ? { shortTermOutcome } : {}),
+    ...(longTermOutcome ? { longTermOutcome } : {}),
+    ...(triedAlready ? { triedAlready } : {}),
+    ...(constraints ? { constraints } : {}),
+    ...(resources ? { resources } : {}),
+    ...(emotionalState ? { emotionalState } : {}),
+    ...(supportStyle ? { supportStyle } : {}),
+    ...(coachStyle ? { coachStyle } : {}),
+    ...(firstPriority ? { firstPriority } : {}),
   };
 
   return {
     intake,
     guidanceCompatible: {
-      raw_input: buildRawInput(situation, goal, urgency, involved, blocking),
+      raw_input: buildRawInput(intake),
       situation,
       main_goal: goal,
       intakeAnswers: {
+        ...(category ? { category } : {}),
         situation,
         main_goal: goal,
         goal,
+        ...(timeline ? { timeline } : {}),
+        ...(painPoints ? { pain_points: painPoints } : {}),
+        ...(impactAreas.length > 0 ? { impact_areas: impactAreas.join(', ') } : {}),
+        ...(impactIfUnresolved ? { impact_if_unresolved: impactIfUnresolved } : {}),
+        ...(shortTermOutcome ? { short_term_outcome: shortTermOutcome } : {}),
+        ...(longTermOutcome ? { long_term_outcome: longTermOutcome } : {}),
+        ...(triedAlready ? { tried_already: triedAlready } : {}),
         ...(urgency ? { urgency } : {}),
         ...(involved ? { involved } : {}),
-        ...(blocking ? { blocking } : {}),
+        ...(blocking ? { blocker: blocking, blocking } : {}),
+        ...(constraints ? { constraints } : {}),
+        ...(resources ? { resources } : {}),
+        ...(emotionalState ? { emotional_state: emotionalState } : {}),
+        ...(supportStyle ? { support_style: supportStyle } : {}),
+        ...(coachStyle ? { coach_style: coachStyle } : {}),
+        ...(firstPriority ? { first_priority: firstPriority } : {}),
       },
     },
   };
 }
 
-function buildRawInput(
-  situation: string,
-  goal: string,
-  urgency?: string,
-  involved?: string,
-  blocking?: string
-): string {
+function buildRawInput(intake: IntakeData): string {
   return [
-    `Situation: ${situation}`,
-    `Goal: ${goal}`,
-    `Urgency: ${urgency ?? 'Not provided'}`,
-    `Involved: ${involved ?? 'Not provided'}`,
-    `Blocking: ${blocking ?? 'Not provided'}`,
+    `Situation: ${intake.situation}`,
+    `Goal: ${intake.shortTermOutcome ?? intake.goal}`,
+    `Category: ${intake.category ?? 'Not provided'}`,
+    `Timeline: ${intake.timeline ?? 'Not provided'}`,
+    `Urgency: ${intake.urgency ?? 'Not provided'}`,
+    `Pain points: ${intake.painPoints ?? 'Not provided'}`,
+    `Impact if unresolved: ${intake.impactIfUnresolved ?? 'Not provided'}`,
+    `Impact areas: ${intake.impactAreas?.join(', ') ?? 'Not provided'}`,
+    `Tried already: ${intake.triedAlready ?? 'Not provided'}`,
+    `Involved: ${intake.involved ?? 'Not provided'}`,
+    `Blocking: ${intake.blocking ?? 'Not provided'}`,
+    `Constraints: ${intake.constraints ?? 'Not provided'}`,
+    `Resources: ${intake.resources ?? 'Not provided'}`,
+    `Support style: ${intake.supportStyle ?? 'Not provided'}`,
+    `Coach style: ${intake.coachStyle ?? 'Not provided'}`,
+    `First priority: ${intake.firstPriority ?? 'Not provided'}`,
   ].join('\n');
 }
 

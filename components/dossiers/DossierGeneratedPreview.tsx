@@ -1,6 +1,6 @@
 'use client';
 
-import { GeneratedDossier } from '@/src/types/ai';
+import { GeneratedDossier, IntakeData } from '@/src/types/ai';
 import { CoachProfile } from '@/src/lib/coaches/catalog';
 import { cn } from '../../lib/utils';
 
@@ -18,6 +18,7 @@ interface DossierGeneratedPreviewProps {
   } | null;
   isOpening?: boolean;
   coach?: CoachProfile | null;
+  intakeData?: IntakeData | null;
 }
 
 export function DossierGeneratedPreview({
@@ -30,6 +31,7 @@ export function DossierGeneratedPreview({
   statusNote = null,
   isOpening = false,
   coach = null,
+  intakeData = null,
 }: DossierGeneratedPreviewProps) {
   return (
     <div className="space-y-6">
@@ -79,6 +81,44 @@ export function DossierGeneratedPreview({
                 <span className="font-semibold">First support:</span> {coach.firstStep}
               </p>
             </div>
+          </div>
+        )}
+
+        {intakeData && (
+          <div className="ui-surface-secondary space-y-4 p-5">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--accent-primary-strong)]">
+              What we understood from your intake
+            </p>
+
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="rounded-[12px] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-secondary)]">Main pressure</p>
+                <p className="mt-2 text-sm leading-6 text-[var(--text-primary)]">
+                  {intakeData.painPoints || intakeData.blocking || 'Pressure points were not provided explicitly.'}
+                </p>
+              </div>
+
+              <div className="rounded-[12px] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-secondary)]">First stabilization priority</p>
+                <p className="mt-2 text-sm leading-6 text-[var(--text-primary)]">
+                  {intakeData.firstPriority || intakeData.goal}
+                </p>
+              </div>
+            </div>
+
+            {(intakeData.impactIfUnresolved || intakeData.impactAreas?.length) && (
+              <div className="rounded-[12px] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-secondary)]">Impact context</p>
+                <p className="mt-2 text-sm leading-6 text-[var(--text-primary)]">
+                  {intakeData.impactIfUnresolved || 'Impact context was provided in intake.'}
+                </p>
+                {intakeData.impactAreas && intakeData.impactAreas.length > 0 && (
+                  <p className="mt-2 text-xs text-[var(--text-secondary)]">
+                    Affected areas: {intakeData.impactAreas.join(', ')}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         )}
 

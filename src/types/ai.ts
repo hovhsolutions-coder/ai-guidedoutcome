@@ -20,6 +20,21 @@ export interface IntakeData {
   urgency: string;
   involved: string;
   blocking: string;
+  category?: string;
+  timeline?: string;
+  painPoints?: string;
+  impactAreas?: string[];
+  impactIfUnresolved?: string;
+  shortTermOutcome?: string;
+  longTermOutcome?: string;
+  triedAlready?: string;
+  constraints?: string;
+  resources?: string;
+  emotionalState?: string;
+  supportStyle?: string;
+  coachStyle?: string;
+  firstPriority?: string;
+  intakeAnswers?: Record<string, unknown>;
   coachId?: string;
   coachName?: string;
 }
@@ -27,10 +42,22 @@ export interface IntakeData {
 export interface IntakeFormValues {
   category: string;
   situationDetails: string;
+  timeline: string;
+  painPoints: string;
+  impactAreas: string[];
+  impactIfUnresolved: string;
   goal: string;
+  longTermOutcome: string;
+  triedAlready: string;
   urgency: string;
   involved: string;
   blocking: string;
+  constraints: string;
+  resources: string;
+  emotionalState: string;
+  supportStyle: string;
+  coachStyle: string;
+  firstPriority: string;
   coachId: string;
 }
 

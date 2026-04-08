@@ -125,8 +125,29 @@ export function getSuggestedCoaches(input: {
   category?: string;
   situation?: string;
   goal?: string;
+  painPoints?: string;
+  impactIfUnresolved?: string;
+  blocking?: string;
+  triedAlready?: string;
+  firstPriority?: string;
+  urgency?: string;
+  supportStyle?: string;
+  coachStyle?: string;
+  emotionalState?: string;
 }): CoachProfile[] {
-  const text = `${input.situation ?? ''} ${input.goal ?? ''}`.toLowerCase();
+  const text = [
+    input.situation,
+    input.goal,
+    input.painPoints,
+    input.impactIfUnresolved,
+    input.blocking,
+    input.triedAlready,
+    input.firstPriority,
+    input.emotionalState,
+  ]
+    .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
+    .join(' ')
+    .toLowerCase();
   const score = new Map<CoachId, number>();
 
   for (const coach of COACH_CATALOG) {
@@ -145,6 +166,10 @@ export function getSuggestedCoaches(input: {
     }
   });
 
+  const supportHint = `${input.supportStyle ?? ''} ${input.coachStyle ?? ''}`.toLowerCase();
+  applySupportStyleBoost(score, supportHint);
+  applyUrgencyBoost(score, input.urgency, text);
+
   return [...COACH_CATALOG].sort((a, b) => {
     const delta = (score.get(b.id) ?? 0) - (score.get(a.id) ?? 0);
     if (delta !== 0) {
@@ -152,4 +177,67 @@ export function getSuggestedCoaches(input: {
     }
     return a.name.localeCompare(b.name);
   });
+}
+
+function applySupportStyleBoost(score: Map<CoachId, number>, supportHint: string): void {
+  if (!supportHint.trim()) {
+    return;
+  }
+
+  if (hasAny(supportHint, ['calm', 'empath', 'gentle', 'reflective'])) {
+    boost(score, 'mindset', 12);
+    boost(score, 'health-balance', 8);
+    boost(score, 'relationship-family', 8);
+  }
+
+  if (hasAny(supportHint, ['direct', 'decisive', 'accountable', 'firm'])) {
+    boost(score, 'business', 12);
+    boost(score, 'career', 8);
+    boost(score, 'legal-structure', 6);
+  }
+
+  if (hasAny(supportHint, ['practical', 'step-by-step', 'concrete', 'hands-on'])) {
+    boost(score, 'practical-life', 12);
+    boost(score, 'finance', 8);
+    boost(score, 'business', 6);
+  }
+
+  if (hasAny(supportHint, ['strategic', 'big-picture', 'strategy', 'direction'])) {
+    boost(score, 'business', 12);
+    boost(score, 'career', 8);
+    boost(score, 'legal-structure', 6);
+  }
+}
+
+function applyUrgencyBoost(score: Map<CoachId, number>, urgency: string | undefined, text: string): void {
+  const normalizedUrgency = (urgency ?? '').toLowerCase();
+  const highUrgency = normalizedUrgency === 'high' || normalizedUrgency === 'critical';
+
+  if (!highUrgency) {
+    return;
+  }
+
+  boost(score, 'practical-life', 8);
+  boost(score, 'business', 6);
+
+  if (hasAny(text, ['panic', 'overwhelm', 'anxious', 'burnout', 'stress'])) {
+    boost(score, 'mindset', 10);
+    boost(score, 'health-balance', 8);
+  }
+
+  if (hasAny(text, ['cash', 'debt', 'money', 'rent', 'invoice', 'budget'])) {
+    boost(score, 'finance', 10);
+  }
+
+  if (hasAny(text, ['contract', 'legal', 'compliance', 'dispute', 'policy'])) {
+    boost(score, 'legal-structure', 10);
+  }
+}
+
+function boost(score: Map<CoachId, number>, coachId: CoachId, amount: number): void {
+  score.set(coachId, (score.get(coachId) ?? 0) + amount);
+}
+
+function hasAny(text: string, hints: string[]): boolean {
+  return hints.some((hint) => text.includes(hint));
 }
