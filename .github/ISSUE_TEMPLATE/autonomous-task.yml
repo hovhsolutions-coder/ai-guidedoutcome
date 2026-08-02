@@ -1,0 +1,46 @@
+name: Autonomous task
+about: Define an outcome for end-to-end autonomous execution
+labels: ["autonomous-task"]
+body:
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Required outcome
+      description: Describe the result, not micro-steps.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope boundaries
+    validations:
+      required: true
+  - type: dropdown
+    id: risk
+    attributes:
+      label: Highest expected risk lane
+      options:
+        - Green — routine and reversible
+        - Yellow — meaningful but reversible
+        - Red — requires fresh HOVA approval
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Required evidence
+  - type: checkboxes
+    id: delegation
+    attributes:
+      label: Standing delegation
+      options:
+        - label: Executor may implement, test, push, maintain the PR, and merge low-risk work without micro-approval.
+          required: true
+        - label: Red-line actions remain excluded unless separately approved.
+          required: true
