@@ -1,0 +1,31 @@
+name: Governance Check
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+
+jobs:
+  governance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify autonomy files
+        run: |
+          test -f AGENTS.md || { echo "AGENTS.md is required"; exit 1; }
+          test -f PROJECT_AUTOPILOT.md || { echo "PROJECT_AUTOPILOT.md is required"; exit 1; }
+      - name: Reject tracked sensitive or generated files
+        run: |
+          forbidden=$(git ls-files | grep -E '(^|/)(node_modules|\.next)(/|$)|(^|/)\.env($|\.)' || true)
+          if [ -n "$forbidden" ]; then echo "$forbidden"; exit 1; fi
+      - name: Verify PR contract sections
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          for heading in "## Outcome" "## Scope" "## Evidence" "## Risk and rollback" "## Decision packet"; do
+            echo "$PR_BODY" | grep -Fq "$heading" || { echo "Missing PR section: $heading"; exit 1; }
+          done
